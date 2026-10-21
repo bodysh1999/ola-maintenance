@@ -3,9 +3,9 @@ import { AlarmClock, Building2, CheckCircle2, ClipboardList, Gauge, Hourglass, I
 import { createClient } from '@/lib/supabase/server';
 import { getI18n, requireRole } from '@/lib/session';
 import { getReport } from '@/lib/report';
-import { fmtNum, todayRiyadh } from '@/lib/format';
+import { fmtDate, fmtNum, todayRiyadh } from '@/lib/format';
 import type { RequestOverview } from '@/lib/types';
-import { Card, CardHeader, PageHeader, StatCard } from '@/components/ui';
+import { Card, CardHeader, StatCard } from '@/components/ui';
 import { CategoryBars, DailyArea, StatusDonut } from '@/components/charts';
 import { RequestsTable } from '@/components/requests-table';
 import { OverdueBadge, StatusBadge } from '@/components/badges';
@@ -27,7 +27,21 @@ export default async function AdminDashboard() {
 
   return (
     <div className="space-y-6">
-      <PageHeader eyebrow={d.admin.last30} title={`${d.owner.hello}، ${profile.full_name.split(' ')[0]}`} subtitle={d.admin.welcome} />
+      <section className="texture-lines relative overflow-hidden rounded-[28px] bg-brand px-6 py-7 text-white sm:px-9 sm:py-9">
+        <div className="pointer-events-none absolute -bottom-24 end-10 hidden h-64 w-48 rounded-arch border border-accent/30 sm:block" />
+        <div className="pointer-events-none absolute -bottom-28 end-24 hidden h-64 w-48 rounded-arch border border-white/10 sm:block" />
+        <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="text-sm text-white/60">{fmtDate(new Date(), locale)}</p>
+            <h1 className="mt-1 font-display text-2xl font-bold sm:text-3xl">{d.owner.hello}، {profile.full_name.split(' ')[0]}</h1>
+            <p className="mt-1.5 text-sm text-white/65">{d.admin.welcome} · {d.admin.last30}</p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <Link href="/admin/inbox" className="inline-flex h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-medium text-white hover:bg-accent/90"><Inbox className="h-4 w-4" />{d.nav.inbox}{k?.new ? <span className="rounded-full bg-white/20 px-2 text-xs">{k.new}</span> : null}</Link>
+            <Link href="/admin/reports" className="inline-flex h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm hover:bg-white/10">{d.nav.reports}</Link>
+          </div>
+        </div>
+      </section>
 
       <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
         <StatCard tone="brand" label={d.admin.kpi.total} value={fmtNum(k?.total)} icon={<ClipboardList className="h-4 w-4" />} />

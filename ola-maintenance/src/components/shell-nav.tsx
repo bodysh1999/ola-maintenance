@@ -39,7 +39,7 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
             href={it.href}
             className={cx(
               'group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] transition',
-              active ? 'bg-white/[.12] text-white' : 'text-white/65 hover:bg-white/[.06] hover:text-white',
+              active ? 'relative bg-white/[.10] text-white before:absolute before:inset-y-2 before:start-0 before:w-[3px] before:rounded-full before:bg-accent' : 'text-white/65 hover:bg-white/[.06] hover:text-white',
             )}
           >
             <Icon className={cx('h-[18px] w-[18px]', active ? 'text-accent' : 'text-white/50 group-hover:text-white/80')} />

@@ -94,6 +94,23 @@ const ar = {
     cta: 'الدخول إلى بوابة ما بعد البيع',
     cta2: 'لم يُفعّل حسابك؟ تواصل معنا',
   },
+  featured: {
+    label: 'متاح للبيع الآن',
+    body: 'وحدات سكنية بتصميم حديث وتنفيذ منضبط — تواصل مع فريق المبيعات لمعرفة المساحات المتاحة.',
+    cta: 'استفسر عبر واتساب',
+    message: 'السلام عليكم، أرغب بالاستفسار عن مشروع',
+  },
+  inquire: 'استفسر',
+  faq: {
+    title: 'أسئلة عن خدمة ما بعد البيع',
+    items: [
+      ['كيف أحصل على حساب في البوابة؟', 'تُفعّل الشركة حسابك بعد استلام وحدتك والتحقق من ملكيتها، ويصلك بريد الدخول وكلمة مرور مؤقتة تغيّرها عند أول دخول.'],
+      ['ما الذي يشمله ضمان وحدتي؟', 'لكل وحدة سجل ضمان مستقل يوضح البنود المشمولة والمستثناة ومدة كل ضمان، وتجده في صفحتك داخل البوابة.'],
+      ['ماذا لو كان العطل خارج الضمان؟', 'يصلك عرض سعر واضح داخل البوابة، ولا تبدأ الأعمال إلا بعد موافقتك عليه.'],
+      ['هل أعرف موعد زيارة الفني؟', 'نعم، يظهر الموعد واسم الفني في صفحة الطلب، ويصلك إشعار عند تأكيده أو تغييره.'],
+      ['ماذا لو عادت المشكلة بعد الإصلاح؟', 'يمكنك إعادة فتح الطلب من صفحته مباشرة خلال المدة المحددة، وسيُراجع من جديد.'],
+    ],
+  },
   partners: { eyebrow: 'نفخر بهم', title: 'شركاء النجاح' },
   contact: {
     eyebrow: 'نسعد بخدمتك',
@@ -156,6 +173,23 @@ const en: typeof ar = {
     cta: 'Enter the after-sales portal',
     cta2: 'Account not active? Contact us',
   },
+  featured: {
+    label: 'Now selling',
+    body: 'Modern homes with disciplined execution — contact our sales team for available sizes.',
+    cta: 'Ask on WhatsApp',
+    message: 'Hello, I would like to ask about project',
+  },
+  inquire: 'Inquire',
+  faq: {
+    title: 'After-sales questions',
+    items: [
+      ['How do I get a portal account?', 'The company activates your account after handover and ownership verification. You receive your login email and a temporary password to change at first sign-in.'],
+      ['What does my warranty cover?', 'Each unit has its own warranty record listing covered and excluded items and each period — you will find it on your page in the portal.'],
+      ['What if the issue is out of warranty?', 'You receive a clear quotation in the portal, and work only starts after you approve it.'],
+      ['Will I know when the technician comes?', 'Yes — the visit time and technician name appear on the request page, and you are notified when it is confirmed or changed.'],
+      ['What if the problem comes back?', 'You can reopen the request from its page within the allowed period and it will be reviewed again.'],
+    ],
+  },
   partners: { eyebrow: 'Proud to work with', title: 'Partners of success' },
   contact: {
     eyebrow: 'Here to help',
@@ -168,3 +202,8 @@ const en: typeof ar = {
 
 export const siteContent = (l: Locale) => (l === 'en' ? en : ar);
 export type SiteContent = typeof ar;
+
+/** WhatsApp link with a prefilled message (falls back to the contact section) */
+export function waLink(phone: string | null | undefined, text: string) {
+  return phone ? `https://wa.me/${phone}?text=${encodeURIComponent(text)}` : '#contact';
+}

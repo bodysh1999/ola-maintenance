@@ -37,15 +37,15 @@ export default async function OwnerHome() {
         <div className="relative z-10 flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
             <p className="text-sm text-white/65">{d.owner.hello}</p>
-            <h1 className="mt-1 text-3xl font-semibold tracking-tight">{firstName}</h1>
+            <h1 className="mt-1 font-display text-3xl font-bold">{firstName}</h1>
             <p className="mt-2 max-w-md text-sm text-white/70">{d.owner.requestCtaSub}</p>
           </div>
           <LinkButton href="/owner/requests/new" variant="accent" size="lg" className="h-14 rounded-2xl px-7 text-base shadow-lift">
             <Plus className="h-5 w-5" /> {d.owner.requestCta}
           </LinkButton>
         </div>
-        <div className="pointer-events-none absolute -end-16 -top-16 h-64 w-64 rounded-full border border-white/10" />
-        <div className="pointer-events-none absolute -end-6 -top-6 h-40 w-40 rounded-full border border-accent/30" />
+        <div className="pointer-events-none absolute -bottom-24 end-8 h-64 w-44 rounded-arch border border-accent/30" />
+        <div className="pointer-events-none absolute -bottom-28 end-24 h-64 w-44 rounded-arch border border-white/10" />
       </section>
 
       {/* Units */}

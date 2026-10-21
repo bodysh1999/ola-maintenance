@@ -9,7 +9,7 @@ import type { Category, RequestStatus } from '@/lib/types';
 
 const BRAND = 'rgb(var(--brand))';
 const ACCENT = 'rgb(var(--accent))';
-const tooltipStyle = { borderRadius: 12, border: '1px solid #E9E2D4', fontSize: 12, fontFamily: 'inherit' };
+const tooltipStyle = { borderRadius: 12, border: '1px solid #E4DFEA', fontSize: 12, fontFamily: 'inherit' };
 
 export function CategoryBars({ data }: { data: { key: Category; count: number }[] }) {
   const { d, locale } = useI18n();
@@ -18,10 +18,10 @@ export function CategoryBars({ data }: { data: { key: Category; count: number }[
   return (
     <ResponsiveContainer width="100%" height={Math.max(180, rows.length * 34)}>
       <BarChart data={rows} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}>
-        <CartesianGrid horizontal={false} stroke="#F0EBE1" />
-        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#8A8578' }} axisLine={false} tickLine={false} reversed={locale === 'ar'} />
-        <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: '#1B1D1C' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#F5F1E9' }} />
+        <CartesianGrid horizontal={false} stroke="#EFECF3" />
+        <XAxis type="number" allowDecimals={false} tick={{ fontSize: 11, fill: '#7F7889' }} axisLine={false} tickLine={false} reversed={locale === 'ar'} />
+        <YAxis type="category" dataKey="name" width={110} tick={{ fontSize: 12, fill: '#1E1828' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#EFECF3' }} />
         <Bar dataKey="count" name={d.admin.reports.count} fill={BRAND} radius={[6, 6, 6, 6]} barSize={16} />
       </BarChart>
     </ResponsiveContainer>
@@ -40,9 +40,9 @@ export function DailyArea({ data }: { data: { day: string; created: number; comp
             <stop offset="100%" stopColor={BRAND} stopOpacity={0} />
           </linearGradient>
         </defs>
-        <CartesianGrid vertical={false} stroke="#F0EBE1" />
-        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#8A8578' }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} reversed={locale === 'ar'} />
-        <YAxis allowDecimals={false} width={28} tick={{ fontSize: 11, fill: '#8A8578' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
+        <CartesianGrid vertical={false} stroke="#EFECF3" />
+        <XAxis dataKey="label" tick={{ fontSize: 11, fill: '#7F7889' }} axisLine={false} tickLine={false} interval="preserveStartEnd" minTickGap={20} reversed={locale === 'ar'} />
+        <YAxis allowDecimals={false} width={28} tick={{ fontSize: 11, fill: '#7F7889' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
         <Tooltip contentStyle={tooltipStyle} />
         <Area type="monotone" dataKey="created" name={d.admin.created} stroke={BRAND} strokeWidth={2} fill="url(#gCreated)" />
         <Area type="monotone" dataKey="completed" name={d.admin.closed} stroke={ACCENT} strokeWidth={2} fill="transparent" strokeDasharray="4 3" />
@@ -89,8 +89,8 @@ export function SimpleBars({ data, color = 'accent' }: { data: { key: string; co
     <ResponsiveContainer width="100%" height={Math.max(160, data.length * 34)}>
       <BarChart data={data} layout="vertical" margin={{ left: 8, right: 16 }}>
         <XAxis type="number" hide reversed={locale === 'ar'} />
-        <YAxis type="category" dataKey="key" width={130} tick={{ fontSize: 12, fill: '#1B1D1C' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
-        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#F5F1E9' }} />
+        <YAxis type="category" dataKey="key" width={130} tick={{ fontSize: 12, fill: '#1E1828' }} axisLine={false} tickLine={false} orientation={locale === 'ar' ? 'right' : 'left'} />
+        <Tooltip contentStyle={tooltipStyle} cursor={{ fill: '#EFECF3' }} />
         <Bar dataKey="count" name={d.admin.reports.count} fill={color === 'brand' ? BRAND : ACCENT} radius={6} barSize={14} />
       </BarChart>
     </ResponsiveContainer>

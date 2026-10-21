@@ -2,8 +2,8 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
-import { Menu, X } from 'lucide-react';
-import type { SiteContent, SiteProject } from '@/lib/site-content';
+import { ChevronDown, Menu, MessageCircle, X } from 'lucide-react';
+import { waLink, type SiteContent, type SiteProject } from '@/lib/site-content';
 import { LocaleToggle } from './locale-toggle';
 import { cx } from './ui';
 
@@ -17,27 +17,25 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn }: { t: SiteCon
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
-  const links = [
-    ['#about', t.nav.about], ['#projects', t.nav.projects], ['#after-sales', t.nav.afterSales], ['#contact', t.nav.contact],
-  ];
+  const links = [['#about', t.nav.about], ['#projects', t.nav.projects], ['#after-sales', t.nav.afterSales], ['#contact', t.nav.contact]];
   return (
-    <header className={cx('fixed inset-x-0 top-0 z-50 transition-all duration-300', solid || open ? 'bg-brand/95 shadow-lift backdrop-blur-md' : 'bg-transparent')}>
-      <div className="mx-auto flex h-[72px] max-w-7xl items-center gap-6 px-5 sm:px-8">
-        <a href="#top" className="flex shrink-0 items-center gap-3" aria-label={name}>
+    <header className={cx('fixed inset-x-0 top-0 z-50 transition-colors duration-300', solid || open ? 'bg-[#2A1F3A]/95 backdrop-blur-md' : 'bg-transparent')}>
+      <div className="mx-auto flex h-[76px] max-w-7xl items-center gap-8 px-5 sm:px-8">
+        <a href="#top" className="shrink-0" aria-label={name}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={logo} alt={name} className="h-11 w-auto object-contain" />
         </a>
-        <nav className="hidden flex-1 items-center gap-1 lg:flex">
+        <nav className="hidden flex-1 items-center gap-7 lg:flex">
           {links.map(([href, label]) => (
-            <a key={href} href={href} className="rounded-lg px-3.5 py-2 text-[15px] text-white/80 transition hover:bg-white/10 hover:text-white">{label}</a>
+            <a key={href} href={href} className="relative py-2 text-[15px] text-white/75 transition hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-center after:scale-x-0 after:bg-accent after:transition hover:after:scale-x-100">{label}</a>
           ))}
         </nav>
         <div className="ms-auto flex items-center gap-2">
           <LocaleToggle light className="hidden sm:inline-flex" />
-          <Link href={portalHref} className="hidden h-10 items-center gap-2 rounded-full bg-accent px-5 text-sm font-medium text-white shadow-lift transition hover:bg-accent/90 sm:inline-flex">
+          <Link href={portalHref} className="hidden h-11 items-center rounded-full border border-accent/70 px-6 text-sm font-medium text-white transition hover:bg-accent hover:text-white sm:inline-flex">
             {loggedIn ? t.nav.dashboard : t.nav.portal}
           </Link>
-          <button aria-label="menu" onClick={() => setOpen(!open)} className="grid h-10 w-10 place-items-center rounded-lg text-white hover:bg-white/10 lg:hidden">
+          <button aria-label="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10 lg:hidden">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
@@ -45,11 +43,11 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn }: { t: SiteCon
       {open && (
         <div className="border-t border-white/10 px-5 pb-6 pt-2 lg:hidden">
           {links.map(([href, label]) => (
-            <a key={href} href={href} onClick={() => setOpen(false)} className="block border-b border-white/5 py-3.5 text-white/85">{label}</a>
+            <a key={href} href={href} onClick={() => setOpen(false)} className="block border-b border-white/[.06] py-4 text-lg text-white/85">{label}</a>
           ))}
-          <div className="mt-4 flex items-center justify-between gap-3">
+          <div className="mt-5 flex items-center gap-3">
             <LocaleToggle light />
-            <Link href={portalHref} className="inline-flex h-11 flex-1 items-center justify-center rounded-full bg-accent px-5 text-sm font-medium text-white">
+            <Link href={portalHref} className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-accent px-5 font-medium text-white">
               {loggedIn ? t.nav.dashboard : t.nav.portal}
             </Link>
           </div>
@@ -59,8 +57,8 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn }: { t: SiteCon
   );
 }
 
-// ------------------------------------------------------------------ animated counter
-export function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
+// ------------------------------------------------------------------ animated counter (runs once when visible)
+export function CountUp({ to, prefix = '' }: { to: number; prefix?: string }) {
   const ref = useRef<HTMLSpanElement>(null);
   const [val, setVal] = useState(0);
   useEffect(() => {
@@ -73,59 +71,85 @@ export function CountUp({ to, suffix = '' }: { to: number; suffix?: string }) {
       io.disconnect();
       const start = performance.now();
       const tick = (now: number) => {
-        const p = Math.min(1, (now - start) / 1600);
+        const p = Math.min(1, (now - start) / 1400);
         setVal(Math.round(to * (1 - Math.pow(1 - p, 3))));
         if (p < 1) raf = requestAnimationFrame(tick);
       };
       raf = requestAnimationFrame(tick);
-    }, { threshold: 0.4 });
+    }, { threshold: 0.5 });
     io.observe(el);
     return () => { io.disconnect(); cancelAnimationFrame(raf); };
   }, [to]);
-  return <span ref={ref} dir="ltr">{suffix}{val.toLocaleString('en-US')}</span>;
+  return <span ref={ref} dir="ltr">{prefix}{val.toLocaleString('en-US')}</span>;
 }
 
-// ------------------------------------------------------------------ projects with stage filter
-const STAGE_TONE = {
-  construction: 'bg-white/90 text-brand',
-  selling: 'bg-accent text-white',
-  sold: 'bg-ink/70 text-white',
-};
-
-export function ProjectsGrid({ projects, t, locale }: { projects: SiteProject[]; t: SiteContent; locale: 'ar' | 'en' }) {
+// ------------------------------------------------------------------ projects: arches + stage filter
+export function ProjectsGrid({ projects, t, locale, whatsapp }: { projects: SiteProject[]; t: SiteContent; locale: 'ar' | 'en'; whatsapp: string | null }) {
   const [filter, setFilter] = useState<'all' | SiteProject['sales_status']>('all');
   const stages = (['construction', 'selling', 'sold'] as const).filter((s) => projects.some((p) => p.sales_status === s));
   const list = filter === 'all' ? projects : projects.filter((p) => p.sales_status === filter);
+  const nm = (p: SiteProject) => (locale === 'en' && p.name_en ? p.name_en : p.name_ar);
   return (
     <>
-      <div className="mb-10 flex flex-wrap justify-center gap-2">
+      <div role="tablist" className="mb-12 flex flex-wrap gap-x-7 gap-y-2 border-b border-sand-200">
         {(['all', ...stages] as const).map((s) => (
-          <button key={s} onClick={() => setFilter(s)}
-            className={cx('rounded-full border px-5 py-2 text-sm transition',
-              filter === s ? 'border-brand bg-brand text-white' : 'border-sand-300 bg-white text-ink/70 hover:border-brand/40')}>
+          <button key={s} role="tab" aria-selected={filter === s} onClick={() => setFilter(s)}
+            className={cx('-mb-px border-b-2 pb-3 text-[15px] transition', filter === s ? 'border-brand font-semibold text-brand' : 'border-transparent text-stone-450 hover:text-ink')}>
             {s === 'all' ? t.projects.all : t.projects.stage[s]}
-            <span className="ms-2 text-xs opacity-60">{s === 'all' ? projects.length : projects.filter((p) => p.sales_status === s).length}</span>
+            <span className="ms-1.5 text-xs text-stone-450">({s === 'all' ? projects.length : projects.filter((p) => p.sales_status === s).length})</span>
           </button>
         ))}
       </div>
-      <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+      <ul className="grid grid-cols-2 gap-x-5 gap-y-12 sm:gap-x-8 lg:grid-cols-4">
         {list.map((p) => (
-          <article key={p.name_ar} className="group relative aspect-[4/3] overflow-hidden sm:aspect-[4/5] rounded-[22px] bg-brand shadow-card">
-            {p.image_url && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={p.image_url} alt={p.name_ar} loading="lazy" className="absolute inset-0 h-full w-full object-cover transition duration-700 group-hover:scale-105" />
-            )}
-            <div className="absolute inset-0 bg-gradient-to-t from-brand via-brand/20 to-transparent opacity-90 transition group-hover:opacity-100" />
-            <span className={cx('absolute start-4 top-4 rounded-full px-3 py-1 text-xs font-medium backdrop-blur', STAGE_TONE[p.sales_status])}>
-              {t.projects.stage[p.sales_status]}
-            </span>
-            <div className="absolute inset-x-0 bottom-0 p-6 text-white">
-              <span className="mb-3 block h-px w-10 bg-accent transition-all duration-500 group-hover:w-20" />
-              <h3 className="text-2xl font-bold">{locale === 'en' && p.name_en ? p.name_en : p.name_ar}</h3>
+          <li key={p.name_ar} className="group">
+            <div className="relative aspect-[3/4] overflow-hidden rounded-arch bg-brand">
+              {p.image_url && (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.image_url} alt={nm(p)} loading="lazy" className="h-full w-full object-cover transition duration-700 group-hover:scale-[1.04]" />
+              )}
+              <div className="pointer-events-none absolute inset-0 rounded-arch ring-1 ring-inset ring-black/5" />
             </div>
-          </article>
+            <div className="mt-4 flex items-baseline justify-between gap-2">
+              <h3 className="font-display text-xl font-bold text-ink">{nm(p)}</h3>
+              <span className={cx('shrink-0 text-xs', p.sales_status === 'selling' ? 'font-semibold text-accent' : 'text-stone-450')}>{t.projects.stage[p.sales_status]}</span>
+            </div>
+            {p.sales_status !== 'sold' && whatsapp && (
+              <a href={waLink(whatsapp, `${t.featured.message} ${nm(p)}`)} target="_blank" rel="noreferrer" className="mt-1.5 inline-block text-sm text-brand underline-offset-4 hover:underline">
+                {t.inquire}
+              </a>
+            )}
+          </li>
         ))}
-      </div>
+      </ul>
     </>
+  );
+}
+
+// ------------------------------------------------------------------ FAQ (native details/summary — keyboard accessible)
+export function Faq({ items }: { items: string[][] }) {
+  return (
+    <div className="divide-y divide-sand-200 border-y border-sand-200">
+      {items.map(([q, a]) => (
+        <details key={q} className="group py-1">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-6 py-5 text-lg font-medium text-ink marker:hidden focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-brand [&::-webkit-details-marker]:hidden">
+            {q}
+            <ChevronDown className="h-5 w-5 shrink-0 text-accent transition-transform duration-300 group-open:rotate-180" />
+          </summary>
+          <p className="max-w-3xl pb-6 leading-loose text-ink/70">{a}</p>
+        </details>
+      ))}
+    </div>
+  );
+}
+
+// ------------------------------------------------------------------ floating WhatsApp
+export function WhatsAppFloat({ phone, label }: { phone: string | null; label: string }) {
+  if (!phone) return null;
+  return (
+    <a href={`https://wa.me/${phone}`} target="_blank" rel="noreferrer" aria-label={label}
+      className="fixed bottom-5 end-5 z-40 grid h-14 w-14 place-items-center rounded-full bg-emerald-600 text-white shadow-lift transition hover:scale-105 hover:bg-emerald-700 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-700">
+      <MessageCircle className="h-6 w-6" />
+    </a>
   );
 }
