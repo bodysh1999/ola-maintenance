@@ -40,6 +40,8 @@ export const en: Dict = {
     leads: 'Customer leads', salesUnits: 'Units & prices', applications: 'Applications', openings: 'Job openings', website: 'Company website',
   },
   auth: {
+    staffTitle: 'Staff portal', staffSubtitle: 'Sign in for attendance, leave and your HR requests',
+    staffNoAccount: 'Staff accounts are created by HR — contact them if you have not received yours.', ownersTab: 'Owners', staffTab: 'Staff',
     title: 'After-Sales Service Portal', subtitle: 'Sign in to follow maintenance requests for your home',
     email: 'Email', password: 'Password', signIn: 'Sign in', forgot: 'Forgot password?',
     sendReset: 'Send reset link', resetSent: 'If this email is registered, you will receive a link to reset your password.',

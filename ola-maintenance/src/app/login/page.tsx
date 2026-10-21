@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { MessageCircle, Phone, ShieldCheck, Wrench, CalendarClock } from 'lucide-react';
+import { MessageCircle, Phone, ShieldCheck, Wrench, CalendarClock, Fingerprint, CalendarDays, FileBadge } from 'lucide-react';
 import { getCurrentProfile, getI18n, getSettings, homeFor } from '@/lib/session';
 import { LOGIN_HERO_IMAGE } from '@/lib/constants';
 import { DEFAULT_LOGO } from '@/components/brand';
@@ -9,7 +9,7 @@ import { SocialLinks } from '@/components/contact-links';
 import { Alert } from '@/components/ui';
 import { LoginForm } from './login-form';
 
-export default async function LoginPage({ searchParams }: { searchParams: Promise<{ disabled?: string }> }) {
+export default async function LoginPage({ searchParams }: { searchParams: Promise<{ disabled?: string; portal?: string }> }) {
   const profile = await getCurrentProfile();
   if (profile?.is_active) redirect(homeFor(profile.role));
   const [{ d, locale }, s, sp] = await Promise.all([getI18n(), getSettings(), searchParams]);
@@ -17,7 +17,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
   const name = ar ? s.name_ar : s.name_en;
   const logo = s.logo_url || DEFAULT_LOGO;
 
-  const features = ar
+  const staff = sp.portal === 'staff';
+  const features = staff
+    ? (ar
+      ? [[Fingerprint, 'الحضور والانصراف', 'بصمة من جوالك داخل موقع العمل'], [CalendarDays, 'إجازاتك ورصيدك', 'اطلب إجازة واعرف رصيدك المتاح'], [FileBadge, 'طلباتك الوظيفية', 'تعريف راتب، انتداب، خارج دوام وأكثر']]
+      : [[Fingerprint, 'Attendance', 'check in from your phone at work'], [CalendarDays, 'Leave & balance', 'request leave and see your balance'], [FileBadge, 'HR requests', 'salary certificate, trips, overtime and more']])
+    : ar
     ? [[Wrench, 'بلّغ عن العطل', 'بالصور والفيديو في أقل من دقيقة'], [CalendarClock, 'تابع كل مرحلة', 'وموعد زيارة الفني لحظة بلحظة'], [ShieldCheck, 'ضمان واضح', 'تعرف ما يشمله ضمان وحدتك']]
     : [[Wrench, 'Report an issue', 'with photos or video in under a minute'], [CalendarClock, 'Track every step', 'and the technician visit in real time'], [ShieldCheck, 'Clear warranty', 'know exactly what your home covers']];
   const stats = ar
@@ -49,10 +54,12 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
           <div className="mt-8 max-w-lg lg:mt-auto">
             <div className="rise-in mb-5 hidden h-px w-16 bg-accent lg:block" />
             <h2 className="rise-in text-[26px] font-bold leading-[1.45] sm:text-3xl lg:text-[42px] lg:leading-[1.35]">
-              {ar ? <>بيتك في عهدتنا،<br className="hidden lg:block" /> حتى بعد الاستلام.</> : <>Your home stays in our care,<br className="hidden lg:block" /> long after handover.</>}
+              {staff
+                ? (ar ? <>بوابة فريق<br className="hidden lg:block" /> علا التميز.</> : <>The Ola team<br className="hidden lg:block" /> portal.</>)
+                : ar ? <>بيتك في عهدتنا،<br className="hidden lg:block" /> حتى بعد الاستلام.</> : <>Your home stays in our care,<br className="hidden lg:block" /> long after handover.</>}
             </h2>
             <p className="rise-in-2 mt-3 max-w-md text-sm leading-relaxed text-white/75 lg:mt-5 lg:text-base">
-              {ar
+              {staff ? d.auth.staffSubtitle : ar
                 ? 'قناة موحّدة للتواصل والاعتناء باحتياجاتك، ومتابعة فعّالة لطلبك حتى إغلاقه — بما يحافظ على قيمة بيتك.'
                 : 'One channel to reach us and care for your home, with every request followed through to closure.'}
             </p>
@@ -90,13 +97,17 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
         <div className="-mt-10 flex flex-1 flex-col justify-center lg:mt-0">
           <div className="rise-in mx-auto w-full max-w-md rounded-[28px] border border-sand-200 bg-white p-6 shadow-lift sm:p-9 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
-            <h1 className="text-2xl font-bold tracking-tight">{ar ? 'أهلًا بك' : 'Welcome back'}</h1>
-            <p className="mt-1.5 text-sm text-stone-450">{d.auth.subtitle}</p>
+            <div role="tablist" className="mb-6 grid grid-cols-2 rounded-full bg-sand-100 p-1 text-sm">
+              <Link href="/login" role="tab" aria-selected={!staff} className={!staff ? 'rounded-full bg-white py-2 text-center font-semibold text-brand shadow-sm' : 'py-2 text-center text-ink/60 hover:text-ink'}>{d.auth.ownersTab}</Link>
+              <Link href="/login?portal=staff" role="tab" aria-selected={staff} className={staff ? 'rounded-full bg-white py-2 text-center font-semibold text-brand shadow-sm' : 'py-2 text-center text-ink/60 hover:text-ink'}>{d.auth.staffTab}</Link>
+            </div>
+            <h1 className="text-2xl font-bold tracking-tight">{staff ? d.auth.staffTitle : ar ? 'أهلًا بك' : 'Welcome back'}</h1>
+            <p className="mt-1.5 text-sm text-stone-450">{staff ? d.auth.staffSubtitle : d.auth.subtitle}</p>
             {sp.disabled && <Alert tone="error" className="mt-5">{d.auth.disabled}</Alert>}
             <div className="mt-7"><LoginForm /></div>
 
             <div className="mt-8 rounded-2xl bg-sand-100/70 p-4">
-              <p className="text-xs leading-relaxed text-stone-450">{d.auth.noAccount}</p>
+              <p className="text-xs leading-relaxed text-stone-450">{staff ? d.auth.staffNoAccount : d.auth.noAccount}</p>
               {(s.support_phone || s.whatsapp) && (
                 <div className="mt-3 flex flex-wrap gap-2">
                   {s.whatsapp && (

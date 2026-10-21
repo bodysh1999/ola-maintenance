@@ -111,6 +111,7 @@ export function SiteFooter({ c }: { c: SiteChrome }) {
           <div className={col}>{t.nav.afterSales}</div>
           <ul className="space-y-2.5 text-sm text-white/70">
             <li><Link href={portalHref} className={link}>{c.loggedIn ? t.nav.dashboard : t.nav.portal}</Link></li>
+            {!c.loggedIn && <li><Link href="/login?portal=staff" className={link}>{t.nav.staffPortal}</Link></li>}
             <li><Link href="/#after-sales" className={link}>{t.afterSales.title}</Link></li>
             <li><Link href="/#contact" className={link}>{t.nav.contact}</Link></li>
           </ul>

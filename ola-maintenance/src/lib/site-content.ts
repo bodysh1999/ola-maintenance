@@ -38,7 +38,7 @@ export const FALLBACK_PROJECTS: SiteProject[] = [
 ];
 
 const ar = {
-  nav: { home: 'الرئيسية', about: 'عن علا', projects: 'المشاريع', services: 'الخدمات', careers: 'الوظائف', afterSales: 'ما بعد البيع', contact: 'تواصل معنا', portal: 'بوابة الملاك', dashboard: 'لوحتي', city: 'جدة، المملكة العربية السعودية', bookVisit: 'احجز زيارة' },
+  nav: { home: 'الرئيسية', about: 'عن علا', projects: 'المشاريع', services: 'الخدمات', careers: 'الوظائف', afterSales: 'ما بعد البيع', contact: 'تواصل معنا', portal: 'بوابة الملاك', staffPortal: 'بوابة الموظفين', dashboard: 'لوحتي', city: 'جدة، المملكة العربية السعودية', bookVisit: 'احجز زيارة' },
   hero: {
     eyebrow: 'تأسست عام ١٤٢٤هـ',
     title: 'عُلا التميّز',
@@ -123,7 +123,7 @@ const ar = {
 };
 
 const en: typeof ar = {
-  nav: { home: 'Home', about: 'About', projects: 'Projects', services: 'Services', careers: 'Careers', afterSales: 'After-sales', contact: 'Contact', portal: 'Owner portal', dashboard: 'My dashboard', city: 'Jeddah, Saudi Arabia', bookVisit: 'Book a visit' },
+  nav: { home: 'Home', about: 'About', projects: 'Projects', services: 'Services', careers: 'Careers', afterSales: 'After-sales', contact: 'Contact', portal: 'Owner portal', staffPortal: 'Staff portal', dashboard: 'My dashboard', city: 'Jeddah, Saudi Arabia', bookVisit: 'Book a visit' },
   hero: {
     eyebrow: 'Established 1424 AH',
     title: 'Ola Al-Tamayuz',

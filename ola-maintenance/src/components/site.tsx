@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpLeft, CalendarCheck, ChevronDown, KeyRound, Mail, MapPin, Menu, MessageCircle, Phone, X } from 'lucide-react';
+import { ArrowUpLeft, BadgeCheck, CalendarCheck, ChevronDown, KeyRound, Mail, MapPin, Menu, MessageCircle, Phone, X } from 'lucide-react';
 import { waLink, type SiteContent, type SiteProject } from '@/lib/site-content';
 import { LocaleToggle } from './locale-toggle';
 import { cx } from './ui';
@@ -76,12 +76,23 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn, contact, solid
           ))}
         </nav>
         <div className="ms-auto flex items-center gap-2 xl:ms-0">
-          <Link href="/projects" className="hidden h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 sm:inline-flex">
+          <Link href="/projects" className="hidden h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 md:inline-flex xl:hidden 2xl:inline-flex">
             <CalendarCheck className="h-4 w-4" />{t.nav.bookVisit}
           </Link>
-          <Link href={portalHref} className="hidden h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10 sm:inline-flex">
-            <KeyRound className="h-4 w-4 text-accent" />{loggedIn ? t.nav.dashboard : t.nav.portal}
-          </Link>
+          {loggedIn ? (
+            <Link href={portalHref} className="hidden h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10 sm:inline-flex">
+              <KeyRound className="h-4 w-4 text-accent" />{t.nav.dashboard}
+            </Link>
+          ) : (
+            <>
+              <Link href="/login" className="hidden h-11 items-center gap-2 rounded-full border border-white/25 px-4 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10 sm:inline-flex">
+                <KeyRound className="h-4 w-4 text-accent" />{t.nav.portal}
+              </Link>
+              <Link href="/login?portal=staff" className="hidden h-11 items-center gap-2 rounded-full border border-white/25 px-4 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10 sm:inline-flex">
+                <BadgeCheck className="h-4 w-4 text-accent" />{t.nav.staffPortal}
+              </Link>
+            </>
+          )}
           <button aria-label="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10 xl:hidden">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -99,6 +110,7 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn, contact, solid
           <div className="mt-6 grid gap-3">
             <Link href="/projects" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent font-semibold text-white"><CalendarCheck className="h-4 w-4" />{t.nav.bookVisit}</Link>
             <Link href={portalHref} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/25 font-medium text-white"><KeyRound className="h-4 w-4 text-accent" />{loggedIn ? t.nav.dashboard : t.nav.portal}</Link>
+            {!loggedIn && <Link href="/login?portal=staff" className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/25 font-medium text-white"><BadgeCheck className="h-4 w-4 text-accent" />{t.nav.staffPortal}</Link>}
           </div>
           <div className="mt-8 space-y-3 text-sm text-white/60">
             {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-2"><Phone className="h-4 w-4 text-accent" /><span dir="ltr">{contact.phone}</span></a>}
