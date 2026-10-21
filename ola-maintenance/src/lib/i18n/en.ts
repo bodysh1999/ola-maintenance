@@ -40,6 +40,7 @@ export const en: Dict = {
     leads: 'Customer leads', salesUnits: 'Units & prices', applications: 'Applications', openings: 'Job openings', website: 'Company website',
   },
   auth: {
+    notConfirmed: 'Email not confirmed — contact the company to activate it', rateLimited: 'Too many attempts — wait a minute and try again', serverError: 'Sign-in failed because of an auth server error',
     staffTitle: 'Staff portal', staffSubtitle: 'Sign in for attendance, leave and your HR requests',
     staffNoAccount: 'Staff accounts are created by HR — contact them if you have not received yours.', ownersTab: 'Owners', staffTab: 'Staff',
     title: 'After-Sales Service Portal', subtitle: 'Sign in to follow maintenance requests for your home',

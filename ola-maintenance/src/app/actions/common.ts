@@ -20,7 +20,16 @@ export async function signIn(_: ActionResult, fd: FormData): Promise<ActionResul
   const { d } = await getI18n();
   const supabase = await createClient();
   const { data, error } = await supabase.auth.signInWithPassword({ email: str(fd, 'email'), password: str(fd, 'password') });
-  if (error || !data.user) return { error: d.auth.invalid };
+  if (error || !data.user) {
+    // show the real reason instead of always "wrong email or password"
+    const code = (error as { code?: string } | null)?.code ?? '';
+    const msg = error?.message ?? '';
+    console.error('[signIn]', code, error?.status, msg);
+    if (code === 'email_not_confirmed' || /not confirmed/i.test(msg)) return { error: d.auth.notConfirmed };
+    if (code.includes('rate_limit') || error?.status === 429) return { error: d.auth.rateLimited };
+    if ((error?.status ?? 0) >= 500 || /database error/i.test(msg)) return { error: `${d.auth.serverError} (${msg})` };
+    return { error: d.auth.invalid };
+  }
 
   const { data: profile } = await supabase.from('profiles').select('role,is_active,locale').eq('id', data.user.id).maybeSingle();
   if (!profile?.is_active) {
