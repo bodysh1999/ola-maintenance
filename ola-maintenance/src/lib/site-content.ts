@@ -24,7 +24,7 @@ export const SITE_ASSETS = {
   ],
 };
 
-export type SiteProject = { name_ar: string; name_en: string | null; image_url: string | null; sales_status: 'sold' | 'selling' | 'construction' };
+export type SiteProject = { id?: string; name_ar: string; name_en: string | null; image_url: string | null; sales_status: 'sold' | 'selling' | 'construction'; city?: string | null; district?: string | null };
 
 /** Used when the projects table can't be read publicly (before running migration 5) */
 export const FALLBACK_PROJECTS: SiteProject[] = [
@@ -38,7 +38,7 @@ export const FALLBACK_PROJECTS: SiteProject[] = [
 ];
 
 const ar = {
-  nav: { home: 'الرئيسية', about: 'علا التميز', projects: 'المشاريع', afterSales: 'خدمات ما بعد البيع', contact: 'تواصل معنا', portal: 'بوابة الملاك', dashboard: 'لوحتي' },
+  nav: { home: 'الرئيسية', about: 'عن علا', projects: 'المشاريع', services: 'الخدمات', careers: 'الوظائف', afterSales: 'ما بعد البيع', contact: 'تواصل معنا', portal: 'بوابة الملاك', dashboard: 'لوحتي', city: 'جدة، المملكة العربية السعودية', bookVisit: 'احجز زيارة' },
   hero: {
     eyebrow: 'تأسست عام ١٤٢٤هـ',
     title: 'عُلا التميّز',
@@ -64,6 +64,7 @@ const ar = {
     title: 'المشاريع',
     all: 'الكل',
     stage: { construction: 'مرحلة الإنشاء', selling: 'مرحلة البيع', sold: 'مباع' },
+    details: 'تفاصيل المشروع', viewAll: 'كل المشاريع',
   },
   identity: {
     eyebrow: 'هويتنا',
@@ -95,7 +96,7 @@ const ar = {
     cta2: 'لم يُفعّل حسابك؟ تواصل معنا',
   },
   featured: {
-    label: 'متاح للبيع الآن',
+    label: 'متاح للبيع الآن', units: 'الوحدات والأسعار', visit: 'احجز زيارة للمشروع',
     body: 'وحدات سكنية بتصميم حديث وتنفيذ منضبط — تواصل مع فريق المبيعات لمعرفة المساحات المتاحة.',
     cta: 'استفسر عبر واتساب',
     message: 'السلام عليكم، أرغب بالاستفسار عن مشروع',
@@ -111,7 +112,7 @@ const ar = {
       ['ماذا لو عادت المشكلة بعد الإصلاح؟', 'يمكنك إعادة فتح الطلب من صفحته مباشرة خلال المدة المحددة، وسيُراجع من جديد.'],
     ],
   },
-  partners: { eyebrow: 'نفخر بهم', title: 'شركاء النجاح' },
+  partners: { eyebrow: 'نفخر بهم', title: 'شركاء النجاح', body: 'نعتز بثقة شركائنا ونجاحنا المشترك في كل مشروع' },
   contact: {
     eyebrow: 'نسعد بخدمتك',
     title: 'تواصل معنا',
@@ -122,7 +123,7 @@ const ar = {
 };
 
 const en: typeof ar = {
-  nav: { home: 'Home', about: 'About', projects: 'Projects', afterSales: 'After-sales', contact: 'Contact', portal: 'Owner portal', dashboard: 'My dashboard' },
+  nav: { home: 'Home', about: 'About', projects: 'Projects', services: 'Services', careers: 'Careers', afterSales: 'After-sales', contact: 'Contact', portal: 'Owner portal', dashboard: 'My dashboard', city: 'Jeddah, Saudi Arabia', bookVisit: 'Book a visit' },
   hero: {
     eyebrow: 'Established 1424 AH',
     title: 'Ola Al-Tamayuz',
@@ -143,7 +144,7 @@ const en: typeof ar = {
     { to: 120000, suffix: '+', label: 'm² built-up area' },
     { to: 3750, suffix: '+', label: 'residents' },
   ],
-  projects: { eyebrow: 'Our portfolio', title: 'Projects', all: 'All', stage: { construction: 'Under construction', selling: 'Now selling', sold: 'Sold out' } },
+  projects: { eyebrow: 'Our portfolio', title: 'Projects', all: 'All', stage: { construction: 'Under construction', selling: 'Now selling', sold: 'Sold out' }, details: 'Project details', viewAll: 'All projects' },
   identity: {
     eyebrow: 'Our identity',
     vision: { title: 'Vision', body: 'To be one of the leading names in real estate development and investment, delivering trusted urban products built on innovation and quality that elevate how people live and work.' },
@@ -174,7 +175,7 @@ const en: typeof ar = {
     cta2: 'Account not active? Contact us',
   },
   featured: {
-    label: 'Now selling',
+    label: 'Now selling', units: 'Units & prices', visit: 'Book a site visit',
     body: 'Modern homes with disciplined execution — contact our sales team for available sizes.',
     cta: 'Ask on WhatsApp',
     message: 'Hello, I would like to ask about project',
@@ -190,7 +191,7 @@ const en: typeof ar = {
       ['What if the problem comes back?', 'You can reopen the request from its page within the allowed period and it will be reviewed again.'],
     ],
   },
-  partners: { eyebrow: 'Proud to work with', title: 'Partners of success' },
+  partners: { eyebrow: 'Proud to work with', title: 'Partners of success', body: 'Proud of the trust and shared success with our partners' },
   contact: {
     eyebrow: 'Here to help',
     title: 'Contact us',

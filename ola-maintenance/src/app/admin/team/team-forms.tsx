@@ -87,6 +87,8 @@ export function StaffCreateForm() {
               <Field label={d.admin.team.role}>
                 <Select name="role" defaultValue="supervisor">
                   <option value="supervisor">{d.roles.supervisor}</option>
+                  <option value="sales">{d.roles.sales}</option>
+                  <option value="hr">{d.roles.hr}</option>
                   <option value="admin">{d.roles.admin}</option>
                 </Select>
               </Field>

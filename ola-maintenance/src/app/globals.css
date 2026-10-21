@@ -46,3 +46,15 @@ html[dir='rtl'] .animate-\[loader-slide_1\.1s_ease-in-out_infinite\] { animation
 .rise-in-2 { animation: rise-in .6s .12s cubic-bezier(.2,.7,.2,1) both; }
 .rise-in-3 { animation: rise-in .6s .24s cubic-bezier(.2,.7,.2,1) both; }
 @media (prefers-reduced-motion: reduce) { .rise-in, .rise-in-2, .rise-in-3 { animation: none; } }
+
+/* ---------- partners marquee (infinite, pauses on hover, direction-aware) */
+.marquee { mask-image: linear-gradient(to right, transparent, #000 10%, #000 90%, transparent); }
+.marquee-track { display: flex; width: max-content; animation: marquee-ltr var(--marquee-speed, 38s) linear infinite; }
+[dir='rtl'] .marquee-track { animation-name: marquee-rtl; }
+.marquee:hover .marquee-track, .marquee:focus-within .marquee-track { animation-play-state: paused; }
+@keyframes marquee-ltr { to { transform: translateX(-50%); } }
+@keyframes marquee-rtl { to { transform: translateX(50%); } }
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track { animation: none; flex-wrap: wrap; justify-content: center; width: auto; }
+  .marquee-track > [aria-hidden='true'] { display: none; }
+}

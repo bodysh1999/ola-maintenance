@@ -1,59 +1,134 @@
 'use client';
 
 import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, Menu, MessageCircle, X } from 'lucide-react';
+import { ArrowUpLeft, CalendarCheck, ChevronDown, KeyRound, Mail, MapPin, Menu, MessageCircle, Phone, X } from 'lucide-react';
 import { waLink, type SiteContent, type SiteProject } from '@/lib/site-content';
 import { LocaleToggle } from './locale-toggle';
 import { cx } from './ui';
 
-// ------------------------------------------------------------------ header
-export function SiteHeader({ t, logo, name, portalHref, loggedIn }: { t: SiteContent; logo: string; name: string; portalHref: string; loggedIn: boolean }) {
-  const [solid, setSolid] = useState(false);
+// ------------------------------------------------------------------ header (contact bar + main navigation)
+export type HeaderContact = { phone: string | null; email: string | null; whatsapp: string | null; socials: { href: string; label: string }[] };
+
+export function SiteHeader({ t, logo, name, portalHref, loggedIn, contact, solidAlways = false }: {
+  t: SiteContent; logo: string; name: string; portalHref: string; loggedIn: boolean; contact: HeaderContact; solidAlways?: boolean;
+}) {
+  const path = usePathname();
+  const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   useEffect(() => {
-    const on = () => setSolid(window.scrollY > 40);
+    const on = () => setScrolled(window.scrollY > 40);
     on();
     window.addEventListener('scroll', on, { passive: true });
     return () => window.removeEventListener('scroll', on);
   }, []);
-  const links = [['#about', t.nav.about], ['#projects', t.nav.projects], ['#after-sales', t.nav.afterSales], ['#contact', t.nav.contact]];
+  useEffect(() => setOpen(false), [path]);
+  useEffect(() => {
+    document.body.style.overflow = open ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [open]);
+
+  const home = path === '/';
+  const links: { href: string; label: string; active: boolean }[] = [
+    { href: '/', label: t.nav.home, active: home },
+    { href: '/#about', label: t.nav.about, active: false },
+    { href: '/projects', label: t.nav.projects, active: path.startsWith('/projects') },
+    { href: '/services', label: t.nav.services, active: path.startsWith('/services') },
+    { href: '/#after-sales', label: t.nav.afterSales, active: false },
+    { href: '/careers', label: t.nav.careers, active: path.startsWith('/careers') },
+    { href: '/#contact', label: t.nav.contact, active: false },
+  ];
+  const solid = solidAlways || scrolled || open;
+
   return (
-    <header className={cx('fixed inset-x-0 top-0 z-50 transition-colors duration-300', solid || open ? 'bg-[#2A1F3A]/95 backdrop-blur-md' : 'bg-transparent')}>
-      <div className="mx-auto flex h-[76px] max-w-7xl items-center gap-8 px-5 sm:px-8">
-        <a href="#top" className="shrink-0" aria-label={name}>
+    <header className={cx('fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300',
+      solid ? 'bg-[#2A1F3A]/[.97] shadow-[0_8px_30px_-12px_rgba(0,0,0,.45)] backdrop-blur-md' : 'bg-gradient-to-b from-[#1E1628]/70 to-transparent')}>
+      {/* contact bar — folds away once the page scrolls */}
+      <div className={cx('hidden overflow-hidden border-b border-white/10 text-[13px] text-white/65 transition-[max-height,opacity] duration-300 md:block',
+        scrolled ? 'max-h-0 border-transparent opacity-0' : 'max-h-10 opacity-100')}>
+        <div className="mx-auto flex h-10 max-w-7xl items-center gap-6 px-5 sm:px-8">
+          {contact.phone && <a href={`tel:${contact.phone}`} className="inline-flex items-center gap-1.5 hover:text-white"><Phone className="h-3.5 w-3.5 text-accent" /><span dir="ltr">{contact.phone}</span></a>}
+          {contact.email && <a href={`mailto:${contact.email}`} className="hidden items-center gap-1.5 hover:text-white lg:inline-flex"><Mail className="h-3.5 w-3.5 text-accent" /><span dir="ltr">{contact.email}</span></a>}
+          <span className="inline-flex items-center gap-1.5"><MapPin className="h-3.5 w-3.5 text-accent" />{t.nav.city}</span>
+          <div className="ms-auto flex items-center gap-4">
+            {contact.socials.map((l) => <a key={l.href} href={l.href} target="_blank" rel="noreferrer" className="hover:text-white">{l.label}</a>)}
+            <span className="h-4 w-px bg-white/15" />
+            <LocaleToggle light className="h-8 px-2 text-[13px]" />
+          </div>
+        </div>
+      </div>
+
+      <div className={cx('mx-auto flex max-w-7xl items-center gap-6 px-5 transition-[height] duration-300 sm:px-8', scrolled ? 'h-[68px]' : 'h-[76px]')}>
+        <Link href="/" className="shrink-0" aria-label={name}>
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src={logo} alt={name} className="h-11 w-auto object-contain" />
-        </a>
-        <nav className="hidden flex-1 items-center gap-7 lg:flex">
-          {links.map(([href, label]) => (
-            <a key={href} href={href} className="relative py-2 text-[15px] text-white/75 transition hover:text-white after:absolute after:inset-x-0 after:-bottom-0.5 after:h-px after:origin-center after:scale-x-0 after:bg-accent after:transition hover:after:scale-x-100">{label}</a>
+          <img src={logo} alt={name} className={cx('w-auto object-contain transition-[height] duration-300', scrolled ? 'h-10' : 'h-11')} />
+        </Link>
+        <nav aria-label="main" className="hidden flex-1 items-center justify-center gap-1 xl:flex">
+          {links.map((l) => (
+            <Link key={l.href} href={l.href} aria-current={l.active ? 'page' : undefined}
+              className={cx('relative rounded-full px-3.5 py-2 text-[15px] transition',
+                l.active ? 'text-white' : 'text-white/70 hover:text-white',
+                'after:absolute after:inset-x-3.5 after:-bottom-0.5 after:h-[2px] after:rounded-full after:bg-accent after:transition-transform',
+                l.active ? 'after:scale-x-100' : 'after:scale-x-0 hover:after:scale-x-100')}>
+              {l.label}
+            </Link>
           ))}
         </nav>
-        <div className="ms-auto flex items-center gap-2">
-          <LocaleToggle light className="hidden sm:inline-flex" />
-          <Link href={portalHref} className="hidden h-11 items-center rounded-full border border-accent/70 px-6 text-sm font-medium text-white transition hover:bg-accent hover:text-white sm:inline-flex">
-            {loggedIn ? t.nav.dashboard : t.nav.portal}
+        <div className="ms-auto flex items-center gap-2 xl:ms-0">
+          <Link href="/projects" className="hidden h-11 items-center gap-2 rounded-full bg-accent px-5 text-sm font-semibold text-white transition hover:bg-accent/90 sm:inline-flex">
+            <CalendarCheck className="h-4 w-4" />{t.nav.bookVisit}
           </Link>
-          <button aria-label="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10 lg:hidden">
+          <Link href={portalHref} className="hidden h-11 items-center gap-2 rounded-full border border-white/25 px-5 text-sm font-medium text-white transition hover:border-white/60 hover:bg-white/10 sm:inline-flex">
+            <KeyRound className="h-4 w-4 text-accent" />{loggedIn ? t.nav.dashboard : t.nav.portal}
+          </Link>
+          <button aria-label="menu" aria-expanded={open} onClick={() => setOpen(!open)} className="grid h-11 w-11 place-items-center rounded-full text-white hover:bg-white/10 xl:hidden">
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
         </div>
       </div>
+
       {open && (
-        <div className="border-t border-white/10 px-5 pb-6 pt-2 lg:hidden">
-          {links.map(([href, label]) => (
-            <a key={href} href={href} onClick={() => setOpen(false)} className="block border-b border-white/[.06] py-4 text-lg text-white/85">{label}</a>
-          ))}
-          <div className="mt-5 flex items-center gap-3">
-            <LocaleToggle light />
-            <Link href={portalHref} className="inline-flex h-12 flex-1 items-center justify-center rounded-full bg-accent px-5 font-medium text-white">
-              {loggedIn ? t.nav.dashboard : t.nav.portal}
+        <div className="h-[calc(100svh-76px)] overflow-y-auto border-t border-white/10 px-5 pb-10 pt-2 xl:hidden">
+          {links.map((l) => (
+            <Link key={l.href} href={l.href} onClick={() => setOpen(false)}
+              className={cx('flex items-center justify-between border-b border-white/[.07] py-4 text-lg', l.active ? 'text-accent' : 'text-white/85')}>
+              {l.label}<ChevronDown className="h-4 w-4 -rotate-90 opacity-40 rtl:rotate-90" />
             </Link>
+          ))}
+          <div className="mt-6 grid gap-3">
+            <Link href="/projects" className="inline-flex h-12 items-center justify-center gap-2 rounded-full bg-accent font-semibold text-white"><CalendarCheck className="h-4 w-4" />{t.nav.bookVisit}</Link>
+            <Link href={portalHref} className="inline-flex h-12 items-center justify-center gap-2 rounded-full border border-white/25 font-medium text-white"><KeyRound className="h-4 w-4 text-accent" />{loggedIn ? t.nav.dashboard : t.nav.portal}</Link>
+          </div>
+          <div className="mt-8 space-y-3 text-sm text-white/60">
+            {contact.phone && <a href={`tel:${contact.phone}`} className="flex items-center gap-2"><Phone className="h-4 w-4 text-accent" /><span dir="ltr">{contact.phone}</span></a>}
+            {contact.email && <a href={`mailto:${contact.email}`} className="flex items-center gap-2"><Mail className="h-4 w-4 text-accent" /><span dir="ltr">{contact.email}</span></a>}
+            <div className="flex items-center gap-4 pt-2"><LocaleToggle light />{contact.socials.map((l) => <a key={l.href} href={l.href} target="_blank" rel="noreferrer">{l.label}</a>)}</div>
           </div>
         </div>
       )}
     </header>
+  );
+}
+
+// ------------------------------------------------------------------ partners marquee
+export function PartnersMarquee({ logos, label }: { logos: string[]; label: string }) {
+  // each half must be wider than the screen for a seamless loop → repeat short lists
+  const half = logos.length < 8 ? [...logos, ...logos] : logos;
+  const row = (hidden: boolean) => (
+    <ul aria-hidden={hidden || undefined} className="flex shrink-0 items-center">
+      {half.map((src, i) => (
+        <li key={`${src}-${i}`} className="mx-4 grid h-24 w-44 shrink-0 place-items-center rounded-2xl border border-sand-200 bg-white px-6 sm:mx-5 sm:w-52">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src={src} alt={hidden || i >= logos.length ? '' : label} loading="lazy" className="max-h-14 w-auto object-contain opacity-70 grayscale transition duration-300 hover:opacity-100 hover:grayscale-0" />
+        </li>
+      ))}
+    </ul>
+  );
+  return (
+    <div className="marquee overflow-hidden py-2" style={{ ['--marquee-speed' as string]: `${half.length * 4.5}s` }}>
+      <div className="marquee-track">{row(false)}{row(true)}</div>
+    </div>
   );
 }
 
@@ -102,7 +177,7 @@ export function ProjectsGrid({ projects, t, locale, whatsapp }: { projects: Site
       </div>
       <ul className="grid grid-cols-2 gap-x-5 gap-y-12 sm:gap-x-8 lg:grid-cols-4">
         {list.map((p) => (
-          <li key={p.name_ar} className="group">
+          <li key={p.name_ar} className="group relative">
             <div className="relative aspect-[3/4] overflow-hidden rounded-arch bg-brand">
               {p.image_url && (
                 // eslint-disable-next-line @next/next/no-img-element
@@ -111,10 +186,16 @@ export function ProjectsGrid({ projects, t, locale, whatsapp }: { projects: Site
               <div className="pointer-events-none absolute inset-0 rounded-arch ring-1 ring-inset ring-black/5" />
             </div>
             <div className="mt-4 flex items-baseline justify-between gap-2">
-              <h3 className="font-display text-xl font-bold text-ink">{nm(p)}</h3>
+              <h3 className="font-display text-xl font-bold text-ink">
+                {p.id ? <Link href={`/projects/${p.id}`} className="after:absolute after:inset-0 after:content-['']">{nm(p)}</Link> : nm(p)}
+              </h3>
               <span className={cx('shrink-0 text-xs', p.sales_status === 'selling' ? 'font-semibold text-accent' : 'text-stone-450')}>{t.projects.stage[p.sales_status]}</span>
             </div>
-            {p.sales_status !== 'sold' && whatsapp && (
+            {p.id ? (
+              <span className="mt-1.5 inline-flex items-center gap-1 text-sm text-brand transition group-hover:gap-2">
+                {p.sales_status === 'selling' ? t.featured.units : t.projects.details}<ArrowUpLeft className="h-3.5 w-3.5 ltr:-scale-x-100" />
+              </span>
+            ) : p.sales_status !== 'sold' && whatsapp && (
               <a href={waLink(whatsapp, `${t.featured.message} ${nm(p)}`)} target="_blank" rel="noreferrer" className="mt-1.5 inline-block text-sm text-brand underline-offset-4 hover:underline">
                 {t.inquire}
               </a>

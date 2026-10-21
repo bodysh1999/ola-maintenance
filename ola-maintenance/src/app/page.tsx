@@ -1,12 +1,11 @@
 import type { Metadata } from 'next';
 import Link from 'next/link';
-import { createClient as createPlainClient } from '@supabase/supabase-js';
-import { Gem, Handshake, Lightbulb, Mail, MessageCircle, Phone, ShieldCheck, Eye } from 'lucide-react';
-import { getCurrentProfile, getI18n, getSettings, homeFor } from '@/lib/session';
-import { FALLBACK_PROJECTS, SITE_ASSETS, siteContent, waLink, type SiteProject } from '@/lib/site-content';
-import { DEFAULT_LOGO } from '@/components/brand';
-import { SocialLinks } from '@/components/contact-links';
-import { CountUp, Faq, ProjectsGrid, SiteHeader, WhatsAppFloat } from '@/components/site';
+import { ArrowUpLeft, Briefcase, CalendarCheck, ClipboardCheck, Compass, Gem, GraduationCap, Handshake, HardHat, Lightbulb, Mail, MessageCircle, MessagesSquare, Phone, ShieldCheck, Eye } from 'lucide-react';
+import { getSettings } from '@/lib/session';
+import { SITE_ASSETS, waLink, type SiteProject } from '@/lib/site-content';
+import { getProjects } from '@/lib/public-data';
+import { CountUp, Faq, PartnersMarquee, ProjectsGrid } from '@/components/site';
+import { DEEP, getSiteChrome, SiteFrame } from '@/components/site-frame';
 
 export async function generateMetadata(): Promise<Metadata> {
   const s = await getSettings();
@@ -17,42 +16,22 @@ export async function generateMetadata(): Promise<Metadata> {
   };
 }
 
-/** Public list of projects (anon read — migration 5); falls back to the built-in list */
-async function getProjects(): Promise<SiteProject[]> {
-  try {
-    const anon = createPlainClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, { auth: { persistSession: false } });
-    const { data, error } = await anon.from('projects').select('name_ar, name_en, image_url, sales_status').order('name_ar', { ascending: false });
-    if (error || !data?.length) return FALLBACK_PROJECTS;
-    return data as SiteProject[];
-  } catch {
-    return FALLBACK_PROJECTS;
-  }
-}
-
-const DEEP = 'bg-[#2A1F3A]';
-
 export default async function HomePage() {
-  const [{ locale }, s, profile, projects] = await Promise.all([getI18n(), getSettings(), getCurrentProfile(), getProjects()]);
-  const t = siteContent(locale);
-  const ar = locale === 'ar';
-  const name = ar ? s.name_ar : s.name_en;
-  const logo = s.logo_url || DEFAULT_LOGO;
-  const loggedIn = !!profile?.is_active;
-  const portalHref = loggedIn ? homeFor(profile!.role) : '/login';
+  const [c, projects] = await Promise.all([getSiteChrome(), getProjects()]);
+  const { t, pg, s, locale, ar, name, logo, loggedIn, portalHref } = c;
   const featured = projects.find((p) => p.sales_status === 'selling');
   const nm = (p: SiteProject) => (!ar && p.name_en ? p.name_en : p.name_ar);
   const valueIcons = [Gem, ShieldCheck, Lightbulb, Eye, Handshake];
   const [sProjects, sUnits, sLand, sBuilt, sPeople] = t.stats;
 
   return (
-    <div id="top" className="overflow-x-clip bg-sand-50 text-ink">
-      <SiteHeader t={t} logo={logo} name={name} portalHref={portalHref} loggedIn={loggedIn} />
+    <SiteFrame c={c}>
 
       {/* ================= HERO — the arch window ================= */}
       <section className={`relative isolate overflow-hidden ${DEEP} text-white`}>
         <div className="texture-lines absolute inset-0 -z-10 opacity-50" />
         <div className="absolute -start-40 top-0 -z-10 h-[620px] w-[620px] rounded-full bg-brand blur-3xl" />
-        <div className="mx-auto grid max-w-7xl items-end gap-12 px-5 pb-16 pt-28 sm:px-8 lg:min-h-[100svh] lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-20 lg:pt-36">
+        <div className="mx-auto grid max-w-7xl items-end gap-12 px-5 pb-16 pt-28 sm:px-8 md:pt-36 lg:min-h-[100svh] lg:grid-cols-[1.05fr_1fr] lg:gap-16 lg:pb-20 lg:pt-44">
           <div className="lg:pb-10">
             <p className="rise-in text-sm text-accent">{t.hero.eyebrow}</p>
             <h1 className="rise-in mt-4 font-display text-[56px] font-bold leading-[1.15] sm:text-[84px] lg:text-[104px]">{t.hero.title}</h1>
@@ -132,17 +111,61 @@ export default async function HomePage() {
                 <span className="inline-flex rounded-full bg-accent px-3.5 py-1 text-sm font-medium text-white">{t.featured.label}</span>
                 <h3 className="mt-5 font-display text-5xl font-bold text-brand sm:text-6xl">{nm(featured)}</h3>
                 <p className="mt-5 max-w-md text-lg leading-loose text-ink/70">{t.featured.body}</p>
-                {s.whatsapp && (
-                  <a href={waLink(s.whatsapp, `${t.featured.message} ${nm(featured)}`)} target="_blank" rel="noreferrer"
-                    className="mt-8 inline-flex h-14 items-center gap-2 rounded-full bg-emerald-600 px-7 font-medium text-white transition hover:bg-emerald-700">
-                    <MessageCircle className="h-5 w-5" />{t.featured.cta}
-                  </a>
-                )}
+                <div className="mt-8 flex flex-wrap gap-3">
+                  {featured.id && (
+                    <>
+                      <Link href={`/projects/${featured.id}#units`} className="inline-flex h-14 items-center gap-2 rounded-full bg-brand px-7 font-semibold text-white transition hover:bg-brand/90">
+                        {t.featured.units}<ArrowUpLeft className="h-4 w-4 ltr:-scale-x-100" />
+                      </Link>
+                      <Link href={`/projects/${featured.id}#book`} className="inline-flex h-14 items-center gap-2 rounded-full border border-brand/25 px-7 font-medium text-brand transition hover:bg-brand/5">
+                        <CalendarCheck className="h-5 w-5" />{t.featured.visit}
+                      </Link>
+                    </>
+                  )}
+                  {s.whatsapp && (
+                    <a href={waLink(s.whatsapp, `${t.featured.message} ${nm(featured)}`)} target="_blank" rel="noreferrer"
+                      className="inline-flex h-14 items-center gap-2 rounded-full bg-emerald-600 px-7 font-medium text-white transition hover:bg-emerald-700">
+                      <MessageCircle className="h-5 w-5" />{t.featured.cta}
+                    </a>
+                  )}
+                </div>
               </div>
             </article>
           )}
 
           <div className="mt-20"><ProjectsGrid projects={projects} t={t} locale={locale} whatsapp={s.whatsapp} /></div>
+        </div>
+      </section>
+
+      {/* ================= SERVICES TEASER ================= */}
+      <section className={`relative isolate overflow-hidden ${DEEP} py-24 text-white sm:py-28`}>
+        <div className="texture-lines absolute inset-0 -z-10 opacity-40" />
+        <div className="mx-auto max-w-7xl px-5 sm:px-8">
+          <div className="flex flex-wrap items-end justify-between gap-6">
+            <div className="max-w-2xl">
+              <h2 className="font-display text-4xl font-bold sm:text-5xl">{pg.teasers.servicesTitle}</h2>
+              <p className="mt-5 text-lg leading-loose text-white/70">{pg.teasers.servicesBody}</p>
+            </div>
+            <Link href="/services" className="inline-flex h-12 items-center gap-2 rounded-full border border-white/25 px-6 text-sm font-medium transition hover:bg-white/10">
+              {pg.teasers.allServices}<ArrowUpLeft className="h-4 w-4 ltr:-scale-x-100" />
+            </Link>
+          </div>
+          <ul className="mt-14 grid gap-px overflow-hidden rounded-[28px] bg-white/10 sm:grid-cols-2 lg:grid-cols-4">
+            {(['design_build', 'construction', 'supervision', 'consulting'] as const).map((k, i) => {
+              const Icon = [Compass, HardHat, ClipboardCheck, MessagesSquare][i];
+              const it = pg.services.items[k];
+              return (
+                <li key={k} className={`group relative ${DEEP} p-8 transition hover:bg-[#33264A]`}>
+                  <Icon className="h-8 w-8 text-accent" strokeWidth={1.5} />
+                  <h3 className="mt-6 text-xl font-semibold">
+                    <Link href={`/services#${k}`} className="after:absolute after:inset-0 after:content-['']">{it.title}</Link>
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-white/60">{it.short}</p>
+                  <ArrowUpLeft className="mt-6 h-5 w-5 text-white/30 transition group-hover:text-accent ltr:-scale-x-100" />
+                </li>
+              );
+            })}
+          </ul>
         </div>
       </section>
 
@@ -226,17 +249,27 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ================= PARTNERS ================= */}
-      <section className="border-y border-sand-200 bg-white py-16">
+      {/* ================= PARTNERS (marquee) ================= */}
+      <section className="overflow-hidden border-y border-sand-200 bg-white py-20">
+        <div className="mx-auto max-w-7xl px-5 text-center sm:px-8">
+          <h2 className="font-display text-3xl font-bold text-brand sm:text-4xl">{t.partners.title}</h2>
+          <p className="mt-3 text-stone-450">{t.partners.body}</p>
+        </div>
+        <div className="mt-12"><PartnersMarquee logos={SITE_ASSETS.partners} label={t.partners.title} /></div>
+      </section>
+
+      {/* ================= CAREERS TEASER ================= */}
+      <section className="py-20 sm:py-24">
         <div className="mx-auto max-w-7xl px-5 sm:px-8">
-          <h2 className="text-center text-sm font-medium text-stone-450">{t.partners.title}</h2>
-          <div className="mt-8 grid grid-cols-3 items-center gap-x-8 gap-y-8 sm:grid-cols-6">
-            {SITE_ASSETS.partners.map((src) => (
-              <div key={src} className="grid h-16 place-items-center">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={src} alt="" loading="lazy" className="max-h-14 w-auto object-contain opacity-60 grayscale transition hover:opacity-100 hover:grayscale-0" />
-              </div>
-            ))}
+          <div className="grid items-center gap-8 overflow-hidden rounded-[32px] bg-brand p-8 text-white sm:p-12 lg:grid-cols-[1.3fr_1fr]">
+            <div>
+              <h2 className="font-display text-3xl font-bold sm:text-4xl">{pg.teasers.careersTitle}</h2>
+              <p className="mt-4 max-w-xl leading-loose text-white/75">{pg.teasers.careersBody}</p>
+            </div>
+            <div className="flex flex-wrap gap-3 lg:justify-end">
+              <Link href="/careers" className="inline-flex h-14 items-center gap-2 rounded-full bg-accent px-7 font-semibold text-white transition hover:bg-accent/90"><Briefcase className="h-5 w-5" />{pg.careers.openings}</Link>
+              <Link href="/careers#training" className="inline-flex h-14 items-center gap-2 rounded-full border border-white/30 px-7 font-medium transition hover:bg-white/10"><GraduationCap className="h-5 w-5" />{pg.careers.training}</Link>
+            </div>
           </div>
         </div>
       </section>
@@ -276,34 +309,6 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
-      <footer className={`${DEEP} text-white`}>
-        <div className="mx-auto grid max-w-7xl gap-10 px-5 py-14 sm:px-8 md:grid-cols-[1.5fr_1fr_1fr]">
-          <div>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={logo} alt={name} className="h-14 w-auto" />
-            <p className="mt-5 max-w-sm text-sm leading-relaxed text-white/55">{name}</p>
-          </div>
-          <nav aria-label={t.footer.quick}>
-            <div className="mb-4 text-sm text-accent">{t.footer.quick}</div>
-            <ul className="space-y-2.5 text-sm text-white/70">
-              <li><a href="#about" className="hover:text-white">{t.nav.about}</a></li>
-              <li><a href="#projects" className="hover:text-white">{t.nav.projects}</a></li>
-              <li><Link href={portalHref} className="hover:text-white">{t.nav.afterSales}</Link></li>
-              <li><a href="#contact" className="hover:text-white">{t.nav.contact}</a></li>
-            </ul>
-          </nav>
-          <div>
-            <div className="mb-4 text-sm text-accent">{t.footer.follow}</div>
-            <SocialLinks s={s} light className="flex-col items-start gap-y-2.5 text-sm" />
-          </div>
-        </div>
-        <div className="border-t border-white/10">
-          <div className="mx-auto max-w-7xl px-5 py-5 text-xs text-white/45 sm:px-8">© {new Date().getFullYear()} {name}. {t.footer.rights}</div>
-        </div>
-      </footer>
-
-      <WhatsAppFloat phone={s.whatsapp} label={t.contact.whatsapp} />
-    </div>
+    </SiteFrame>
   );
 }

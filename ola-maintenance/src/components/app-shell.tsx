@@ -14,7 +14,29 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   let bottom: NavItem[] | null = null;
   const n = d.nav;
 
-  if (profile.role === 'admin' || profile.role === 'supervisor') {
+  // sales / HR sections (also shown to the company admin)
+  const salesItems = async (): Promise<NavItem[]> => {
+    const { count } = await supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new');
+    return [
+      { href: '/sales', label: n.leads, icon: 'leads', exact: true, badge: count ?? 0 },
+      { href: '/sales/units', label: n.salesUnits, icon: 'units' },
+    ];
+  };
+  const hrItems = async (): Promise<NavItem[]> => {
+    const { count } = await supabase.from('job_applications').select('id', { count: 'exact', head: true }).eq('status', 'new');
+    return [
+      { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0 },
+      { href: '/hr/openings', label: n.openings, icon: 'openings' },
+    ];
+  };
+  const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
+  const site: NavItem = { href: '/', label: n.website, icon: 'website', exact: true };
+
+  if (profile.role === 'sales') {
+    items = [...(await salesItems()), bell, site];
+  } else if (profile.role === 'hr') {
+    items = [...(await hrItems()), bell, site];
+  } else if (profile.role === 'admin' || profile.role === 'supervisor') {
     const { count: fresh } = await supabase.from('maintenance_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'pending_approval', 'reopened']);
     items = [
       { href: '/admin', label: n.dashboard, icon: 'dashboard', exact: true },
@@ -24,8 +46,8 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       { href: '/admin/owners', label: n.owners, icon: 'owners' },
       { href: '/admin/team', label: n.team, icon: 'team' },
       { href: '/admin/reports', label: n.reports, icon: 'reports' },
-      ...(profile.role === 'admin' ? [{ href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
-      { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 },
+      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
+      bell,
     ];
   } else if (profile.role === 'technician') {
     items = [

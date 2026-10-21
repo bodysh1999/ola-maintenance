@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'supervisor' | 'technician' | 'owner';
+export type Role = 'admin' | 'supervisor' | 'technician' | 'owner' | 'sales' | 'hr';
 
 export type RequestStatus =
   | 'new' | 'under_review' | 'approved' | 'assigned' | 'scheduled' | 'in_progress'

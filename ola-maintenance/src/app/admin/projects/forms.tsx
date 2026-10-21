@@ -4,7 +4,8 @@ import { useState, type ReactNode } from 'react';
 import { Plus, X } from 'lucide-react';
 import { ActionForm, SubmitButton, useI18n } from '@/components/client';
 import { Button, Field, Input, Select, Textarea } from '@/components/ui';
-import { addWarranty, applyStandardWarranties, createBuilding, createProject, createUnit, updateUnit } from '@/app/actions/admin';
+import { addWarranty, applyStandardWarranties, createBuilding, createProject, createUnit, updateProject, updateUnit } from '@/app/actions/admin';
+import { SALE_STATUSES } from '@/lib/sales-hr';
 import { CATEGORIES } from '@/lib/constants';
 
 /** Collapsible inline creator panel */
@@ -47,6 +48,45 @@ export function ProjectForm() {
   );
 }
 
+type ProjectRow = {
+  id: string; name_ar: string; name_en: string | null; city: string; district: string | null; delivery_year: number | null; image_url: string | null;
+  description: string | null; sales_status: string; address_text?: string | null; location_url?: string | null; map_query?: string | null; visit_hours?: string | null;
+};
+
+/** Project details shown on the public website (location for visits, description, stage) */
+export function ProjectSiteForm({ project }: { project: ProjectRow }) {
+  const { d } = useI18n();
+  const p = d.admin.projects;
+  const s = d.site;
+  return (
+    <Creator label={s.editProject}>
+      {() => (
+        <ActionForm action={updateProject} className="grid gap-3 sm:grid-cols-2" successText={d.common.saved}>
+          <input type="hidden" name="id" value={project.id} />
+          <Field label={p.nameAr} required><Input name="name_ar" required defaultValue={project.name_ar} /></Field>
+          <Field label={p.nameEn}><Input name="name_en" dir="ltr" defaultValue={project.name_en ?? ''} /></Field>
+          <Field label={p.city}><Input name="city" defaultValue={project.city} /></Field>
+          <Field label={p.district}><Input name="district" defaultValue={project.district ?? ''} /></Field>
+          <Field label={p.salesStatus}>
+            <Select name="sales_status" defaultValue={project.sales_status}>
+              {(['sold', 'selling', 'construction'] as const).map((k) => <option key={k} value={k}>{p.stage[k]}</option>)}
+            </Select>
+          </Field>
+          <Field label={p.year}><Input name="delivery_year" type="number" min={2000} max={2100} defaultValue={project.delivery_year ?? ''} /></Field>
+          <Field label={p.image} className="sm:col-span-2"><Input name="image_url" type="url" dir="ltr" defaultValue={project.image_url ?? ''} /></Field>
+          <Field label={s.description} className="sm:col-span-2"><Textarea name="description" rows={4} defaultValue={project.description ?? ''} /></Field>
+          <div className="mt-2 text-sm font-semibold text-brand sm:col-span-2">{s.location}</div>
+          <Field label={s.address} className="sm:col-span-2"><Input name="address_text" defaultValue={project.address_text ?? ''} /></Field>
+          <Field label={s.mapQuery} hint={s.mapQueryHint}><Input name="map_query" dir="ltr" defaultValue={project.map_query ?? ''} placeholder="21.6208,39.1176" /></Field>
+          <Field label={s.locationUrl}><Input name="location_url" type="url" dir="ltr" defaultValue={project.location_url ?? ''} placeholder="https://maps.app.goo.gl/…" /></Field>
+          <Field label={s.visitHours} className="sm:col-span-2"><Input name="visit_hours" defaultValue={project.visit_hours ?? ''} /></Field>
+          <div className="sm:col-span-2"><SubmitButton>{d.common.save}</SubmitButton></div>
+        </ActionForm>
+      )}
+    </Creator>
+  );
+}
+
 export function BuildingForm({ projectId }: { projectId: string }) {
   const { d } = useI18n();
   const p = d.admin.projects;
@@ -65,7 +105,10 @@ const UNIT_TYPES = ['apartment', 'villa', 'townhouse', 'penthouse', 'duplex', 'c
 
 export function UnitFields({ buildings, owners, unit }: {
   buildings?: Opt[]; owners: Opt[];
-  unit?: { unit_number: string; floor: number; unit_type: string; area_sqm: number | null; bedrooms: number | null; owner_id: string | null; handover_date: string | null; image_url: string | null };
+  unit?: {
+    unit_number: string; floor: number; unit_type: string; area_sqm: number | null; bedrooms: number | null; owner_id: string | null; handover_date: string | null; image_url: string | null;
+    price?: number | null; sale_status?: string; bathrooms?: number | null; features?: string | null;
+  };
 }) {
   const { d } = useI18n();
   const p = d.admin.projects;
@@ -96,6 +139,16 @@ export function UnitFields({ buildings, owners, unit }: {
       </Field>
       <Field label={p.handover}><Input name="handover_date" type="date" defaultValue={unit?.handover_date ?? ''} /></Field>
       <Field label={p.image}><Input name="image_url" type="url" dir="ltr" placeholder="https://" defaultValue={unit?.image_url ?? ''} /></Field>
+      {/* website listing — a unit linked to an owner is always saved as sold */}
+      <div className="col-span-full mt-2 border-t border-sand-100 pt-3 text-sm font-semibold text-brand">{d.site.saleSection}</div>
+      <Field label={d.site.saleStatus}>
+        <Select name="sale_status" defaultValue={unit?.sale_status ?? 'not_for_sale'}>
+          {SALE_STATUSES.map((k) => <option key={k} value={k}>{d.saleStatus[k]}</option>)}
+        </Select>
+      </Field>
+      <Field label={d.site.price}><Input name="price" type="number" min={0} step={1000} dir="ltr" defaultValue={unit?.price ?? ''} /></Field>
+      <Field label={d.site.bathrooms}><Input name="bathrooms" type="number" min={0} defaultValue={unit?.bathrooms ?? ''} /></Field>
+      <Field label={d.site.features} className="col-span-full"><Input name="features" defaultValue={unit?.features ?? ''} /></Field>
     </>
   );
 }

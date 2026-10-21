@@ -90,7 +90,7 @@ export default async function UnitPage({ params }: { params: Promise<{ id: strin
               <CardHeader title={u.linkOwner} />
               <div className="p-5">
                 <UnitEditForm id={unit.id} owners={(owners ?? []).map((o) => ({ id: o.id, label: `${o.full_name} — ${o.phone}` }))}
-                  unit={{ unit_number: unit.unit_number, floor: unit.floor, unit_type: unit.unit_type, area_sqm: unit.area_sqm, bedrooms: unit.bedrooms, owner_id: unit.owner_id, handover_date: unit.handover_date, image_url: unit.image_url }} />
+                  unit={{ unit_number: unit.unit_number, floor: unit.floor, unit_type: unit.unit_type, area_sqm: unit.area_sqm, bedrooms: unit.bedrooms, owner_id: unit.owner_id, handover_date: unit.handover_date, image_url: unit.image_url, price: unit.price ?? null, sale_status: unit.sale_status ?? 'not_for_sale', bathrooms: unit.bathrooms ?? null, features: unit.features ?? null }} />
               </div>
             </Card>
           )}

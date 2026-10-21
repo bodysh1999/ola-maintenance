@@ -13,7 +13,7 @@ export default async function TeamPage() {
     supabase.from('technicians').select('id, full_name, phone, specialties, is_active, contractors(name), profiles(email)').order('full_name'),
     supabase.from('contractors').select('*').order('name'),
     supabase.from('work_orders').select('technician_id').in('status', ['assigned', 'in_progress', 'awaiting_parts', 'returned', 'submitted']),
-    supabase.from('profiles').select('id, full_name, email, phone, role, is_active').in('role', ['admin', 'supervisor']).order('full_name'),
+    supabase.from('profiles').select('id, full_name, email, phone, role, is_active').in('role', ['admin', 'supervisor', 'sales', 'hr']).order('full_name'),
   ]);
   const open = new Map<string, number>();
   (openWos ?? []).forEach((w) => open.set(w.technician_id, (open.get(w.technician_id) ?? 0) + 1));
@@ -91,7 +91,7 @@ export default async function TeamPage() {
                   <div className="text-xs text-stone-450" dir="ltr">{s.email}</div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <Badge className="bg-brand/10 text-brand ring-brand/20">{d.roles[s.role as 'admin' | 'supervisor']}</Badge>
+                  <Badge className="bg-brand/10 text-brand ring-brand/20">{d.roles[s.role as 'admin' | 'supervisor' | 'sales' | 'hr']}</Badge>
                   {s.id !== profile?.id && <ToggleActive kind="staff" id={s.id} active={s.is_active} />}
                 </div>
               </li>

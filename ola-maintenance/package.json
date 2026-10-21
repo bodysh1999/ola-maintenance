@@ -9,7 +9,7 @@
     "typecheck": "tsc --noEmit",
     "seed:demo": "node scripts/seed-demo.mjs",
     "create-admin": "node scripts/create-admin.mjs",
-    "test:db": "node supabase/tests/rls-workflow.test.mjs"
+    "test:db": "node supabase/tests/rls-workflow.test.mjs && node supabase/tests/sales-careers.test.mjs"
   },
   "dependencies": {
     "@supabase/ssr": "^0.12.7",

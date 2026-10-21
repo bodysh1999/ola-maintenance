@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Bell, Building2, ClipboardList, Home, Inbox, LayoutDashboard, LogOut, Menu, PlusCircle,
-  Settings, Users, Wrench, X, BarChart3, HardHat,
+  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe,
 } from 'lucide-react';
 import { cx } from './ui';
 import { signOut } from '@/app/actions/common';
@@ -15,6 +15,7 @@ import { LocaleToggle } from './locale-toggle';
 export const NAV_ICONS = {
   dashboard: LayoutDashboard, inbox: Inbox, requests: ClipboardList, projects: Building2, owners: Users,
   team: HardHat, reports: BarChart3, settings: Settings, home: Home, newRequest: PlusCircle, tasks: Wrench, bell: Bell,
+  leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
 };
 export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number };
 

@@ -70,6 +70,9 @@ export async function updateProject(_: ActionResult, fd: FormData): Promise<Acti
       name_ar: str(fd, 'name_ar'), name_en: strOrNull(fd, 'name_en'), city: str(fd, 'city'),
       district: strOrNull(fd, 'district'), delivery_year: numOrNull(fd, 'delivery_year'),
       image_url: strOrNull(fd, 'image_url'), description: strOrNull(fd, 'description'),
+      ...(['construction', 'selling', 'sold'].includes(str(fd, 'sales_status')) ? { sales_status: str(fd, 'sales_status') } : {}),
+      address_text: strOrNull(fd, 'address_text'), location_url: safeUrl(strOrNull(fd, 'location_url')),
+      map_query: strOrNull(fd, 'map_query'), visit_hours: strOrNull(fd, 'visit_hours'),
     }).eq('id', str(fd, 'id')));
     r('/admin/projects');
   });
@@ -87,6 +90,20 @@ export async function createBuilding(_: ActionResult, fd: FormData): Promise<Act
   });
 }
 
+const SALE_STATUSES = ['available', 'reserved', 'sold', 'not_for_sale'];
+/** price / availability shown on the public project page */
+function saleFields(fd: FormData) {
+  const st = str(fd, 'sale_status');
+  return {
+    price: numOrNull(fd, 'price'), bathrooms: numOrNull(fd, 'bathrooms'), features: strOrNull(fd, 'features'),
+    // a unit with an owner can never be listed for sale
+    sale_status: strOrNull(fd, 'owner_id') ? 'sold' : SALE_STATUSES.includes(st) ? st : 'not_for_sale',
+  };
+}
+function safeUrl(v: string | null) {
+  return v && /^https:\/\//i.test(v) ? v : null;
+}
+
 export async function createUnit(_: ActionResult, fd: FormData): Promise<ActionResult> {
   return act(async (d) => {
     const supabase = await requireAdmin();
@@ -95,6 +112,7 @@ export async function createUnit(_: ActionResult, fd: FormData): Promise<ActionR
       building_id: str(fd, 'building_id'), unit_number: str(fd, 'unit_number'), floor: numOrNull(fd, 'floor') ?? 0,
       unit_type: str(fd, 'unit_type') || 'apartment', area_sqm: numOrNull(fd, 'area_sqm'), bedrooms: numOrNull(fd, 'bedrooms'),
       owner_id: strOrNull(fd, 'owner_id'), handover_date: strOrNull(fd, 'handover_date'), image_url: strOrNull(fd, 'image_url'),
+      ...saleFields(fd),
     }));
     r('/admin/projects', '/admin/owners');
     return { ok: true };
@@ -108,6 +126,7 @@ export async function updateUnit(_: ActionResult, fd: FormData): Promise<ActionR
       unit_number: str(fd, 'unit_number'), floor: numOrNull(fd, 'floor') ?? 0, unit_type: str(fd, 'unit_type'),
       area_sqm: numOrNull(fd, 'area_sqm'), bedrooms: numOrNull(fd, 'bedrooms'), owner_id: strOrNull(fd, 'owner_id'),
       handover_date: strOrNull(fd, 'handover_date'), image_url: strOrNull(fd, 'image_url'),
+      ...saleFields(fd),
     }).eq('id', str(fd, 'id')));
     r('/admin/projects', '/admin/owners');
   });
@@ -266,7 +285,7 @@ export async function createStaff(_: ActionResult, fd: FormData): Promise<Action
     await requireAdmin();
     const role = str(fd, 'role') as Role;
     const email = str(fd, 'email').toLowerCase();
-    if (!email || !str(fd, 'full_name') || !['admin', 'supervisor'].includes(role)) throw new UserError(d.errors.REQUIRED);
+    if (!email || !str(fd, 'full_name') || !['admin', 'supervisor', 'sales', 'hr'].includes(role)) throw new UserError(d.errors.REQUIRED);
     const { password } = await createAccount(email, str(fd, 'full_name'), strOrNull(fd, 'phone'), role);
     r('/admin/team');
     return { ok: true, data: { password, email } };

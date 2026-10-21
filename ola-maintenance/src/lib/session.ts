@@ -57,6 +57,8 @@ export function homeFor(role: Role): string {
   if (role === 'owner') return '/owner';
   if (role === 'technician') return '/tech';
   if (role === 'supervisor') return '/admin/inbox';
+  if (role === 'sales') return '/sales';
+  if (role === 'hr') return '/hr';
   return '/admin';
 }
 
