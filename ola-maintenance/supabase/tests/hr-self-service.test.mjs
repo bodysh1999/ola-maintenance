@@ -137,5 +137,12 @@ await as(U.emp, `insert into storage.objects (bucket_id,name) values ('hr-docs',
 await fails('upload into someone else folder', as(U.emp, `insert into storage.objects (bucket_id,name) values ('hr-docs','${E.other}/x.pdf')`));
 ok('other cannot read emp doc', (await as(U.other, `select count(*) c from storage.objects where bucket_id='hr-docs'`)).rows[0].c === 0);
 
+// hardening (migration 10)
+await db.exec(`set role anon`);
+try { await db.query(`select public.is_admin()`); console.log('!! SHOULD FAIL anon is_admin'); failed++; } catch { console.log('ok blocked: anon calls is_admin'); }
+await db.exec(`reset role`);
+await fails('user calls manager_chain', as(U.emp, `select * from public.manager_chain('${E.emp}')`), 'permission denied');
+await fails('user calls evaluate_warranty', as(U.emp, `select * from public.evaluate_warranty(gen_random_uuid(), 'plumbing')`), 'permission denied');
+ok('user still passes RLS helpers', (await as(U.emp, `select public.my_employee_id() id`)).rows[0].id === E.emp);
 console.log(failed ? `FAILED: ${failed}` : 'ALL PASSED');
 process.exitCode = failed ? 1 : 0;
