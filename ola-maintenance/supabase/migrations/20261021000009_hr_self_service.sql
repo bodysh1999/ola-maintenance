@@ -282,7 +282,7 @@ end $$;
 create or replace function public.submit_hr_request(p jsonb)
 returns text language plpgsql security definer set search_path = public as $$
 declare
-  v_emp record; v_type text := p ->> 'type'; v_lt record; v_req uuid; v_ref text;
+  v_emp record; v_type text := p ->> 'type'; v_lt record; v_lt_code text; v_req uuid; v_ref text;
   v_start date; v_end date; v_days numeric; v_work date; v_in time; v_out time; v_hours numeric; v_amount numeric;
   v_levels int; v_hr boolean; v_step int := 0; m record; v_today date := public.today_riyadh(); v_bal record;
   v_gross numeric; v_dept_mgr uuid; v_seen uuid[] := '{}';
@@ -301,6 +301,7 @@ begin
   if v_type = 'leave' then
     select * into v_lt from public.leave_types where code = p ->> 'leave_type' and is_active;
     if v_lt.code is null then raise exception 'LEAVE_TYPE_REQUIRED' using errcode = 'P0001'; end if;
+    v_lt_code := v_lt.code;
     if v_start is null or v_end is null or v_end < v_start then raise exception 'INVALID_RANGE' using errcode = 'P0001'; end if;
     if v_start < v_today - 30 then raise exception 'DATE_TOO_OLD' using errcode = 'P0001'; end if;
     v_days := v_end - v_start + 1;
@@ -382,7 +383,7 @@ begin
 
   insert into public.hr_requests (employee_id, type, leave_type, start_date, end_date, days, work_date, time_in, time_out, hours,
     destination, amount, addressed_to, lat, lng, accuracy_m, reason, attachment_path)
-  values (v_emp.id, v_type, case when v_type = 'leave' then v_lt.code end, v_start, v_end, v_days, v_work, v_in, v_out, v_hours,
+  values (v_emp.id, v_type, v_lt_code, v_start, v_end, v_days, v_work, v_in, v_out, v_hours,
     left(nullif(btrim(p ->> 'destination'), ''), 200), v_amount, left(nullif(btrim(p ->> 'addressed_to'), ''), 200),
     nullif(p ->> 'lat', '')::double precision, nullif(p ->> 'lng', '')::double precision, nullif(p ->> 'accuracy_m', '')::numeric::int,
     left(nullif(btrim(p ->> 'reason'), ''), 2000), nullif(p ->> 'attachment_path', ''))
