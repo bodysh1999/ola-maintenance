@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --brand: 60 46 82;
+  --accent: 176 141 87;
+}
+
+html { -webkit-tap-highlight-color: transparent; }
+body {
+  @apply bg-sand-50 text-ink antialiased;
+  font-feature-settings: "ss01";
+}
+html[dir='rtl'] .flip-rtl { transform: scaleX(-1); }
+
+/* datetime inputs keep LTR digits even in RTL */
+input[type='date'], input[type='datetime-local'], input[type='tel'], input[type='email'], input[type='number'] { direction: ltr; text-align: start; }
+html[dir='rtl'] input[type='date'], html[dir='rtl'] input[type='datetime-local'], html[dir='rtl'] input[type='tel'], html[dir='rtl'] input[type='email'], html[dir='rtl'] input[type='number'] { text-align: right; }
+
+.scrollbar-none::-webkit-scrollbar { display: none; }
+.scrollbar-none { scrollbar-width: none; }
+
+/* subtle architectural line texture used on hero surfaces */
+.texture-lines {
+  background-image: repeating-linear-gradient(135deg, rgb(255 255 255 / .045) 0 1px, transparent 1px 14px);
+}
+
+@media print {
+  .no-print, aside, header { display: none !important; }
+  body { background: white; }
+  main { padding: 0 !important; }
+  .print-break { break-inside: avoid; }
+}
+
+/* grid children may shrink below their content (long text, wide tables scroll inside their card) */
+.grid > * { min-width: 0; }
