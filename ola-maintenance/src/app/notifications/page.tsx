@@ -9,7 +9,7 @@ import { notifText } from '@/components/request-parts';
 import { markAllNotificationsRead } from '@/app/actions/common';
 
 export default async function NotificationsPage() {
-  const profile = await requireRole(['admin', 'supervisor', 'technician', 'owner', 'sales', 'hr']);
+  const profile = await requireRole(['admin', 'supervisor', 'technician', 'owner', 'sales', 'hr', 'employee']);
   const [{ d, locale }, supabase] = await Promise.all([getI18n(), createClient()]);
   const { data } = await supabase.from('notifications').select('*').order('created_at', { ascending: false }).limit(100);
   const items = (data ?? []) as { id: string; type: string; request_id: string | null; payload: Record<string, unknown>; read_at: string | null; created_at: string }[];

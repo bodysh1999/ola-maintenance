@@ -1,4 +1,4 @@
-export type Role = 'admin' | 'supervisor' | 'technician' | 'owner' | 'sales' | 'hr';
+export type Role = 'admin' | 'supervisor' | 'technician' | 'owner' | 'sales' | 'hr' | 'employee';
 
 export type RequestStatus =
   | 'new' | 'under_review' | 'approved' | 'assigned' | 'scheduled' | 'in_progress'
@@ -42,6 +42,10 @@ export interface CompanySettings {
   instagram_url: string | null;
   snapchat_url: string | null;
   tiktok_url: string | null;
+  gosi_saudi_rate?: number;
+  gosi_resident_rate?: number;
+  trip_per_diem?: number;
+  hr_letter_signatory?: string | null;
 }
 
 export interface RequestRow {

@@ -25,17 +25,30 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
   const hrItems = async (): Promise<NavItem[]> => {
     const { count } = await supabase.from('job_applications').select('id', { count: 'exact', head: true }).eq('status', 'new');
     return [
+      { href: '/hr/employees', label: d.hrm.employees, icon: 'employees' },
+      { href: '/hr/requests', label: d.hrm.requests, icon: 'requests' },
+      { href: '/hr/attendance', label: d.hrm.attendance, icon: 'attendance' },
+      { href: '/hr/structure', label: d.hrm.structure, icon: 'structure' },
       { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0 },
       { href: '/hr/openings', label: n.openings, icon: 'openings' },
     ];
   };
+  // employee self-service — every staff role
+  const { data: approvals } = await supabase.rpc('my_pending_approvals_count');
+  const meItems: NavItem[] = [
+    { href: '/me', label: n.myServices, icon: 'me', exact: true },
+    { href: '/me/approvals', label: n.approvals, icon: 'approvals', badge: Number(approvals ?? 0) },
+  ];
   const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
   const site: NavItem = { href: '/', label: n.website, icon: 'website', exact: true };
 
   if (profile.role === 'sales') {
-    items = [...(await salesItems()), bell, site];
+    items = [...(await salesItems()), ...meItems, bell, site];
   } else if (profile.role === 'hr') {
-    items = [...(await hrItems()), bell, site];
+    items = [...(await hrItems()), ...meItems, bell, site];
+  } else if (profile.role === 'employee') {
+    items = [...meItems, { href: '/me/attendance', label: d.me.attendance, icon: 'attendance' }, bell];
+    bottom = items;
   } else if (profile.role === 'admin' || profile.role === 'supervisor') {
     const { count: fresh } = await supabase.from('maintenance_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'pending_approval', 'reopened']);
     items = [
@@ -47,11 +60,13 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       { href: '/admin/team', label: n.team, icon: 'team' },
       { href: '/admin/reports', label: n.reports, icon: 'reports' },
       ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
+      ...meItems,
       bell,
     ];
   } else if (profile.role === 'technician') {
     items = [
       { href: '/tech', label: n.myTasks, icon: 'tasks' },
+      ...meItems,
       { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 },
     ];
     bottom = items;

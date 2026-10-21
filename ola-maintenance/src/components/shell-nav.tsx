@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Bell, Building2, ClipboardList, Home, Inbox, LayoutDashboard, LogOut, Menu, PlusCircle,
-  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe,
+  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard,
 } from 'lucide-react';
 import { cx } from './ui';
 import { signOut } from '@/app/actions/common';
@@ -16,6 +16,7 @@ export const NAV_ICONS = {
   dashboard: LayoutDashboard, inbox: Inbox, requests: ClipboardList, projects: Building2, owners: Users,
   team: HardHat, reports: BarChart3, settings: Settings, home: Home, newRequest: PlusCircle, tasks: Wrench, bell: Bell,
   leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
+  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard,
 };
 export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number };
 
@@ -30,7 +31,7 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
   useEffect(() => setOpen(false), [path]);
 
   const nav = (
-    <nav className="flex flex-1 flex-col gap-1 px-3">
+    <nav className="flex min-h-0 flex-1 flex-col gap-1 overflow-y-auto px-3 pb-2 [scrollbar-width:thin]">
       {items.map((it) => {
         const Icon = NAV_ICONS[it.icon];
         const active = isActive(path, it);
