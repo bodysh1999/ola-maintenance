@@ -155,3 +155,13 @@ await expectFail('profile role escalation', as(U.own1, `update public.profiles s
 console.log('anon settings:', (await (async () => { await db.exec('set role anon'); const r = await db.query('select name_ar from public.company_settings'); await db.exec('reset role'); return r.rows; })()));
 await expectFail('anon read units', (async () => { await db.exec('set role anon'); try { return await db.query('select * from public.units'); } finally { await db.exec('reset role'); } })());
 console.log('DONE');
+// public website: anon may list project names/images, nothing else
+await (async () => {
+  await db.exec('set role anon');
+  try {
+    const r = await db.query('select name_ar, image_url, sales_status from public.projects');
+    console.log('anon projects list:', r.rows.length >= 1 ? 'ok' : '!! SHOULD SEE PROJECTS');
+  } finally { await db.exec('reset role'); }
+})();
+await expectFail('anon read project description', (async () => { await db.exec('set role anon'); try { return await db.query('select description from public.projects'); } finally { await db.exec('reset role'); } })());
+await expectFail('anon read owners', (async () => { await db.exec('set role anon'); try { return await db.query('select * from public.owners'); } finally { await db.exec('reset role'); } })());

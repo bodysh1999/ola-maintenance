@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { MessageCircle, Phone, ShieldCheck, Wrench, CalendarClock } from 'lucide-react';
 import { getCurrentProfile, getI18n, getSettings, homeFor } from '@/lib/session';
@@ -34,14 +35,14 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
         <div className="flex h-full flex-col px-6 pb-16 pt-6 sm:px-10 lg:p-12">
           <div className="flex items-center justify-between">
-            <div className="flex min-w-0 items-center gap-3">
+            <Link href="/" className="flex min-w-0 items-center gap-3">
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img src={logo} alt={name} className="h-12 w-auto shrink-0 object-contain lg:h-16" />
               <div className="hidden min-w-0 border-s border-white/20 ps-3 leading-tight sm:block">
                 <div className="truncate text-sm font-semibold lg:text-base">{name}</div>
                 <div className="truncate text-[11px] text-white/60">{ar ? 'خدمات ما بعد البيع' : 'After-sales services'}</div>
               </div>
-            </div>
+            </Link>
             <LocaleToggle light className="shrink-0 lg:hidden" />
           </div>
 
@@ -85,7 +86,7 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
 
       {/* ============ Form ============ */}
       <section className="relative flex min-w-0 flex-col px-4 pb-8 sm:px-10 lg:px-14 lg:py-8">
-        <div className="hidden justify-end lg:flex"><LocaleToggle /></div>
+        <div className="hidden items-center justify-between lg:flex"><Link href="/" className="text-sm text-stone-450 hover:text-brand">→ {ar ? 'العودة للموقع' : 'Back to website'}</Link><LocaleToggle /></div>
 
         <div className="-mt-10 flex flex-1 flex-col justify-center lg:mt-0">
           <div className="rise-in mx-auto w-full max-w-md rounded-[28px] border border-sand-200 bg-white p-6 shadow-lift sm:p-9 lg:border-0 lg:bg-transparent lg:p-0 lg:shadow-none">
