@@ -163,5 +163,5 @@ await (async () => {
     console.log('anon projects list:', r.rows.length >= 1 ? 'ok' : '!! SHOULD SEE PROJECTS');
   } finally { await db.exec('reset role'); }
 })();
-await expectFail('anon read project description', (async () => { await db.exec('set role anon'); try { return await db.query('select description from public.projects'); } finally { await db.exec('reset role'); } })());
+await expectFail('anon read project created_by', (async () => { await db.exec('set role anon'); try { return await db.query('select created_at from public.projects'); } finally { await db.exec('reset role'); } })());
 await expectFail('anon read owners', (async () => { await db.exec('set role anon'); try { return await db.query('select * from public.owners'); } finally { await db.exec('reset role'); } })());
