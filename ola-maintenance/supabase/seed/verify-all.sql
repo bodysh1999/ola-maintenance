@@ -1,5 +1,5 @@
 -- =====================================================================
---  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 12 + البيانات التجريبية)
+--  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 13 + البيانات التجريبية)
 --  شغّله في Supabase → SQL Editor. للقراءة فقط — لا يغيّر أي شيء.
 --
 --  ✅ = موجود وسليم   ❌ = ناقص (العمود الأخير يقول أي ملف تشغّل)   ⚠️ = اختياري / تنبيه
@@ -113,6 +113,10 @@ begin
   if ok and coalesce(v, '') = '' then
     return query select 'تنبيه', 'اسم مدير تنمية رأس المال البشري غير مُدخل', '⚠️', 'أدخله مع التوقيع من الموارد البشرية ← الهيكل والمواقع';
   end if;
+
+  -- ================= 13 · pending-approval dead end
+  ok := exists (select 1 from pg_proc where proname = 'transition_request' and prosrc like '%USE_REVIEW%');
+  return query select '13', 'إصلاح البلاغ العالق في انتظار اعتماد الإنجاز', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 13' end;
 
   -- ================= accounts & data
   n := pg_temp.n($$select count(*) from public.profiles where role = 'admin' and is_active$$);
