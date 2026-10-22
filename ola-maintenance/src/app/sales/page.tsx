@@ -51,7 +51,7 @@ export default async function SalesInbox({ searchParams }: { searchParams: Promi
           [s.message]: r.message ?? '',
         })) }]} />} />
 
-      {error && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{error.message.includes('leads') ? 'شغّل ملفات SQL رقم 6 و 7 في Supabase أولًا.' : error.message}</p>}
+      {error && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{/(does not exist|Could not find the table)/i.test(error.message) ? 'شغّل ملفات SQL رقم 6 و 7 في Supabase أولًا.' : error.message}</p>}
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label={s.kpi.new} value={stats.filter((x) => x.status === 'new').length} icon={<Inbox className="h-5 w-5" />} tone="brand" />

@@ -12,7 +12,7 @@ export default async function HrAttendance({ searchParams }: { searchParams: Pro
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
   const date = /^\d{4}-\d{2}-\d{2}$/.test(sp.date ?? '') ? sp.date! : today;
   const [{ data: emps }, { data: att }, { data: away }] = await Promise.all([
-    supabase.from('employees').select('id, full_name, job_title, work_start, departments(name)').eq('status', 'active').order('full_name'),
+    supabase.from('employees').select('id, full_name, job_title, work_start, departments!employees_department_id_fkey(name)').eq('status', 'active').order('full_name'),
     supabase.from('attendance').select('employee_id, check_in_at, check_out_at, source, in_distance_m, work_locations(name)').eq('work_date', date),
     supabase.from('hr_requests').select('employee_id, type, leave_types(name_ar)').eq('status', 'approved').in('type', ['leave', 'business_trip']).lte('start_date', date).gte('end_date', date),
   ]);

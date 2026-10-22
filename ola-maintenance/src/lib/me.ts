@@ -19,7 +19,7 @@ export const getMyEmployee = cache(async (): Promise<MyEmployee | null> => {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return null;
   const { data } = await supabase.from('employees')
-    .select('*, departments(name), manager:employees!employees_manager_id_fkey(full_name, job_title), work_locations(name)')
+    .select('*, departments!employees_department_id_fkey(name), manager:manager_id(full_name, job_title), work_locations(name)')
     .eq('profile_id', user.id).neq('status', 'terminated').maybeSingle();
   return (data as MyEmployee) ?? null;
 });

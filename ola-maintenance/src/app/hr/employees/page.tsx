@@ -14,7 +14,7 @@ export default async function Employees({ searchParams }: { searchParams: Promis
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
   const in60 = new Date(Date.now() + 60 * 864e5).toISOString().slice(0, 10);
   let q = supabase.from('employees')
-    .select('id, emp_no, full_name, job_title, email, nationality_type, hire_date, status, contract_end, profile_id, departments(name), manager:employees!employees_manager_id_fkey(full_name), employee_private(id_expiry)')
+    .select('id, emp_no, full_name, job_title, email, nationality_type, hire_date, status, contract_end, profile_id, departments!employees_department_id_fkey(name), manager:manager_id(full_name), employee_private(id_expiry)')
     .order('full_name');
   if (!sp.all) q = q.neq('status', 'terminated');
   if (sp.q) { const t = sp.q.replace(/[%,()*]/g, ' ').trim(); if (t) q = q.or(`full_name.ilike.%${t}%,emp_no.ilike.%${t}%,job_title.ilike.%${t}%,email.ilike.%${t}%`); }
@@ -31,7 +31,7 @@ export default async function Employees({ searchParams }: { searchParams: Promis
   return (
     <div className="space-y-6">
       <PageHeader title={h.employees} subtitle={`${rows.length}`} actions={<LinkButton href="/hr/employees/new">{h.addEmployee}</LinkButton>} />
-      {error && <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{error.message.includes('employees') ? 'شغّل ملفات SQL رقم 8 و 9 في Supabase أولًا.' : error.message}</p>}
+      {error && <p className="rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{/(does not exist|Could not find the table)/i.test(error.message) ? 'شغّل ملفات SQL رقم 8 و 9 في Supabase أولًا.' : error.message}</p>}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
         <StatCard label={h.employees} value={rows.filter((e) => e.status === 'active').length} icon={<Users className="h-5 w-5" />} tone="brand" />
         <StatCard label={h.presentToday} value={present ?? 0} icon={<UserCheck className="h-5 w-5" />} tone="good" />

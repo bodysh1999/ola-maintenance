@@ -39,7 +39,7 @@ export default async function HrInbox({ searchParams }: { searchParams: Promise<
           [d.common.status]: h.status[r.status as keyof typeof h.status], [d.common.date]: r.created_at.slice(0, 10),
         })) }]} />} />
 
-      {error && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{error.message.includes('job_applications') ? 'شغّل ملفات SQL رقم 6 و 7 في Supabase أولًا.' : error.message}</p>}
+      {error && <p className="mb-4 rounded-xl bg-amber-50 p-4 text-sm text-amber-800">{/(does not exist|Could not find the table)/i.test(error.message) ? 'شغّل ملفات SQL رقم 6 و 7 في Supabase أولًا.' : error.message}</p>}
 
       <Card className="mb-4 p-4">
         <form className="grid gap-3 md:grid-cols-5">
