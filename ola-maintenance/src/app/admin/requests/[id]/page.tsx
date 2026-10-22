@@ -36,7 +36,8 @@ export default async function StaffRequestPage({ params }: { params: Promise<{ i
     .map((t) => ({ id: t.id, name: t.full_name, contractor: t.contractors?.name ?? null, open: openCount.get(t.id) ?? 0, match: t.specialties.includes(r.category) }));
 
   const wo = workOrders.find((w) => !['cancelled'].includes(w.status));
-  const transitions = STAFF_TRANSITIONS[r.status] ?? [];
+  // a submitted technician report is reviewed with the review form (approve / return), not the status list
+  const transitions = wo?.status === 'submitted' ? [] : STAFF_TRANSITIONS[r.status] ?? [];
   const canAssign = !['completed', 'rejected', 'pending_approval', 'in_progress'].includes(r.status);
   const canSchedule = !!wo && ['assigned', 'in_progress', 'awaiting_parts', 'returned'].includes(wo.status) && !['completed', 'rejected', 'pending_approval'].includes(r.status);
   const matchedWarranty = (warranties ?? []).find((w) => w.id === r.warranty_id);
