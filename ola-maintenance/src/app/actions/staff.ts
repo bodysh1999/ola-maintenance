@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { act, must, numOrNull, str, strOrNull, UserError } from '@/lib/actions';
+import { act, decisionOf, must, numOrNull, str, strOrNull, UserError } from '@/lib/actions';
 import { riyadhInputToIso } from '@/lib/format';
 import { PRIORITIES } from '@/lib/constants';
 import type { ActionResult, Priority } from '@/lib/types';
@@ -70,11 +70,11 @@ export async function scheduleVisit(_: ActionResult, fd: FormData): Promise<Acti
 }
 
 export async function reviewWork(_: ActionResult, fd: FormData): Promise<ActionResult> {
-  return act(async () => {
+  return act(async (d) => {
     const id = str(fd, 'request_id');
     const supabase = await createClient();
     must(await supabase.rpc('review_work', {
-      p_wo: str(fd, 'work_order_id'), p_approve: str(fd, 'decision') === 'approve', p_note: strOrNull(fd, 'note'),
+      p_wo: str(fd, 'work_order_id'), p_approve: decisionOf(fd, d, 'approve', ['return']), p_note: strOrNull(fd, 'note'),
     }));
     refresh(id);
   });

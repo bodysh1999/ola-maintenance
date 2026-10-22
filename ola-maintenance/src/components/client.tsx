@@ -31,10 +31,22 @@ export function SubmitButton({
   return (
     <button
       type="submit"
-      name={name}
-      value={value}
       disabled={pending}
-      onClick={(e) => { if (confirmText && !window.confirm(confirmText)) e.preventDefault(); }}
+      onClick={(e) => {
+        if (confirmText && !window.confirm(confirmText)) { e.preventDefault(); return; }
+        // React form actions don't reliably include the clicked button's name/value in FormData,
+        // so write the choice into a hidden field of the form before it submits.
+        const form = e.currentTarget.form;
+        if (name && form) {
+          let input = form.querySelector<HTMLInputElement>(`input[type="hidden"][data-submitter="${name}"]`);
+          if (!input) {
+            input = document.createElement('input');
+            input.type = 'hidden'; input.name = name; input.dataset.submitter = name;
+            form.appendChild(input);
+          }
+          input.value = value ?? '';
+        }
+      }}
       className={buttonClass(variant, size, className)}
     >
       {pending && <Loader2 className="h-4 w-4 animate-spin" />}

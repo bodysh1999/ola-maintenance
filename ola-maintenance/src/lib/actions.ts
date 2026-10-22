@@ -37,3 +37,11 @@ export const numOrNull = (fd: FormData, k: string) => {
   const v = str(fd, k);
   return v === '' || Number.isNaN(Number(v)) ? null : Number(v);
 };
+
+/** Approve/reject choice from a form — never defaults to "reject" when the value is missing */
+export const decisionOf = (fd: FormData, d: Dict, approve = 'approve', reject: string[] = ['reject']) => {
+  const v = str(fd, 'decision');
+  if (v === approve) return true;
+  if (reject.includes(v)) return false;
+  throw new UserError(d.errors.REQUIRED);
+};

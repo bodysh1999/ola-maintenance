@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { act, must, str, strOrNull, UserError } from '@/lib/actions';
+import { act, decisionOf, must, str, strOrNull, UserError } from '@/lib/actions';
 import { CATEGORIES } from '@/lib/constants';
 import type { ActionResult, Category } from '@/lib/types';
 
@@ -59,9 +59,9 @@ export async function reopenRequest(_: ActionResult, fd: FormData): Promise<Acti
 }
 
 export async function respondQuote(_: ActionResult, fd: FormData): Promise<ActionResult> {
-  return act(async () => {
+  return act(async (d) => {
     const supabase = await createClient();
-    must(await supabase.rpc('respond_quote', { p_quote: str(fd, 'quote_id'), p_approve: str(fd, 'decision') === 'approve' }));
+    must(await supabase.rpc('respond_quote', { p_quote: str(fd, 'quote_id'), p_approve: decisionOf(fd, d, 'approve', ['decline']) }));
     revalidatePath('/owner', 'layout');
   });
 }

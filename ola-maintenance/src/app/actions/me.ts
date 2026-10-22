@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { act, str, UserError } from '@/lib/actions';
+import { act, decisionOf, str, UserError } from '@/lib/actions';
 import { HR_REQUEST_TYPES } from '@/lib/hr';
 import type { ActionResult } from '@/lib/types';
 
@@ -36,10 +36,10 @@ export async function submitHrRequest(_: ActionResult, fd: FormData): Promise<Ac
 }
 
 export async function decideHrRequest(_: ActionResult, fd: FormData): Promise<ActionResult> {
-  return act(async () => {
+  return act(async (d) => {
     const supabase = await createClient();
     const { error } = await supabase.rpc('decide_hr_request', {
-      p_id: str(fd, 'id'), p_approve: str(fd, 'decision') === 'approve', p_comment: str(fd, 'comment') || null,
+      p_id: str(fd, 'id'), p_approve: decisionOf(fd, d), p_comment: str(fd, 'comment') || null,
     });
     if (error) throw new Error(error.message);
     revalidatePath('/me', 'layout');
