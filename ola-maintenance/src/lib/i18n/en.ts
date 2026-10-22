@@ -284,7 +284,7 @@ export const en: Dict = {
     NAME_REQUIRED: 'Enter your name', INVALID_FILE: 'File not accepted — PDF or Word up to 5MB', OPENING_CLOSED: 'This position is closed',
     INVALID_KIND: 'Invalid request type',
     FORBIDDEN: 'You do not have permission for this action', NOTE_REQUIRED: 'Please enter a reason or note',
-    INVALID_TRANSITION: 'The request cannot move to that status from its current one', QUOTE_PENDING: 'A quotation is awaiting the customer’s reply',
+    INVALID_TRANSITION: 'The request cannot move to that status from its current one', USE_REVIEW: 'The technician report is awaiting review — use approve or return to technician', QUOTE_PENDING: 'A quotation is awaiting the customer’s reply',
     AFTER_PHOTO_REQUIRED: 'Upload at least one after-work photo', REOPEN_WINDOW_EXPIRED: 'The reopen window has passed',
     NO_ACTIVE_WORK_ORDER: 'Assign a technician before scheduling', CANNOT_ASSIGN_IN_STATUS: 'A technician cannot be assigned at this stage',
     UNIT_HAS_NO_OWNER: 'This unit has no owner', NOT_SUBMITTED: 'The technician has not submitted a report', NOT_COMPLETED: 'Request is not completed yet',

@@ -282,7 +282,7 @@ export const ar = {
     NAME_REQUIRED: 'اكتب الاسم', INVALID_FILE: 'الملف غير مقبول — PDF أو Word حتى 5MB', OPENING_CLOSED: 'هذه الوظيفة مغلقة حاليًا',
     INVALID_KIND: 'نوع الطلب غير صحيح',
     FORBIDDEN: 'ليست لديك صلاحية لهذا الإجراء', NOTE_REQUIRED: 'يرجى كتابة السبب أو الملاحظة',
-    INVALID_TRANSITION: 'لا يمكن نقل الطلب إلى هذه الحالة من حالته الحالية', QUOTE_PENDING: 'يوجد عرض سعر بانتظار رد العميل',
+    INVALID_TRANSITION: 'لا يمكن نقل الطلب إلى هذه الحالة من حالته الحالية', USE_REVIEW: 'تقرير الفني بانتظار المراجعة — استخدم زر اعتماد الإنجاز أو الإعادة للفني', QUOTE_PENDING: 'يوجد عرض سعر بانتظار رد العميل',
     AFTER_PHOTO_REQUIRED: 'ارفع صورة واحدة على الأقل بعد التنفيذ', REOPEN_WINDOW_EXPIRED: 'انتهت مهلة إعادة فتح الطلب',
     NO_ACTIVE_WORK_ORDER: 'عيّن فنيًا قبل جدولة الزيارة', CANNOT_ASSIGN_IN_STATUS: 'لا يمكن تعيين فني في هذه المرحلة',
     UNIT_HAS_NO_OWNER: 'الوحدة غير مرتبطة بمالك', NOT_SUBMITTED: 'لم يرسل الفني تقريره بعد', NOT_COMPLETED: 'الطلب لم يكتمل بعد',
