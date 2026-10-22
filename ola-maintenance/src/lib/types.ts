@@ -46,6 +46,8 @@ export interface CompanySettings {
   gosi_resident_rate?: number;
   trip_per_diem?: number;
   hr_letter_signatory?: string | null;
+  hr_signatory_title?: string | null;
+  hr_signature_url?: string | null;
 }
 
 export interface RequestRow {

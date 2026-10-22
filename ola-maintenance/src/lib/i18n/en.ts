@@ -240,7 +240,7 @@ export const en: Dict = {
       hint: 'In Google Maps, long-press the spot and copy the coordinates. 100–200 m suits most buildings.' },
     departments: { title: 'Departments', add: 'Add department', name: 'Department name', parent: 'Reports to', manager: 'Department manager' },
     leaveTypes: { title: 'Leave types (Saudi Labor Law)', maxDays: 'Max per request', active: 'Active' },
-    settings: { title: 'Payroll & trip settings', gosiSaudi: 'GOSI — Saudi employee share %', gosiResident: 'GOSI — non-Saudi employee share %', perDiem: 'Daily trip allowance (SAR)', signatory: 'Letter signatory name' },
+    settings: { title: 'Payroll & trip settings', gosiSaudi: 'GOSI — Saudi employee share %', gosiResident: 'GOSI — non-Saudi employee share %', perDiem: 'Daily trip allowance (SAR)', signatory: 'Human Capital Development Manager name', signatoryTitle: 'Title under signature', signature: 'Signature image', noSignature: 'No signature — a blank line is shown for signing by hand', removeSignature: 'Remove signature', signatureHint: 'Transparent PNG works best — up to 1MB. Applies to letters approved after saving.', letters: 'HR letters' },
     filters: { all: 'All types', allStatuses: 'All statuses', employee: 'Employee' },
     present: 'Present', absent: 'Absent', onLeave: 'On leave', noEmployees: 'No employees yet',
   },

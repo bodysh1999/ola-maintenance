@@ -137,6 +137,30 @@ await as(U.emp, `insert into storage.objects (bucket_id,name) values ('hr-docs',
 await fails('upload into someone else folder', as(U.emp, `insert into storage.objects (bucket_id,name) values ('hr-docs','${E.other}/x.pdf')`));
 ok('other cannot read emp doc', (await as(U.other, `select count(*) c from storage.objects where bucket_id='hr-docs'`)).rows[0].c === 0);
 
+// letters & verification (migration 12)
+await db.exec(`insert into employee_private (employee_id, id_number) values ('${E.emp}', '2412345678') on conflict (employee_id) do update set id_number = excluded.id_number;
+  update company_settings set hr_letter_signatory = 'منى الحربي' where id = 1`);
+const id6 = await reqId(await submit(U.emp, { type: 'salary_certificate', addressed_to: 'البنك الأهلي' }));
+ok('pending letter has no snapshot', (await db.query(`select letter_data from hr_requests where id='${id6}'`)).rows[0].letter_data === null);
+await decide(U.hr, id6, true);
+const snap = (await db.query(`select letter_data, verify_code from hr_requests where id='${id6}'`)).rows[0];
+ok('snapshot saved on approval (net ' + snap.letter_data?.salary?.net + ')', Number(snap.letter_data?.salary?.gross) === 11300 && snap.letter_data.signatory.title === 'مدير تنمية رأس المال البشري');
+ok('verify code is 32 hex', /^[0-9a-f]{32}$/.test(snap.verify_code));
+await db.exec(`update employee_salaries set basic = 20000 where employee_id='${E.emp}'`);
+ok('snapshot unchanged after raise', Number((await db.query(`select letter_data #>> '{salary,basic}' b from hr_requests where id='${id6}'`)).rows[0].b) === 8500);
+await db.exec(`set role anon`);
+const pub = (await db.query(`select public.verify_hr_document($1) v`, [snap.verify_code])).rows[0].v;
+const bad1 = (await db.query(`select public.verify_hr_document('00000000000000000000000000000000') v`)).rows[0].v;
+await db.exec(`reset role`);
+ok('anon verifies approved letter', pub?.ref_no && pub.data.employee.full_name === 'موظف');
+ok('ID masked publicly (' + pub?.data?.employee?.id_number + ')', pub?.data?.employee?.id_number === '••••••5678');
+ok('wrong code → nothing', bad1 === null);
+const pendingCode = (await db.query(`select verify_code from hr_requests where status='pending' limit 1`)).rows[0]?.verify_code;
+await db.exec(`set role anon`);
+ok('pending/other requests not verifiable', (await db.query(`select public.verify_hr_document($1) v`, [pendingCode])).rows[0].v === null);
+try { await db.query(`select letter_data from hr_requests`); console.log('!! SHOULD FAIL anon reads requests'); failed++; } catch { console.log('ok blocked: anon reads hr_requests'); }
+await db.exec(`reset role`);
+
 // hardening (migration 10)
 await db.exec(`set role anon`);
 try { await db.query(`select public.is_admin()`); console.log('!! SHOULD FAIL anon is_admin'); failed++; } catch { console.log('ok blocked: anon calls is_admin'); }

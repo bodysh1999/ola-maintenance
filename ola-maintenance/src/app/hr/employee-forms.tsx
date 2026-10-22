@@ -190,15 +190,29 @@ export function LeaveTypeRow({ lt }: { lt: { code: string; name_ar: string; name
   );
 }
 
-export function HrSettingsForm({ s }: { s: { gosi_saudi_rate?: number; gosi_resident_rate?: number; trip_per_diem?: number; hr_letter_signatory?: string | null } }) {
+export function HrSettingsForm({ s }: { s: { gosi_saudi_rate?: number; gosi_resident_rate?: number; trip_per_diem?: number; hr_letter_signatory?: string | null; hr_signatory_title?: string | null; hr_signature_url?: string | null } }) {
   const { d } = useI18n();
   const t = d.hrm.settings;
   return (
     <ActionForm action={updateHrSettings} className="grid gap-3 sm:grid-cols-2" successText={d.common.saved}>
       <Field label={t.gosiSaudi}><Input name="gosi_saudi_rate" type="number" step="0.01" min={0} max={30} dir="ltr" defaultValue={s.gosi_saudi_rate ?? 9.75} /></Field>
       <Field label={t.gosiResident}><Input name="gosi_resident_rate" type="number" step="0.01" min={0} max={30} dir="ltr" defaultValue={s.gosi_resident_rate ?? 0} /></Field>
-      <Field label={t.perDiem}><Input name="trip_per_diem" type="number" min={0} dir="ltr" defaultValue={s.trip_per_diem ?? 500} /></Field>
+      <Field label={t.perDiem} className="sm:col-span-2"><Input name="trip_per_diem" type="number" min={0} dir="ltr" defaultValue={s.trip_per_diem ?? 500} /></Field>
+      <div className="mt-2 border-t border-sand-100 pt-3 text-sm font-semibold text-brand sm:col-span-2">{t.letters}</div>
       <Field label={t.signatory}><Input name="hr_letter_signatory" defaultValue={s.hr_letter_signatory ?? ''} /></Field>
+      <Field label={t.signatoryTitle}><Input name="hr_signatory_title" defaultValue={s.hr_signatory_title ?? 'مدير تنمية رأس المال البشري'} /></Field>
+      <div className="sm:col-span-2">
+        <span className="mb-1.5 block text-sm font-medium text-ink/80">{t.signature}</span>
+        <div className="flex flex-wrap items-center gap-4 rounded-xl border border-dashed border-sand-300 bg-sand-50 p-3">
+          {s.hr_signature_url
+            // eslint-disable-next-line @next/next/no-img-element
+            ? <img src={s.hr_signature_url} alt="" className="h-16 w-auto rounded bg-white p-1 ring-1 ring-sand-200" />
+            : <span className="text-xs text-stone-450">{t.noSignature}</span>}
+          <input type="file" name="signature" accept="image/png,image/jpeg,image/webp" className="text-sm file:me-3 file:rounded-lg file:border-0 file:bg-brand file:px-3 file:py-2 file:text-white" />
+          {s.hr_signature_url && <label className="flex items-center gap-2 text-xs text-rose-700"><input type="checkbox" name="clear_signature" className="h-4 w-4" />{t.removeSignature}</label>}
+        </div>
+        <p className="mt-1 text-xs text-stone-450">{t.signatureHint}</p>
+      </div>
       <div className="sm:col-span-2"><SubmitButton>{d.common.save}</SubmitButton></div>
     </ActionForm>
   );

@@ -1,5 +1,5 @@
 -- =====================================================================
---  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 11 + البيانات التجريبية)
+--  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 12 + البيانات التجريبية)
 --  شغّله في Supabase → SQL Editor. للقراءة فقط — لا يغيّر أي شيء.
 --
 --  ✅ = موجود وسليم   ❌ = ناقص (العمود الأخير يقول أي ملف تشغّل)   ⚠️ = اختياري / تنبيه
@@ -23,6 +23,11 @@ create or replace function pg_temp.has_role_value(p text) returns boolean langua
   select exists (select 1 from pg_enum e join pg_type t on t.oid = e.enumtypid where t.typname = 'app_role' and e.enumlabel = $1) $f$;
 create or replace function pg_temp.has_bucket(p text) returns boolean language plpgsql as $f$
 begin return exists (select 1 from storage.buckets where id = p); exception when others then return false; end $f$;
+create or replace function pg_temp.qt_safe(p_sql text) returns text language plpgsql as $f$
+declare v text;
+begin execute p_sql into v; return v;
+exception when others then return null;
+end $f$;
 create or replace function pg_temp.missing(p_tables text[]) returns text language sql as $f$
   select string_agg(t, '، ') from unnest(p_tables) t where to_regclass('public.' || t) is null $f$;
 
@@ -100,6 +105,14 @@ begin
   -- ================= 11 · fix
   ok := exists (select 1 from pg_proc where proname = 'submit_hr_request' and prosrc like '%v_lt_code%');
   return query select '11', 'إصلاح طلبات الموظفين (تعريف راتب، خارج دوام…)', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 11' end;
+
+  -- ================= 12 · letters verification
+  ok := pg_temp.has_fn('verify_hr_document') and pg_temp.has_col('hr_requests', 'verify_code') and pg_temp.has_col('company_settings', 'hr_signature_url');
+  return query select '12', 'رمز QR للتحقق وتوقيع الخطابات', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 12' end;
+  v := pg_temp.qt_safe($$select coalesce(hr_letter_signatory, '') from public.company_settings where id = 1$$);
+  if ok and coalesce(v, '') = '' then
+    return query select 'تنبيه', 'اسم مدير تنمية رأس المال البشري غير مُدخل', '⚠️', 'أدخله مع التوقيع من الموارد البشرية ← الهيكل والمواقع';
+  end if;
 
   -- ================= accounts & data
   n := pg_temp.n($$select count(*) from public.profiles where role = 'admin' and is_active$$);

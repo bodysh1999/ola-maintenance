@@ -1,7 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
+import { randomUUID } from 'crypto';
+import { createAdminClient, createClient } from '@/lib/supabase/server';
 import { act, must, str, strOrNull, UserError } from '@/lib/actions';
 import { createLoginAccount } from '@/lib/accounts';
 import type { ActionResult } from '@/lib/types';
@@ -167,11 +168,25 @@ export async function updateLeaveType(_: ActionResult, fd: FormData): Promise<Ac
 }
 
 export async function updateHrSettings(_: ActionResult, fd: FormData): Promise<ActionResult> {
-  return act(async () => {
+  return act(async (d) => {
     const supabase = await requireHr();
+    // signature image → public branding bucket (random name), uploaded server-side with the service key
+    let signatureUrl: string | null = null;
+    const file = fd.get('signature');
+    if (file instanceof File && file.size > 0) {
+      const ext = ({ 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' } as Record<string, string>)[file.type];
+      if (!ext || file.size > 1024 * 1024) throw new UserError(d.errors.INVALID_FILE);
+      const admin = createAdminClient();
+      const path = `signatures/${randomUUID()}.${ext}`;
+      const { error: upErr } = await admin.storage.from('branding').upload(path, file, { contentType: file.type, upsert: false });
+      if (upErr) throw new Error(upErr.message);
+      signatureUrl = admin.storage.from('branding').getPublicUrl(path).data.publicUrl;
+    }
     const { error } = await supabase.rpc('update_hr_settings', {
       p_gosi_saudi: num(fd, 'gosi_saudi_rate', 9.75), p_gosi_resident: num(fd, 'gosi_resident_rate', 0),
       p_per_diem: num(fd, 'trip_per_diem', 500), p_signatory: str(fd, 'hr_letter_signatory'),
+      p_signatory_title: str(fd, 'hr_signatory_title') || null, p_signature_url: signatureUrl,
+      p_clear_signature: fd.get('clear_signature') === 'on',
     });
     if (error) throw new Error(error.message);
     revalidatePath('/', 'layout');
