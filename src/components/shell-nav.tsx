@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Bell, Building2, ClipboardList, Home, Inbox, LayoutDashboard, LogOut, Menu, PlusCircle,
-  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck,
+  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck, UserCog, LockKeyhole,
 } from 'lucide-react';
 import { cx } from './ui';
 import { signOut } from '@/app/actions/common';
@@ -16,7 +16,7 @@ export const NAV_ICONS = {
   dashboard: LayoutDashboard, inbox: Inbox, requests: ClipboardList, projects: Building2, owners: Users,
   team: HardHat, reports: BarChart3, settings: Settings, home: Home, newRequest: PlusCircle, tasks: Wrench, bell: Bell,
   leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
-  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck,
+  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole,
 };
 export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number };
 
@@ -55,13 +55,14 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
 
   const footer = (
     <div className="border-t border-white/10 p-4">
-      <div className="mb-3 flex items-center gap-3">
+      <Link href="/account" className="mb-3 flex items-center gap-3 rounded-xl p-1 transition hover:bg-white/[.06]" title={d.privacy.account}>
         <div className="grid h-9 w-9 place-items-center rounded-full bg-white/10 text-sm font-semibold text-accent">{user.name.charAt(0)}</div>
-        <div className="min-w-0 text-sm leading-tight">
+        <div className="min-w-0 flex-1 text-sm leading-tight">
           <div className="truncate text-white">{user.name}</div>
           <div className="truncate text-xs text-white/50">{user.role}</div>
         </div>
-      </div>
+        <UserCog className="h-4 w-4 shrink-0 text-white/40" />
+      </Link>
       <div className="flex items-center justify-between">
         <LocaleToggle light />
         <form action={signOut}>

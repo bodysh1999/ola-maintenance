@@ -128,7 +128,9 @@ export default async function LoginPage({ searchParams }: { searchParams: Promis
         </div>
 
         <p className="mt-8 text-center text-[11px] text-stone-400">
-          © {new Date().getFullYear()} {name}
+          © {new Date().getFullYear()} {name} ·{' '}
+          <Link href="/privacy" className="hover:text-brand">{ar ? 'سياسة الخصوصية' : 'Privacy policy'}</Link> ·{' '}
+          <Link href="/terms" className="hover:text-brand">{ar ? 'الشروط والأحكام' : 'Terms'}</Link>
         </p>
       </section>
     </div>

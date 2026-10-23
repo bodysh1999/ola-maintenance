@@ -129,6 +129,10 @@ export function SiteFooter({ c }: { c: SiteChrome }) {
       <div className="border-t border-white/10">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-2 px-5 py-5 text-xs text-white/45 sm:px-8">
           <span>© {new Date().getFullYear()} {name}. {t.footer.rights}</span>
+          <span className="flex gap-4">
+            <Link href="/privacy" className="hover:text-white">{c.ar ? 'سياسة الخصوصية' : 'Privacy policy'}</Link>
+            <Link href="/terms" className="hover:text-white">{c.ar ? 'الشروط والأحكام' : 'Terms'}</Link>
+          </span>
         </div>
       </div>
     </footer>

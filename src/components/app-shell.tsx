@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { Bell } from 'lucide-react';
 import { createClient } from '@/lib/supabase/server';
 import { getI18n, getSettings } from '@/lib/session';
@@ -6,8 +7,17 @@ import type { Profile } from '@/lib/types';
 import { BrandMark } from './brand';
 import { BottomNav, Sidebar, type NavItem } from './shell-nav';
 
-export async function AppShell({ profile, children }: { profile: Profile; children: React.ReactNode }) {
+export async function AppShell({ profile, children, gates = true }: { profile: Profile; children: React.ReactNode; gates?: boolean }) {
   const [{ d, locale }, s, supabase] = await Promise.all([getI18n(), getSettings(), createClient()]);
+
+  // PDPL: everyone accepts the current privacy policy once; company policy may require two-step login for admins & HR
+  if (gates) {
+    if ((profile.privacy_accepted_version ?? '') !== (s.privacy_version ?? '1.0')) redirect('/account/consent');
+    if (s.require_staff_mfa && (profile.role === 'admin' || profile.role === 'hr')) {
+      const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+      if (aal?.currentLevel !== 'aal2') redirect('/account/security?required=1');
+    }
+  }
   const { count: unread } = await supabase.from('notifications').select('id', { count: 'exact', head: true }).is('read_at', null);
 
   let items: NavItem[] = [];
@@ -32,6 +42,10 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0 },
       { href: '/hr/openings', label: n.openings, icon: 'openings' },
     ];
+  };
+  const privacyItem = async (): Promise<NavItem> => {
+    const { count } = await supabase.from('data_requests').select('id', { count: 'exact', head: true }).in('status', ['open', 'in_progress']);
+    return { href: '/admin/privacy', label: d.privacy.console, icon: 'privacy', badge: count ?? 0 };
   };
   // employee self-service — every staff role
   const { data: approvals } = await supabase.rpc('my_pending_approvals_count');
@@ -59,7 +73,7 @@ export async function AppShell({ profile, children }: { profile: Profile; childr
       { href: '/admin/owners', label: n.owners, icon: 'owners' },
       { href: '/admin/team', label: n.team, icon: 'team' },
       { href: '/admin/reports', label: n.reports, icon: 'reports' },
-      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
+      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
       ...meItems,
       bell,
     ];

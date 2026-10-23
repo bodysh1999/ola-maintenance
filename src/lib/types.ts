@@ -23,6 +23,9 @@ export interface Profile {
   phone: string | null;
   locale: Locale;
   is_active: boolean;
+  notify_external?: boolean;
+  privacy_accepted_version?: string | null;
+  privacy_accepted_at?: string | null;
 }
 
 export interface CompanySettings {
@@ -38,6 +41,15 @@ export interface CompanySettings {
   reopen_window_days: number;
   notify_channels: string[];
   notify_roles?: string[];
+  privacy_version?: string;
+  privacy_updated_on?: string;
+  dpo_name?: string | null;
+  dpo_email?: string | null;
+  data_hosting_region?: string | null;
+  retention_cv_months?: number;
+  retention_leads_months?: number;
+  retention_notif_days?: number;
+  require_staff_mfa?: boolean;
   whatsapp: string | null;
   website_url: string | null;
   instagram_url: string | null;

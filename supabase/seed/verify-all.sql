@@ -1,5 +1,5 @@
 -- =====================================================================
---  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 14 + البيانات التجريبية)
+--  فحص شامل لكل التحديثات (ملفات SQL من 1 إلى 15 + البيانات التجريبية)
 --  شغّله في Supabase → SQL Editor. للقراءة فقط — لا يغيّر أي شيء.
 --
 --  ✅ = موجود وسليم   ❌ = ناقص (العمود الأخير يقول أي ملف تشغّل)   ⚠️ = اختياري / تنبيه
@@ -125,6 +125,16 @@ begin
   return query select '14', 'بوابة الملاك: ملف الوحدة، مركز الضمان، تتبع الزيارة، رسائل واتساب/SMS', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 14' end;
   ok := exists (select 1 from storage.buckets where id = 'unit-docs');
   return query select '14', 'مخزن مستندات الوحدات (unit-docs)', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 14' end;
+
+  -- ================= 15 · privacy compliance (PDPL)
+  ok := pg_temp.has_fn('accept_privacy') and pg_temp.has_fn('submit_data_request') and pg_temp.has_fn('purge_expired_data')
+        and exists (select 1 from pg_class where relname = 'consents') and exists (select 1 from pg_class where relname = 'audit_log')
+        and pg_temp.has_col('company_settings', 'privacy_version');
+  return query select '15', 'الامتثال لنظام حماية البيانات: الموافقات، طلبات البيانات، سجل التعديلات، الاحتفاظ', case when ok then '✅' else '❌' end, case when ok then 'سليم' else 'شغّل ملف 15' end;
+  v := pg_temp.qt_safe($$select coalesce(dpo_email, '') from public.company_settings where id = 1$$);
+  if ok and coalesce(v, '') = '' then
+    return query select 'تنبيه', 'بريد مسؤول حماية البيانات غير مُدخل', '⚠️', 'أدخله من لوحة الإدارة ← الخصوصية والامتثال';
+  end if;
 
   -- ================= accounts & data
   n := pg_temp.n($$select count(*) from public.profiles where role = 'admin' and is_active$$);

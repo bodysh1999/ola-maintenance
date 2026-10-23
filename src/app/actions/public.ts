@@ -10,10 +10,17 @@ import type { ActionResult } from '@/lib/types';
  */
 const isBot = (fd: FormData) => str(fd, 'website') !== ''; // honeypot field — hidden from people
 
+/** PDPL: the request is processed only with explicit consent; it is logged against the new reference */
+async function logConsent(ref: string, base: string[], fd: FormData) {
+  const purposes = ['privacy_policy', ...base, ...(fd.get('consent_marketing') === 'on' ? ['marketing'] : [])];
+  await anonClient().rpc('log_form_consent', { p_ref: ref, p_purposes: purposes });
+}
+
 export async function submitLead(_: ActionResult, fd: FormData): Promise<ActionResult> {
   return act(async (d) => {
     if (isBot(fd)) return { ok: true, data: { ref: '—' } };
     if (!str(fd, 'full_name') || !str(fd, 'phone')) throw new UserError(d.errors.REQUIRED);
+    if (fd.get('consent_privacy') !== 'on') throw new UserError(d.privacy.consentRequired);
     const { data, error } = await anonClient().rpc('submit_lead', {
       p_kind: str(fd, 'kind'),
       p_name: str(fd, 'full_name'),
@@ -28,6 +35,7 @@ export async function submitLead(_: ActionResult, fd: FormData): Promise<ActionR
       p_message: strOrNull(fd, 'message'),
     });
     if (error) throw new Error(error.message);
+    await logConsent(data as string, ['service_request'], fd);
     return { ok: true, data: { ref: data as string } };
   });
 }
@@ -36,6 +44,7 @@ export async function submitApplication(_: ActionResult, fd: FormData): Promise<
   return act(async (d) => {
     if (isBot(fd)) return { ok: true, data: { ref: '—' } };
     if (!str(fd, 'full_name') || !str(fd, 'phone') || !str(fd, 'email')) throw new UserError(d.errors.REQUIRED);
+    if (fd.get('consent_privacy') !== 'on') throw new UserError(d.privacy.consentRequired);
     const linkedin = strOrNull(fd, 'linkedin_url');
     const { data, error } = await anonClient().rpc('submit_application', {
       p_kind: str(fd, 'kind') === 'training' ? 'training' : 'job',
@@ -55,6 +64,7 @@ export async function submitApplication(_: ActionResult, fd: FormData): Promise<
       p_training_to: strOrNull(fd, 'training_to'),
     });
     if (error) throw new Error(error.message);
+    await logConsent(data as string, ['cv_processing'], fd);
     return { ok: true, data: { ref: data as string } };
   });
 }

@@ -1,7 +1,7 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLIC_PATHS = ['/login', '/auth', '/forgot-password', '/projects', '/services', '/careers', '/verify', '/api/cron'];
+const PUBLIC_PATHS = ['/login', '/auth', '/forgot-password', '/projects', '/services', '/careers', '/verify', '/api/cron', '/privacy', '/terms'];
 
 export async function middleware(request: NextRequest) {
   let response = NextResponse.next({ request });
@@ -39,6 +39,17 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/account/password';
     url.search = '';
     return NextResponse.redirect(url);
+  }
+
+  // two-step login: a session that still needs its second factor may only reach the code page
+  if (user && !isPublic) {
+    const { data: aal } = await supabase.auth.mfa.getAuthenticatorAssuranceLevel();
+    if (aal?.nextLevel === 'aal2' && aal.currentLevel !== 'aal2') {
+      const url = request.nextUrl.clone();
+      url.pathname = '/auth/mfa';
+      url.search = '';
+      return NextResponse.redirect(url);
+    }
   }
 
   return response;

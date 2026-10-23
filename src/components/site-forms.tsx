@@ -43,6 +43,22 @@ function Submit({ children, pending: forced, sending }: { children: ReactNode; p
   );
 }
 
+/** PDPL: explicit consent for this request (required) + marketing (optional, separate) */
+function ConsentBoxes({ f }: { f: PagesContent['form'] }) {
+  return (
+    <div className="space-y-2.5 text-sm text-ink/80">
+      <label className="flex cursor-pointer items-start gap-2.5">
+        <input type="checkbox" name="consent_privacy" required className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand focus:ring-brand" />
+        <span>{f.consentPre}<a href="/privacy" target="_blank" rel="noreferrer" className="font-medium text-brand underline underline-offset-2">{f.privacyLink}</a>{f.consentPost}</span>
+      </label>
+      <label className="flex cursor-pointer items-start gap-2.5">
+        <input type="checkbox" name="consent_marketing" className="mt-0.5 h-4 w-4 shrink-0 rounded border-sand-300 text-brand focus:ring-brand" />
+        <span>{f.consentMarketing}</span>
+      </label>
+    </div>
+  );
+}
+
 function ErrorLine({ state }: { state: ActionResult }) {
   if (!state?.error) return null;
   return (
@@ -126,9 +142,9 @@ export function LeadForm({ kind, f, projectId, units, unitId, onUnitChange, serv
         <textarea name="message" rows={3} maxLength={2000} className={cx(inputCls, 'h-auto py-3')} />
       </F>
       <div className="space-y-3 sm:col-span-2">
+        <ConsentBoxes f={f} />
         <ErrorLine state={state} />
         <Submit sending={f.sending}>{cta ?? f.submit}</Submit>
-        <p className="text-xs text-stone-450">{f.consent}</p>
       </div>
     </form>
   );
@@ -350,10 +366,10 @@ export function ApplicationForm({ openings, pg, initialKind = 'job' }: { opening
         </div>
         <F label={c.note} opt optText={f.optional} className="sm:col-span-2"><textarea name="cover_note" rows={3} maxLength={2000} className={cx(inputCls, 'h-auto py-3')} /></F>
         <div className="space-y-3 sm:col-span-2">
+          <ConsentBoxes f={f} />
           {fileErr && <ErrorLine state={{ error: fileErr }} />}
           <ErrorLine state={state} />
           <Submit pending={uploading || isPending} sending={uploading ? c.uploading : f.sending}>{kind === 'job' ? c.apply : c.trainingCta}</Submit>
-          <p className="text-xs text-stone-450">{f.consent}</p>
         </div>
       </form>
     </div>
