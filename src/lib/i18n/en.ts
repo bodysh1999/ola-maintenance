@@ -357,6 +357,11 @@ export const en: Dict = {
     holidaysInRange: '{n} official holiday day(s) not deducted', escalated: 'Escalated automatically after 2 days',
   },
   salesops: { board: 'Pipeline board', boardSub: 'Drag a card to move the lead to the next stage' },
+  reports2: {
+    thisMonth: 'This month', lastMonth: 'Last month', last90: 'Last 90 days', thisYear: 'This year',
+    compare: 'Compared with the previous period', vs: 'vs', current: 'Current', previous: 'Previous', change: 'Change',
+    prevDone: 'Done (previous)', projectCosts: 'Maintenance cost per project', totalCost: 'Total cost',
+  },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',
     technician_assigned: 'Technician assigned', visit_scheduled: 'Visit scheduled', visit_rescheduled: 'Visit rescheduled',

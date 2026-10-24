@@ -355,6 +355,11 @@ export const ar = {
     holidaysInRange: 'منها {n} يوم عطلة رسمية لا تُخصم', escalated: 'صُعّد تلقائيًا بعد يومين',
   },
   salesops: { board: 'لوحة المراحل', boardSub: 'اسحب البطاقة لنقل العميل للمرحلة التالية' },
+  reports2: {
+    thisMonth: 'هذا الشهر', lastMonth: 'الشهر الماضي', last90: 'آخر 90 يومًا', thisYear: 'هذه السنة',
+    compare: 'مقارنة بالفترة السابقة', vs: 'مقابل', current: 'الفترة الحالية', previous: 'الفترة السابقة', change: 'التغيّر',
+    prevDone: 'المنجز سابقًا', projectCosts: 'تكلفة الصيانة لكل مشروع', totalCost: 'إجمالي التكلفة',
+  },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',
     technician_assigned: 'تعيين الفني', visit_scheduled: 'جدولة الزيارة', visit_rescheduled: 'تغيير موعد الزيارة',
