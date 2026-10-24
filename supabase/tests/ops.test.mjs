@@ -194,9 +194,9 @@ void lead;
 
 // ================================================================ 20) project costs
 await db.exec(`insert into work_order_parts (work_order_id,name,quantity,unit_cost) values ('${wo1}','كمبروسر',1,850)`);
-const pc = (await as(U.sup, `select * from report_project_costs(current_date - 30, current_date)`)).rows[0];
+const pc = (await as(U.sup, `select * from report_project_costs(public.today_riyadh() - 30, public.today_riyadh())`)).rows[0];
 ok('project cost includes parts', Number(pc.parts_cost) === 850 && Number(pc.requests) === 2);
-await fails('owner cannot read project costs', as(U.own1, `select * from report_project_costs(current_date - 30, current_date)`), 'FORBIDDEN');
+await fails('owner cannot read project costs', as(U.own1, `select * from report_project_costs(public.today_riyadh() - 30, public.today_riyadh())`), 'FORBIDDEN');
 
 console.log(failed ? `\n${failed} FAILED` : '\nALL PASSED');
 process.exit(failed ? 1 : 0);
