@@ -30,6 +30,7 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
     const { count } = await supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new');
     return [
       { href: '/sales', label: n.leads, icon: 'leads', exact: true, badge: count ?? 0 },
+      { href: '/sales/board', label: d.salesops.board, icon: 'kanban' },
       { href: '/sales/units', label: n.salesUnits, icon: 'units' },
     ];
   };

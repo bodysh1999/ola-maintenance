@@ -306,6 +306,7 @@ export const ar = {
     submitted: 'تم إرسال التقرير — بانتظار اعتماد موظف الصيانة', approved: 'تم اعتماد الإنجاز',
   },
   notif: {
+    lead_assigned: 'تم تعيين العميل {name} لك ({ref})', lead_follow_up: 'موعد متابعة العميل {name} ({ref}) اليوم',
     delegation_received: 'فوّضك {name} باعتماد طلبات فريقه من {from} إلى {to}', hr_approval_escalated: 'طلب {ref} معلّق أكثر من يومين عند الموارد البشرية',
     attendance_absent: '{name} لم يسجّل حضوره اليوم ولا يوجد طلب إجازة', attendance_late: '{name} تأخر {count} مرات خلال آخر 30 يومًا',
     escalation: 'تصعيد: البلاغ {ref} متأخر أو واقف — المستوى {level}',
@@ -353,6 +354,7 @@ export const ar = {
     alerts: 'تنبيهات الحضور', absent: 'غياب بدون طلب', late: 'تأخير متكرر ({n} مرات / 30 يوم)', noAlerts: 'لا توجد تنبيهات',
     holidaysInRange: 'منها {n} يوم عطلة رسمية لا تُخصم', escalated: 'صُعّد تلقائيًا بعد يومين',
   },
+  salesops: { board: 'لوحة المراحل', boardSub: 'اسحب البطاقة لنقل العميل للمرحلة التالية' },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',
     technician_assigned: 'تعيين الفني', visit_scheduled: 'جدولة الزيارة', visit_rescheduled: 'تغيير موعد الزيارة',

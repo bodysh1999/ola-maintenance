@@ -308,6 +308,7 @@ export const en: Dict = {
     submitted: 'Report sent — awaiting sign-off', approved: 'Work approved',
   },
   notif: {
+    lead_assigned: 'Lead {name} was assigned to you ({ref})', lead_follow_up: 'Follow up with {name} ({ref}) today',
     delegation_received: '{name} delegated their team approvals to you from {from} to {to}', hr_approval_escalated: 'Request {ref} has been waiting at HR for over 2 days',
     attendance_absent: '{name} has not checked in today and has no leave request', attendance_late: '{name} was late {count} times in the last 30 days',
     escalation: 'Escalation: request {ref} is overdue or stuck — level {level}',
@@ -355,6 +356,7 @@ export const en: Dict = {
     alerts: 'Attendance alerts', absent: 'Absent without a request', late: 'Repeated lateness ({n} times / 30 days)', noAlerts: 'No alerts',
     holidaysInRange: '{n} official holiday day(s) not deducted', escalated: 'Escalated automatically after 2 days',
   },
+  salesops: { board: 'Pipeline board', boardSub: 'Drag a card to move the lead to the next stage' },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',
     technician_assigned: 'Technician assigned', visit_scheduled: 'Visit scheduled', visit_rescheduled: 'Visit rescheduled',

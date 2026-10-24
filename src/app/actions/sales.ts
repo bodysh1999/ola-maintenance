@@ -56,3 +56,13 @@ export async function updateUnitSale(_: ActionResult, fd: FormData): Promise<Act
     revalidatePath('/sales/units');
   });
 }
+
+/** Kanban drag & drop: move a lead to another stage (optionally assign it) */
+export async function moveLead(id: string, status: string): Promise<ActionResult> {
+  return act(async (d) => {
+    if (!(LEAD_STATUSES as readonly string[]).includes(status)) throw new UserError(d.errors.REQUIRED);
+    const supabase = await requireSales();
+    must(await supabase.from('leads').update({ status }).eq('id', id));
+    revalidatePath('/sales', 'layout');
+  });
+}
