@@ -41,7 +41,7 @@ export function messageFor(n: Pick<Claimed, 'type' | 'payload' | 'locale' | 'ful
   if (n.type === 'status_changed' && typeof p.to === 'string') extra.push((d.status as Record<string, string>)[p.to] ?? '');
   if (typeof p.note === 'string' && p.note && ['status_changed', 'completed'].includes(n.type)) extra.push(p.note);
   const body = fmt(tpl, {
-    ref: p.ref_no ?? '', score: p.score ?? '', tech: p.tech ?? '', eta: p.eta ?? '',
+    ref: p.ref_no ?? p.ref ?? '', name: p.name ?? '', level: p.level ?? '', count: p.count ?? '', score: p.score ?? '', tech: p.tech ?? '', eta: p.eta ?? '',
     title: p.title ?? '', days: p.days ?? '', unit: p.unit ?? '',
     date: typeof p.end_date === 'string' ? new Date(p.end_date).toLocaleDateString(locale === 'ar' ? 'ar-SA-u-nu-latn-ca-gregory' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' }) : '',
   }).replace(/\s+/g, ' ').trim();

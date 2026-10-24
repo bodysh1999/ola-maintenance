@@ -20,11 +20,9 @@ export default async function HrRequestPage({ params }: { params: Promise<{ id: 
   if (!r) notFound();
   const steps = ((r.hr_request_steps ?? []) as Step[]).sort((a, b) => a.step - b.step);
   const cur = steps.find((s) => s.step === r.current_step);
-  const isHr = profile?.role === 'hr' || profile?.role === 'admin';
   const mine = me?.id === r.employee_id;
-  const myTurn = r.status === 'pending' && cur && (profile?.role === 'admin'
-    || (cur.approver_kind === 'hr' && isHr && !mine)
-    || (cur.approver_kind === 'manager' && !!me && (await supabase.from('hr_request_steps').select('approver_employee_id').eq('request_id', id).eq('step', r.current_step).single()).data?.approver_employee_id === me.id));
+  // the database decides (manager, their active delegate, HR, admin)
+  const myTurn = r.status === 'pending' && !!cur && !!(await supabase.rpc('can_decide_hr_request', { p_id: id })).data;
   const attachmentUrl = r.attachment_path ? (await supabase.storage.from('hr-docs').createSignedUrl(r.attachment_path, 600)).data?.signedUrl : null;
   const m = d.me;
   const Icon = TYPE_ICONS[r.type as keyof typeof TYPE_ICONS];

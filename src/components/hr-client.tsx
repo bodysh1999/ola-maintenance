@@ -101,9 +101,9 @@ export function PunchCard({ today, remote }: { today: { check_in_at: string | nu
 // ------------------------------------------------------------------ request form (all types)
 type LeaveTypeOpt = { code: string; name_ar: string; name_en: string; max_days: number | null; requires_attachment: boolean; uses_balance: boolean; note_ar: string | null; gender: string | null };
 
-export function HrRequestForm({ type, employeeId, leaveTypes, available, salary, perDiem, gender }: {
+export function HrRequestForm({ type, employeeId, leaveTypes, available, salary, perDiem, gender, holidays = [] }: {
   type: HrRequestType; employeeId: string; leaveTypes: LeaveTypeOpt[]; available: number | null;
-  salary: Salary | null; perDiem: number; gender: 'male' | 'female';
+  salary: Salary | null; perDiem: number; gender: 'male' | 'female'; holidays?: { start_date: string; end_date: string }[];
 }) {
   const { d, locale } = useI18n();
   const f = d.me.form;
@@ -124,7 +124,17 @@ export function HrRequestForm({ type, employeeId, leaveTypes, available, salary,
   }, [state, router]);
 
   const leave = leaveTypes.find((x) => x.code === lt);
-  const days = useMemo(() => (from && to && to >= from ? Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1 : 0), [from, to]);
+  const calDays = useMemo(() => (from && to && to >= from ? Math.round((Date.parse(to) - Date.parse(from)) / 864e5) + 1 : 0), [from, to]);
+  // official holidays inside the range are not deducted from leave that uses the balance (same rule as the database)
+  const holidayDays = useMemo(() => {
+    if (!calDays || type !== 'leave') return 0;
+    const set = new Set<string>();
+    for (const h of holidays) {
+      for (let t = Date.parse(h.start_date > from ? h.start_date : from); t <= Date.parse(h.end_date < to ? h.end_date : to); t += 864e5) set.add(new Date(t).toISOString().slice(0, 10));
+    }
+    return set.size;
+  }, [calDays, holidays, from, to, type]);
+  const days = calDays - (leave?.uses_balance ? holidayDays : 0);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
 
   async function capture() {
@@ -178,6 +188,7 @@ export function HrRequestForm({ type, employeeId, leaveTypes, available, salary,
           {days > 0 && (
             <div className="flex flex-wrap gap-x-6 gap-y-1 rounded-xl bg-sand-50 px-4 py-3 text-sm sm:col-span-2">
               <span>{f.days}: <b>{days}</b></span>
+              {type === 'leave' && leave?.uses_balance && holidayDays > 0 && <span className="text-emerald-700">{d.hrops.holidaysInRange.replace('{n}', String(holidayDays))}</span>}
               {type === 'leave' && leave?.uses_balance && available != null && (
                 <span className={available - days < 0 ? 'text-rose-700' : ''}>{f.balanceAfter}: <b>{(available - days).toFixed(1)}</b></span>
               )}

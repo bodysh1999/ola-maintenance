@@ -170,6 +170,9 @@ export function NotesList({ notes, d, locale, meId }: { notes: NoteRow[]; d: Dic
 
 export function notifText(d: Dict, type: string, payload: Record<string, unknown>) {
   const tpl = (d.notif as Record<string, string>)[type] ?? type;
-  return fmt(tpl, { ref: payload.ref_no, score: payload.score, tech: payload.tech, title: payload.title, unit: payload.unit, days: payload.days, date: payload.end_date });
+  return fmt(tpl, {
+    ref: payload.ref_no ?? payload.ref, score: payload.score, tech: payload.tech, title: payload.title, unit: payload.unit, days: payload.days,
+    date: payload.end_date ?? payload.date, level: payload.level, name: payload.name, count: payload.count, from: payload.from, to: payload.to,
+  });
 }
 

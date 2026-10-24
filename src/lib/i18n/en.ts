@@ -308,6 +308,8 @@ export const en: Dict = {
     submitted: 'Report sent — awaiting sign-off', approved: 'Work approved',
   },
   notif: {
+    delegation_received: '{name} delegated their team approvals to you from {from} to {to}', hr_approval_escalated: 'Request {ref} has been waiting at HR for over 2 days',
+    attendance_absent: '{name} has not checked in today and has no leave request', attendance_late: '{name} was late {count} times in the last 30 days',
     escalation: 'Escalation: request {ref} is overdue or stuck — level {level}',
     data_request_new: 'New data-subject request {ref}', data_request_done: 'Your data request {ref} was answered',
     hr_approval_needed: 'Request {ref} awaits your approval', hr_request_approved: 'Your request {ref} was approved', hr_request_rejected: 'Your request {ref} was rejected',
@@ -342,6 +344,16 @@ export const en: Dict = {
     view: 'View', techLocation: 'Technician location', justNow: 'just now', minsAgo: '{n} min ago',
     sharing: 'Your location is visible to the customer until you start work', starting: 'Getting your location…', denied: 'Allow location access to share it with the customer',
     sharingOff: 'Location sharing is off', stop: 'Stop', start: 'Turn on',
+  },
+  hrops: {
+    calendar: 'Leave calendar', calendarSub: 'Team leave and official holidays', holidays: 'Official holidays', holidayName: 'Holiday name',
+    addHoliday: 'Add holiday', holidayNote: 'Official holidays are not deducted from annual leave. Eid dates follow the moon sighting — update them when announced.',
+    pending: 'Pending', approved: 'Approved', trip: 'Business trip', noLeaves: 'No leave this month', today: 'Today',
+    delegation: 'Approval delegation', delegationSub: 'While you are away, your team requests go to the person you choose', delegateTo: 'Delegate to',
+    from: 'From', to: 'To', reason: 'Reason (optional)', delegate: 'Delegate', given: 'Delegations you gave', received: 'Delegated to you',
+    active: 'Active', upcoming: 'Upcoming', ended: 'Ended', cancel: 'Cancel', noDelegations: 'No delegations',
+    alerts: 'Attendance alerts', absent: 'Absent without a request', late: 'Repeated lateness ({n} times / 30 days)', noAlerts: 'No alerts',
+    holidaysInRange: '{n} official holiday day(s) not deducted', escalated: 'Escalated automatically after 2 days',
   },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',

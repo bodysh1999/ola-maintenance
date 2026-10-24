@@ -306,6 +306,8 @@ export const ar = {
     submitted: 'تم إرسال التقرير — بانتظار اعتماد موظف الصيانة', approved: 'تم اعتماد الإنجاز',
   },
   notif: {
+    delegation_received: 'فوّضك {name} باعتماد طلبات فريقه من {from} إلى {to}', hr_approval_escalated: 'طلب {ref} معلّق أكثر من يومين عند الموارد البشرية',
+    attendance_absent: '{name} لم يسجّل حضوره اليوم ولا يوجد طلب إجازة', attendance_late: '{name} تأخر {count} مرات خلال آخر 30 يومًا',
     escalation: 'تصعيد: البلاغ {ref} متأخر أو واقف — المستوى {level}',
     data_request_new: 'طلب جديد من صاحب بيانات {ref}', data_request_done: 'تم الرد على طلب بياناتك {ref}',
     hr_approval_needed: 'طلب بانتظار اعتمادك {ref}', hr_request_approved: 'تم اعتماد طلبك {ref}', hr_request_rejected: 'تم رفض طلبك {ref}',
@@ -340,6 +342,16 @@ export const ar = {
     view: 'عرض', techLocation: 'موقع الفني', justNow: 'الآن', minsAgo: 'قبل {n} د',
     sharing: 'موقعك يظهر للعميل حتى تبدأ العمل', starting: 'جاري تحديد موقعك…', denied: 'اسمح بالوصول للموقع لمشاركته مع العميل',
     sharingOff: 'مشاركة الموقع موقفة', stop: 'إيقاف', start: 'تشغيل',
+  },
+  hrops: {
+    calendar: 'تقويم الإجازات', calendarSub: 'إجازات الفريق والعطل الرسمية', holidays: 'العطل الرسمية', holidayName: 'اسم العطلة',
+    addHoliday: 'إضافة عطلة', holidayNote: 'العطل الرسمية لا تُخصم من رصيد الإجازة السنوية. تواريخ الأعياد تتبع الرؤية — عدّلها عند الإعلان.',
+    pending: 'بانتظار الاعتماد', approved: 'معتمدة', trip: 'انتداب', noLeaves: 'لا توجد إجازات في هذا الشهر', today: 'اليوم',
+    delegation: 'تفويض الاعتماد', delegationSub: 'وقت إجازتك، طلبات فريقك تروح للشخص اللي تختاره', delegateTo: 'التفويض إلى',
+    from: 'من', to: 'إلى', reason: 'السبب (اختياري)', delegate: 'تفويض', given: 'تفويضات أعطيتها', received: 'تفويضات لك',
+    active: 'سارٍ', upcoming: 'قادم', ended: 'منتهٍ', cancel: 'إلغاء', noDelegations: 'لا توجد تفويضات',
+    alerts: 'تنبيهات الحضور', absent: 'غياب بدون طلب', late: 'تأخير متكرر ({n} مرات / 30 يوم)', noAlerts: 'لا توجد تنبيهات',
+    holidaysInRange: 'منها {n} يوم عطلة رسمية لا تُخصم', escalated: 'صُعّد تلقائيًا بعد يومين',
   },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',

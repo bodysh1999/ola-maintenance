@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState, type ReactNode } from 'react';
 import {
   Bell, Building2, ClipboardList, Home, Inbox, LayoutDashboard, LogOut, Menu, PlusCircle,
-  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck, UserCog, LockKeyhole,
+  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck, UserCog, LockKeyhole, CalendarDays, KanbanSquare, FileBarChart,
 } from 'lucide-react';
 import { cx } from './ui';
 import { signOut } from '@/app/actions/common';
@@ -16,7 +16,7 @@ export const NAV_ICONS = {
   dashboard: LayoutDashboard, inbox: Inbox, requests: ClipboardList, projects: Building2, owners: Users,
   team: HardHat, reports: BarChart3, settings: Settings, home: Home, newRequest: PlusCircle, tasks: Wrench, bell: Bell,
   leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
-  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole,
+  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole, calendar: CalendarDays, kanban: KanbanSquare, analytics: FileBarChart,
 };
 export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number };
 

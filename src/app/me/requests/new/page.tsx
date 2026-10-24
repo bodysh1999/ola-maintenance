@@ -13,9 +13,10 @@ export default async function NewHrRequest({ searchParams }: { searchParams: Pro
   const [{ type }, { d }, me, s, supabase] = await Promise.all([searchParams, getI18n(), getMyEmployee(), getSettings(), createClient()]);
   if (!me) notFound();
   const t = (HR_REQUEST_TYPES as readonly string[]).includes(type ?? '') ? (type as HrRequestType) : 'leave';
-  const [balance, salary, { data: leaveTypes }] = await Promise.all([
+  const [balance, salary, { data: leaveTypes }, { data: holidays }] = await Promise.all([
     getBalance(me.id), getSalary(me.id),
     supabase.from('leave_types').select('code, name_ar, name_en, max_days, requires_attachment, uses_balance, note_ar, gender').eq('is_active', true).order('sort'),
+    supabase.from('public_holidays').select('start_date, end_date').gte('end_date', new Date().toISOString().slice(0, 10)),
   ]);
   const Icon = TYPE_ICONS[t];
   return (
@@ -29,7 +30,7 @@ export default async function NewHrRequest({ searchParams }: { searchParams: Pro
       </div>
       <Card className="p-5 sm:p-7">
         <HrRequestForm key={t} type={t} employeeId={me.id} leaveTypes={leaveTypes ?? []} available={balance?.available ?? null}
-          salary={salary} perDiem={Number(s.trip_per_diem ?? 500)} gender={me.gender} />
+          salary={salary} perDiem={Number(s.trip_per_diem ?? 500)} gender={me.gender} holidays={holidays ?? []} />
       </Card>
     </div>
   );

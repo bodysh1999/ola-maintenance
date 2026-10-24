@@ -53,6 +53,7 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
   const meItems: NavItem[] = [
     { href: '/me', label: n.myServices, icon: 'me', exact: true },
     { href: '/me/approvals', label: n.approvals, icon: 'approvals', badge: Number(approvals ?? 0) },
+    { href: '/me/calendar', label: d.hrops.calendar, icon: 'calendar' },
   ];
   const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
   const site: NavItem = { href: '/', label: n.website, icon: 'website', exact: true };

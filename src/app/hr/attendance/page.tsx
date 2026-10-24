@@ -2,19 +2,21 @@ import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 import { getI18n } from '@/lib/session';
 import { hoursBetween, timeRiyadh } from '@/lib/hr';
-import { Badge, Card, Input, PageHeader, buttonClass } from '@/components/ui';
+import { Badge, Card, CardHeader, Input, PageHeader, buttonClass } from '@/components/ui';
+import { fmtDate } from '@/lib/format';
 import { ExportExcelButton } from '@/components/export-button';
 
 type A = { employee_id: string; check_in_at: string | null; check_out_at: string | null; source: string; in_distance_m: number | null; work_locations: { name: string } | null };
 
 export default async function HrAttendance({ searchParams }: { searchParams: Promise<{ date?: string }> }) {
-  const [{ d }, supabase, sp] = await Promise.all([getI18n(), createClient(), searchParams]);
+  const [{ d, locale }, supabase, sp] = await Promise.all([getI18n(), createClient(), searchParams]);
   const today = new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Riyadh' });
   const date = /^\d{4}-\d{2}-\d{2}$/.test(sp.date ?? '') ? sp.date! : today;
-  const [{ data: emps }, { data: att }, { data: away }] = await Promise.all([
+  const [{ data: emps }, { data: att }, { data: away }, { data: alerts }] = await Promise.all([
     supabase.from('employees').select('id, full_name, job_title, work_start, departments!employees_department_id_fkey(name)').eq('status', 'active').order('full_name'),
     supabase.from('attendance').select('employee_id, check_in_at, check_out_at, source, in_distance_m, work_locations(name)').eq('work_date', date),
     supabase.from('hr_requests').select('employee_id, type, leave_types(name_ar)').eq('status', 'approved').in('type', ['leave', 'business_trip']).lte('start_date', date).gte('end_date', date),
+    supabase.from('attendance_alerts').select('id, kind, period_key, detail, created_at, employees(full_name)').order('created_at', { ascending: false }).limit(30),
   ]);
   const byEmp = new Map(((att ?? []) as unknown as A[]).map((a) => [a.employee_id, a]));
   const awayBy = new Map((away ?? []).map((x) => [x.employee_id, x as unknown as { type: string; leave_types: { name_ar: string } | null }]));
@@ -64,6 +66,25 @@ export default async function HrAttendance({ searchParams }: { searchParams: Pro
             </tbody>
           </table>
         </div>
+      </Card>
+
+      <Card className="mt-6">
+        <CardHeader title={d.hrops.alerts} />
+        {(alerts ?? []).length ? (
+          <ul className="divide-y divide-sand-100">
+            {((alerts ?? []) as unknown as { id: string; kind: string; detail: { count?: number }; created_at: string; employees: { full_name: string } | null }[]).map((x) => (
+              <li key={x.id} className="flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-sm">
+                <span className="font-medium">{x.employees?.full_name}</span>
+                <span className="flex items-center gap-3 text-xs">
+                  <Badge className={x.kind === 'absent_no_request' ? 'bg-rose-50 text-rose-800 ring-rose-200' : 'bg-amber-50 text-amber-800 ring-amber-200'}>
+                    {x.kind === 'absent_no_request' ? d.hrops.absent : d.hrops.late.replace('{n}', String(x.detail?.count ?? ''))}
+                  </Badge>
+                  <span className="text-stone-450">{fmtDate(x.created_at, locale)}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        ) : <p className="px-5 py-6 text-sm text-stone-450">{d.hrops.noAlerts}</p>}
       </Card>
     </div>
   );
