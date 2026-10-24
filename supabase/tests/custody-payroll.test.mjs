@@ -144,7 +144,7 @@ ok('GOSI 9.75% of basic+housing', Number(le.gosi_amount) === Math.round(7500 * 9
 ok('fixed deduction 100', Number(le.fixed_deductions) === 100);
 ok(`late 40 min counted (${le.late_minutes})`, le.late_minutes === 40 && Number(le.late_deduction) > 0);
 const isWorkday = ![5, 6].includes(month.dow) && month.hol === 0;
-ok(`absent only today if it is a workday (${le.absence_days})`, le.absence_days === (isWorkday ? 1 : 0));
+ok(`present every past working day → no absence; today is not judged yet (${le.absence_days})`, le.absence_days === 0); void isWorkday;
 ok('net = gross − deductions', Math.abs(Number(le.net) - (Number(le.gross) - Number(le.total_deductions))) < 0.01);
 const lp = await L(E.peer);
 ok('peer: absences counted, deduction 200, resident GOSI 0', lp.absence_days === lp.workdays && Number(lp.other_deductions) === 200 && Number(lp.gosi_amount) === 0);
