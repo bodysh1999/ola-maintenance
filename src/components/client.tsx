@@ -57,6 +57,53 @@ export function SubmitButton({
 
 type ServerAction = (prev: ActionResult, formData: FormData) => Promise<ActionResult>;
 
+type FieldSnap = { el: Element; value?: string; checked?: boolean; files?: File[]; multi?: string[] };
+
+/** Copy what the user typed so it can be put back — React 19 resets `action` forms even when the action fails */
+export function snapshotForm(form: HTMLFormElement | null): FieldSnap[] {
+  if (!form) return [];
+  return Array.from(form.elements).flatMap((el): FieldSnap[] => {
+    if (el instanceof HTMLInputElement) {
+      if (el.type === 'hidden' || el.type === 'submit' || el.type === 'button') return [];
+      if (el.type === 'checkbox' || el.type === 'radio') return [{ el, checked: el.checked }];
+      if (el.type === 'file') return [{ el, files: Array.from(el.files ?? []) }];
+      return [{ el, value: el.value }];
+    }
+    if (el instanceof HTMLSelectElement) return [{ el, multi: Array.from(el.selectedOptions).map((o) => o.value) }];
+    if (el instanceof HTMLTextAreaElement) return [{ el, value: el.value }];
+    return [];
+  });
+}
+
+export function restoreForm(snap: FieldSnap[]) {
+  for (const s of snap) {
+    if (!s.el.isConnected) continue;
+    if (s.el instanceof HTMLInputElement) {
+      if (s.checked !== undefined) s.el.checked = s.checked;
+      else if (s.files) {
+        if (!s.files.length) continue;
+        try { const dt = new DataTransfer(); s.files.forEach((f) => dt.items.add(f)); s.el.files = dt.files; } catch { /* old browsers */ }
+      } else if (s.value !== undefined) s.el.value = s.value;
+    } else if (s.el instanceof HTMLSelectElement && s.multi) {
+      for (const o of Array.from(s.el.options)) o.selected = s.multi.includes(o.value);
+    } else if (s.el instanceof HTMLTextAreaElement && s.value !== undefined) s.el.value = s.value;
+  }
+}
+
+/** Keeps a form's values when its server action returns an error */
+export function useKeepOnError(state: ActionResult) {
+  const ref = useRef<HTMLFormElement>(null);
+  const snap = useRef<FieldSnap[]>([]);
+  useEffect(() => {
+    if (!state?.error) return;
+    const s = snap.current;
+    restoreForm(s);
+    const t = setTimeout(() => restoreForm(s), 0); // in case the reset lands after this effect
+    return () => clearTimeout(t);
+  }, [state]);
+  return { ref, onSubmitCapture: () => { snap.current = snapshotForm(ref.current); } };
+}
+
 /**
  * Form wired to a server action, with inline error/success feedback.
  * The server action enforces permissions; RLS enforces them again in the database.
@@ -68,7 +115,7 @@ export function ActionForm({
   resetOnSuccess?: boolean; successText?: string; onSuccess?: (r: ActionResult) => void;
 }) {
   const [state, formAction] = useActionState(action, undefined);
-  const ref = useRef<HTMLFormElement>(null);
+  const { ref, onSubmitCapture } = useKeepOnError(state);
   const [showOk, setShowOk] = useState(false);
 
   useEffect(() => {
@@ -82,7 +129,7 @@ export function ActionForm({
   }, [state]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return (
-    <form ref={ref} action={formAction} className={className}>
+    <form ref={ref} action={formAction} onSubmitCapture={onSubmitCapture} className={className}>
       {typeof children === 'function' ? children(state) : children}
       {state?.error && (
         <p role="alert" className="mt-3 flex items-start gap-2 rounded-lg bg-rose-50 px-3 py-2 text-sm text-rose-800">

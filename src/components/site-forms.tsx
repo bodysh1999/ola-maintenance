@@ -9,6 +9,7 @@ import type { PublicOpening, PublicUnit } from '@/lib/public-data';
 import type { PagesContent } from '@/lib/site-pages';
 import type { ActionResult } from '@/lib/types';
 import { cx } from './ui';
+import { useKeepOnError } from './client';
 
 // ------------------------------------------------------------------ shared bits
 const inputCls = 'block h-12 w-full rounded-xl border border-sand-200 bg-white px-4 text-[15px] text-ink outline-none transition placeholder:text-stone-400 focus:border-brand focus:ring-4 focus:ring-brand/10';
@@ -92,6 +93,7 @@ export function LeadForm({ kind, f, projectId, units, unitId, onUnitChange, serv
   services?: { key: string; title: string }[]; defaultService?: string; withDate?: boolean; cta?: string;
 }) {
   const [state, action] = useActionState(submitLead, undefined);
+  const keep = useKeepOnError(state);
   const [key, setKey] = useState(0);
   const [hide, setHide] = useState(false);
   useEffect(() => { if (state?.ok) setHide(false); }, [state]);
@@ -99,7 +101,7 @@ export function LeadForm({ kind, f, projectId, units, unitId, onUnitChange, serv
   if (state?.ok && !hide) return <Done refNo={String(state.data?.ref ?? '')} f={f} onAgain={() => { setHide(true); setKey((k) => k + 1); }} />;
 
   return (
-    <form key={key} action={action} className="relative grid gap-4 sm:grid-cols-2">
+    <form key={key} ref={keep.ref} onSubmitCapture={keep.onSubmitCapture} action={action} className="relative grid gap-4 sm:grid-cols-2">
       <Honeypot />
       <input type="hidden" name="kind" value={kind} />
       {projectId && <input type="hidden" name="project_id" value={projectId} />}

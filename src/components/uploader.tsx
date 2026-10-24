@@ -9,6 +9,7 @@ import { translateError } from '@/lib/i18n';
 import { useI18n } from './client';
 import { buttonClass, cx } from './ui';
 import type { AttachmentKind } from '@/lib/types';
+import { prepareImages } from '@/lib/image';
 
 export const MAX_FILE_BYTES = 50 * 1024 * 1024;
 
@@ -21,6 +22,7 @@ export function safeName(name: string) {
 export async function uploadFiles(files: File[], requestId: string, kind: AttachmentKind, workOrderId?: string | null) {
   const supabase = createClient();
   const rows: Parameters<typeof registerAttachments>[0] = [];
+  files = await prepareImages(files); // HEIC → JPEG, large photos scaled down
   for (const f of files) {
     if (f.size > MAX_FILE_BYTES) throw new Error('FILE_TOO_LARGE');
     const path = `${requestId}/${safeName(f.name)}`;

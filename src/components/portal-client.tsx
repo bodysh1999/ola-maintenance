@@ -6,6 +6,7 @@ import { Bell, BellOff, CalendarCheck2, CalendarClock, Camera, Loader2, Navigati
 import { createClient } from '@/lib/supabase/client';
 import { translateError } from '@/lib/i18n';
 import { DOC_KINDS } from '@/lib/portal';
+import { prepareImage, setInputFiles } from '@/lib/image';
 import {
   deleteUnitDocument, ownerConfirmVisit, ownerRequestReschedule, registerUnitDocument, setNotifyExternal, techOnTheWay, uploadTechnicianPhoto,
 } from '@/app/actions/portal';
@@ -33,9 +34,12 @@ export function UnitDocUploader({ unitId }: { unitId: string }) {
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const fd = new FormData(e.currentTarget);
-    const file = fd.get('file');
+    const raw = fd.get('file');
     const title = String(fd.get('title') ?? '').trim();
-    if (!(file instanceof File) || !file.size || !title) { setMsg({ ok: false, text: d.errors.REQUIRED }); return; }
+    if (!(raw instanceof File) || !raw.size || !title) { setMsg({ ok: false, text: d.errors.REQUIRED }); return; }
+    setBusy(true);
+    const file = await prepareImage(raw, { maxSide: 2400, quality: 0.85 });
+    setBusy(false);
     if (file.size > 25 * 1024 * 1024) { setMsg({ ok: false, text: d.errors.FILE_TOO_LARGE }); return; }
     setBusy(true); setMsg(null);
     try {
@@ -69,7 +73,7 @@ export function UnitDocUploader({ unitId }: { unitId: string }) {
         <Field label={d.portal.docTitle}><Input name="title" required maxLength={160} /></Field>
       </div>
       <Field label={d.portal.chooseFile}>
-        <input type="file" name="file" required accept="application/pdf,image/jpeg,image/png,image/webp"
+        <input type="file" name="file" required accept="application/pdf,image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif"
           className="w-full text-sm file:me-3 file:rounded-lg file:border-0 file:bg-white file:px-3 file:py-2 file:text-sm" />
       </Field>
       <div className="flex items-center gap-3">
@@ -168,8 +172,13 @@ export function TechPhotoForm({ technicianId, photo, name }: { technicianId: str
   return (
     <ActionForm action={uploadTechnicianPhoto} className="relative">
       <input type="hidden" name="technician_id" value={technicianId} />
-      <input ref={input} type="file" name="photo" accept="image/jpeg,image/png,image/webp" className="hidden"
-        onChange={(e) => { if (e.target.files?.length) e.currentTarget.form?.requestSubmit(); }} />
+      <input ref={input} type="file" name="photo" accept="image/jpeg,image/png,image/webp,image/heic,image/heif,.heic,.heif" className="hidden"
+        onChange={async (e) => {
+          const el = e.currentTarget; const f = el.files?.[0];
+          if (!f) return;
+          setInputFiles(el, [await prepareImage(f, { maxSide: 600, skipBelow: 0 })]);
+          el.form?.requestSubmit();
+        }} />
       <button type="button" onClick={() => input.current?.click()} title={d.portal.uploadPhoto}
         className="group relative grid h-11 w-11 place-items-center overflow-hidden rounded-full bg-sand-100 text-ink/50">
         {photo

@@ -6,6 +6,7 @@ import { startTransition, useActionState, useEffect, useMemo, useState } from 'r
 import { AlertCircle, CheckCircle2, Crosshair, FileText, Fingerprint, Loader2, LogIn, LogOut, MapPin, Upload } from 'lucide-react';
 import { cancelHrRequest, decideHrRequest, punch, submitHrRequest } from '@/app/actions/me';
 import { createClient } from '@/lib/supabase/client';
+import { prepareImage } from '@/lib/image';
 import { overtimeHourly, sar, timeRiyadh, type HrRequestType, type Salary } from '@/lib/hr';
 import { ActionForm, SubmitButton, useI18n } from './client';
 import { Field, Input, Select, Textarea, buttonClass, cx } from './ui';
@@ -136,9 +137,10 @@ export function HrRequestForm({ type, employeeId, leaveTypes, available, salary,
     e.preventDefault();
     setErr(null);
     const fd = new FormData(e.currentTarget);
-    const file = fd.get('file') as File | null;
+    const raw = fd.get('file') as File | null;
     fd.delete('file');
-    if (file && file.size > 0) {
+    if (raw && raw.size > 0) {
+      const file = await prepareImage(raw);
       const ext = (file.name.split('.').pop() ?? '').toLowerCase();
       if (!['pdf', 'jpg', 'jpeg', 'png', 'webp'].includes(ext) || file.size > 10 * 1024 * 1024) { setErr(d.errors.INVALID_FILE); return; }
       setUploading(true);
@@ -234,7 +236,7 @@ export function HrRequestForm({ type, employeeId, leaveTypes, available, salary,
           <label className="flex cursor-pointer items-center gap-3 rounded-xl border-2 border-dashed border-sand-300 bg-sand-50 px-4 py-4 hover:border-brand/40">
             {fileName ? <FileText className="h-5 w-5 text-brand" /> : <Upload className="h-5 w-5 text-brand" />}
             <span className="min-w-0"><span className="block truncate text-sm">{fileName || f.attachmentHint}</span></span>
-            <input type="file" name="file" accept=".pdf,image/*" className="sr-only" required={!!needsFile && ['sick', 'maternity'].includes(lt)} onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')} />
+            <input type="file" name="file" accept=".pdf,image/*,.heic,.heif" className="sr-only" required={!!needsFile && ['sick', 'maternity'].includes(lt)} onChange={(e) => setFileName(e.target.files?.[0]?.name ?? '')} />
           </label>
         </div>
       )}

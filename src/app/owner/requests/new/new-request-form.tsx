@@ -10,6 +10,7 @@ import { uploadFiles, MAX_FILE_BYTES } from '@/components/uploader';
 import { Button, Card, Field, Input, Textarea, cx } from '@/components/ui';
 import { CATEGORIES, LOCATIONS_AR, LOCATIONS_EN } from '@/lib/constants';
 import type { Category } from '@/lib/types';
+import { isImageLike } from '@/lib/image';
 
 export type UnitOption = { id: string; label: string; sub: string; covered: string[] };
 const MAX_FILES = 6;
@@ -39,7 +40,7 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
   const canNext = [!!unitId, !!category, !!location.trim() && description.trim().length >= 5, true][step];
 
   function addFiles(list: FileList | null) {
-    const incoming = Array.from(list ?? []).filter((f) => f.size <= MAX_FILE_BYTES && (f.type.startsWith('image/') || f.type.startsWith('video/')));
+    const incoming = Array.from(list ?? []).filter((f) => f.size <= MAX_FILE_BYTES && (isImageLike(f) || f.type.startsWith('video/')));
     if ((list?.length ?? 0) > incoming.length) setError(d.errors.FILE_TOO_LARGE);
     setFiles((prev) => [...prev, ...incoming].slice(0, MAX_FILES));
   }
@@ -154,7 +155,7 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
             <div>
               <div className="mb-1 text-[13px] font-medium text-ink/80">{d.newReq.media} <span className="font-normal text-stone-450">({d.common.optional})</span></div>
               <p className="mb-3 text-xs text-stone-450">{d.newReq.mediaHint}</p>
-              <input ref={fileInput} type="file" accept="image/*,video/*" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
+              <input ref={fileInput} type="file" accept="image/*,video/*,.heic,.heif" multiple className="hidden" onChange={(e) => { addFiles(e.target.files); e.target.value = ''; }} />
               <div className="grid grid-cols-3 gap-2 sm:grid-cols-4">
                 {previews.map(({ f, url }, i) => (
                   <div key={i} className="relative aspect-square overflow-hidden rounded-xl border border-sand-200 bg-sand-50">
