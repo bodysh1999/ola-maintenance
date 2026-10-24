@@ -35,20 +35,21 @@ export function TransitionPanel({ requestId, options }: { requestId: string; opt
   );
 }
 
-export type TechOption = { id: string; name: string; contractor: string | null; open: number; match: boolean };
+export type TechOption = { id: string; name: string; contractor: string | null; open: number; match: boolean; warranty?: boolean };
 
 export function AssignForm({ requestId, techs, current, priority }: { requestId: string; techs: TechOption[]; current?: string | null; priority: Priority }) {
   const { d } = useI18n();
-  const sorted = [...techs].sort((a, b) => Number(b.match) - Number(a.match) || a.open - b.open);
+  const sorted = [...techs].sort((a, b) => Number(!!b.warranty) - Number(!!a.warranty) || Number(b.match) - Number(a.match) || a.open - b.open);
+  const suggested = !current ? sorted.find((t) => t.warranty)?.id : undefined;
   return (
     <ActionForm action={assignTechnician} className="space-y-3">
       <input type="hidden" name="request_id" value={requestId} />
       <Field label={d.admin.detail.tech} required>
-        <Select name="technician_id" required defaultValue={current ?? ''}>
+        <Select name="technician_id" required defaultValue={current ?? suggested ?? ''}>
           <option value="" disabled>—</option>
           {sorted.map((t) => (
             <option key={t.id} value={t.id}>
-              {t.match ? '★ ' : ''}{t.name}{t.contractor ? ` — ${t.contractor}` : ''} ({d.admin.team.openTasks}: {t.open})
+              {t.warranty ? `🛡 ${d.ops.warrantyTech} · ` : ''}{t.match ? '★ ' : ''}{t.name}{t.contractor ? ` — ${t.contractor}` : ''} ({d.admin.team.openTasks}: {t.open})
             </option>
           ))}
         </Select>

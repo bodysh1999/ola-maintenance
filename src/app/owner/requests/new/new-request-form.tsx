@@ -1,6 +1,8 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
+import { createClient } from '@/lib/supabase/client';
 import { useRouter } from 'next/navigation';
 import { Check, ChevronLeft, ChevronRight, Film, ImagePlus, Loader2, ShieldCheck, X } from 'lucide-react';
 import { createRequest } from '@/app/actions/owner';
@@ -9,8 +11,8 @@ import { CATEGORY_ICONS } from '@/components/category-icon';
 import { uploadFiles, MAX_FILE_BYTES } from '@/components/uploader';
 import { Button, Card, Field, Input, Textarea, cx } from '@/components/ui';
 import { CATEGORIES, LOCATIONS_AR, LOCATIONS_EN } from '@/lib/constants';
-import type { Category } from '@/lib/types';
-import { isImageLike } from '@/lib/image';
+import type { Category, RequestStatus } from '@/lib/types';
+import { isImageLike, prepareImages } from '@/lib/image';
 
 export type UnitOption = { id: string; label: string; sub: string; covered: string[] };
 const MAX_FILES = 6;
@@ -31,6 +33,17 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
   const [phase, setPhase] = useState<'idle' | 'saving' | 'uploading'>('idle');
   const [error, setError] = useState<string | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [similar, setSimilar] = useState<{ id: string; ref_no: string; status: RequestStatus }[]>([]);
+  const [preparing, setPreparing] = useState(false);
+
+  // duplicate warning: same unit + category within 7 days or still open
+  useEffect(() => {
+    setSimilar([]);
+    if (!unitId || !category) return;
+    let live = true;
+    createClient().rpc('similar_requests', { p_unit: unitId, p_category: category }).then(({ data }: { data: unknown }) => { if (live) setSimilar((data ?? []) as typeof similar); });
+    return () => { live = false; };
+  }, [unitId, category]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const unit = units.find((u) => u.id === unitId);
   const locations = locale === 'ar' ? LOCATIONS_AR : LOCATIONS_EN;
@@ -39,9 +52,13 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
 
   const canNext = [!!unitId, !!category, !!location.trim() && description.trim().length >= 5, true][step];
 
-  function addFiles(list: FileList | null) {
-    const incoming = Array.from(list ?? []).filter((f) => f.size <= MAX_FILE_BYTES && (isImageLike(f) || f.type.startsWith('video/')));
-    if ((list?.length ?? 0) > incoming.length) setError(d.errors.FILE_TOO_LARGE);
+  async function addFiles(list: FileList | null) {
+    const picked = Array.from(list ?? []);
+    setPreparing(true);
+    const prepared = await prepareImages(picked); // HEIC → JPEG so the preview shows and upload is small
+    setPreparing(false);
+    const incoming = prepared.filter((f) => f.size <= MAX_FILE_BYTES && (isImageLike(f) || f.type.startsWith('video/')));
+    if (picked.length > incoming.length) setError(d.errors.FILE_TOO_LARGE);
     setFiles((prev) => [...prev, ...incoming].slice(0, MAX_FILES));
   }
 
@@ -128,6 +145,16 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
                 );
               })}
             </div>
+            {similar.length > 0 && (
+              <div role="status" className="mt-5 rounded-xl bg-amber-50 p-4 text-sm text-amber-900 ring-1 ring-amber-200">
+                <p>{d.ops.similarOwner}</p>
+                <ul className="mt-2 space-y-1">
+                  {similar.map((x) => (
+                    <li key={x.id}><Link href={`/owner/requests/${x.id}`} className="font-mono font-medium underline" dir="ltr">{x.ref_no}</Link> — {d.status[x.status]}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </fieldset>
         )}
 
@@ -172,7 +199,7 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
                 {files.length < MAX_FILES && (
                   <button type="button" onClick={() => fileInput.current?.click()}
                     className="grid aspect-square place-items-center rounded-xl border-2 border-dashed border-sand-300 text-stone-450 transition hover:border-brand/40 hover:text-brand">
-                    <span className="flex flex-col items-center gap-1 text-xs"><ImagePlus className="h-6 w-6" />{d.newReq.addFiles}</span>
+                    <span className="flex flex-col items-center gap-1 text-xs">{preparing ? <Loader2 className="h-6 w-6 animate-spin" /> : <ImagePlus className="h-6 w-6" />}{d.newReq.addFiles}</span>
                   </button>
                 )}
               </div>
@@ -217,7 +244,7 @@ export function NewRequestForm({ units, initialUnit, minDate }: { units: UnitOpt
             </Button>
           ) : <span />}
           {step < 3 ? (
-            <Button type="button" onClick={() => setStep(step + 1)} disabled={!canNext} size="lg">
+            <Button type="button" onClick={() => setStep(step + 1)} disabled={!canNext || preparing} size="lg">
               {d.newReq.next} <Next className="h-4 w-4" />
             </Button>
           ) : (

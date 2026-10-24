@@ -306,6 +306,7 @@ export const ar = {
     submitted: 'تم إرسال التقرير — بانتظار اعتماد موظف الصيانة', approved: 'تم اعتماد الإنجاز',
   },
   notif: {
+    escalation: 'تصعيد: البلاغ {ref} متأخر أو واقف — المستوى {level}',
     data_request_new: 'طلب جديد من صاحب بيانات {ref}', data_request_done: 'تم الرد على طلب بياناتك {ref}',
     hr_approval_needed: 'طلب بانتظار اعتمادك {ref}', hr_request_approved: 'تم اعتماد طلبك {ref}', hr_request_rejected: 'تم رفض طلبك {ref}',
     lead_new: 'طلب عميل جديد {ref}', application_new: 'طلب توظيف / تدريب جديد {ref}',
@@ -319,6 +320,21 @@ export const ar = {
     rating_received: 'تقييم جديد ({score}/5) للطلب {ref}',
     tech_on_the_way: 'الفني {tech} في الطريق إليك — الطلب {ref}', visit_owner_confirmed: 'العميل أكد موعد الزيارة للطلب {ref}',
     reschedule_requested: 'العميل يطلب تغيير موعد الزيارة للطلب {ref}', warranty_expiring: 'ضمان «{title}» للوحدة {unit} ينتهي بتاريخ {date}', empty: 'لا توجد إشعارات',
+  },
+  ops: {
+    waitingCol: 'عند مين', waitingFor: 'بانتظار', since: 'منذ', hours: '{n} ساعة', days: '{n} يوم', escalated: 'مصعّد',
+    escLevel: { 1: 'مصعّد للمشرف', 2: 'مصعّد للإدارة' },
+    who: { owner: 'العميل', staff: 'الإدارة / المشرف', tech: 'الفني' },
+    waiting: {
+      owner_quote: 'موافقة العميل على عرض السعر', staff_review: 'مراجعة البلاغ', staff_approve: 'اعتماد البلاغ أو إرسال عرض سعر',
+      staff_assign: 'تعيين فني', tech_start: 'بدء العمل', tech_returned: 'العمل مُعاد له', tech_finish: 'إنهاء العمل وإرسال التقرير',
+      tech_parts: 'توفير قطع الغيار', staff_signoff: 'اعتماد الإنجاز', staff_reschedule: 'إعادة الجدولة',
+    },
+    waitingFilter: 'عند مين: الكل', technician: 'الفني: الكل', onlyEscalated: 'المصعّدة فقط',
+    searchPh: 'رقم البلاغ، العميل، الجوال، الوحدة، الفني أو الوصف',
+    similarTitle: 'بلاغات مشابهة على نفس الوحدة', similarOwner: 'عندك بلاغ من نفس النوع على هذه الوحدة خلال الأسبوع — تقدر تتابعه بدل ما ترفع بلاغ جديد:',
+    similarStaff: 'بلاغات من نفس النوع على هذه الوحدة (آخر 7 أيام أو مفتوحة):', continueAnyway: 'متابعة برفع بلاغ جديد',
+    warrantyTech: 'ضمان', warrantySuggest: 'البلاغ داخل ضمان {party} — الفنيون التابعون له مقترحون أولًا',
   },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',

@@ -15,6 +15,7 @@ import { NoteForm } from '@/components/note-form';
 import { Uploader } from '@/components/uploader';
 import { PartsTable } from '@/components/parts';
 import { AutoRefresh } from '@/components/portal-client';
+import { WaitingOnText } from '@/components/waiting';
 import { AssignForm, QuoteForm, ReviewForm, ScheduleForm, TransitionPanel, TriageForm, type TechOption } from './staff-forms';
 
 export default async function StaffRequestPage({ params }: { params: Promise<{ id: string }> }) {
@@ -24,24 +25,29 @@ export default async function StaffRequestPage({ params }: { params: Promise<{ i
   if (!data) notFound();
   const { request: r, logs, attachments, notes, quotes, rating, workOrders, lastMainStatus } = data;
 
-  const [{ data: techs }, { data: openWos }, { data: owner }, { data: warranties }] = await Promise.all([
-    supabase.from('technicians').select('id, full_name, specialties, contractors(name)').eq('is_active', true).order('full_name'),
+  const [{ data: techs }, { data: openWos }, { data: owner }, { data: warranties }, { data: similar }] = await Promise.all([
+    supabase.from('technicians').select('id, full_name, specialties, contractor_id, contractors(name)').eq('is_active', true).order('full_name'),
     supabase.from('work_orders').select('technician_id').in('status', ['assigned', 'in_progress', 'awaiting_parts', 'returned', 'submitted']),
     supabase.from('owners').select('full_name, phone, email').eq('id', r.owner_id).maybeSingle(),
     supabase.from('warranties').select('*, contractors(name)').eq('unit_id', r.unit_id).order('end_date', { ascending: false }),
+    supabase.rpc('similar_requests', { p_unit: r.unit_id, p_category: r.category, p_exclude: r.id }),
   ]);
+  const matchedWarranty = (warranties ?? []).find((w) => w.id === r.warranty_id);
+  const warrantyContractor: string | null = r.warranty_state === 'in_warranty' ? matchedWarranty?.contractor_id ?? null : null;
 
   const openCount = new Map<string, number>();
   (openWos ?? []).forEach((w) => openCount.set(w.technician_id, (openCount.get(w.technician_id) ?? 0) + 1));
-  const techOptions: TechOption[] = ((techs ?? []) as unknown as { id: string; full_name: string; specialties: Category[]; contractors: { name: string } | null }[])
-    .map((t) => ({ id: t.id, name: t.full_name, contractor: t.contractors?.name ?? null, open: openCount.get(t.id) ?? 0, match: t.specialties.includes(r.category) }));
+  const techOptions: TechOption[] = ((techs ?? []) as unknown as { id: string; full_name: string; specialties: Category[]; contractor_id: string | null; contractors: { name: string } | null }[])
+    .map((t) => ({ id: t.id, name: t.full_name, contractor: t.contractors?.name ?? null, open: openCount.get(t.id) ?? 0, match: t.specialties.includes(r.category),
+      warranty: !!warrantyContractor && t.contractor_id === warrantyContractor }));
+  const warrantyParty = warrantyContractor && techOptions.some((t) => t.warranty) ? (matchedWarranty?.contractors?.name ?? matchedWarranty?.responsible_party ?? '') : null;
+  const similarList = (similar ?? []) as { id: string; ref_no: string; status: keyof typeof d.status; created_at: string }[];
 
   const wo = workOrders.find((w) => !['cancelled'].includes(w.status));
   // a submitted technician report is reviewed with the review form (approve / return), not the status list
   const transitions = wo?.status === 'submitted' ? [] : STAFF_TRANSITIONS[r.status] ?? [];
   const canAssign = !['completed', 'rejected', 'pending_approval', 'in_progress'].includes(r.status);
   const canSchedule = !!wo && ['assigned', 'in_progress', 'awaiting_parts', 'returned'].includes(wo.status) && !['completed', 'rejected', 'pending_approval'].includes(r.status);
-  const matchedWarranty = (warranties ?? []).find((w) => w.id === r.warranty_id);
   const relevantWarranties = (warranties ?? []).filter((w) => !w.category || w.category === r.category);
   const pendingQuote = quotes.find((q) => q.status === 'pending');
   const t = d.admin.detail;
@@ -73,6 +79,20 @@ export default async function StaffRequestPage({ params }: { params: Promise<{ i
           </div>
         </div>
         <div className="mt-6 border-t border-sand-100 pt-6"><RequestProgress status={r.status} d={d} lastMainStatus={lastMainStatus} /></div>
+        {r.waiting_on && (
+          <div className={`mt-5 flex flex-wrap items-center gap-3 rounded-xl px-4 py-3 ${r.escalation_level ? 'bg-rose-50 ring-1 ring-rose-200' : 'bg-sand-50'}`}>
+            <span className="text-sm font-semibold">{d.ops.waitingFor}:</span>
+            <WaitingOnText r={r} d={d} long />
+          </div>
+        )}
+        {similarList.length > 0 && (
+          <Alert tone="warn" className="mt-4">
+            {d.ops.similarStaff}{' '}
+            {similarList.map((x, i) => (
+              <span key={x.id}>{i > 0 && '، '}<Link href={`/admin/requests/${x.id}`} className="font-mono underline" dir="ltr">{x.ref_no}</Link> ({d.status[x.status]})</span>
+            ))}
+          </Alert>
+        )}
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-[1fr_380px]">
@@ -102,7 +122,10 @@ export default async function StaffRequestPage({ params }: { params: Promise<{ i
                 <div className="border-t border-sand-100 pt-5">
                   <h4 className="mb-3 flex items-center gap-2 text-sm font-semibold"><Wrench className="h-4 w-4 text-brand" />{wo ? t.reassign : t.assign}</h4>
                   {pendingQuote ? <Alert tone="warn">{d.errors.QUOTE_PENDING}</Alert> : (
+                    <>
+                    {warrantyParty !== null && <Alert tone="info" className="mb-3">{d.ops.warrantySuggest.replace('{party}', warrantyParty)}</Alert>}
                     <AssignForm requestId={r.id} techs={techOptions} current={wo?.technician_id} priority={r.priority} />
+                    </>
                   )}
                 </div>
               )}

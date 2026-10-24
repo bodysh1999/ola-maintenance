@@ -308,6 +308,7 @@ export const en: Dict = {
     submitted: 'Report sent — awaiting sign-off', approved: 'Work approved',
   },
   notif: {
+    escalation: 'Escalation: request {ref} is overdue or stuck — level {level}',
     data_request_new: 'New data-subject request {ref}', data_request_done: 'Your data request {ref} was answered',
     hr_approval_needed: 'Request {ref} awaits your approval', hr_request_approved: 'Your request {ref} was approved', hr_request_rejected: 'Your request {ref} was rejected',
     lead_new: 'New customer lead {ref}', application_new: 'New job / training application {ref}',
@@ -321,6 +322,21 @@ export const en: Dict = {
     rating_received: 'New rating ({score}/5) for {ref}',
     tech_on_the_way: 'Technician {tech} is on the way — request {ref}', visit_owner_confirmed: 'Customer confirmed the visit for {ref}',
     reschedule_requested: 'Customer asks to change the visit time for {ref}', warranty_expiring: 'Warranty “{title}” for unit {unit} ends on {date}', empty: 'No notifications',
+  },
+  ops: {
+    waitingCol: 'Waiting on', waitingFor: 'Waiting for', since: 'for', hours: '{n}h', days: '{n}d', escalated: 'Escalated',
+    escLevel: { 1: 'Escalated to supervisor', 2: 'Escalated to management' },
+    who: { owner: 'Customer', staff: 'Management / supervisor', tech: 'Technician' },
+    waiting: {
+      owner_quote: 'customer to approve the quote', staff_review: 'review the request', staff_approve: 'approve or send a quote',
+      staff_assign: 'assign a technician', tech_start: 'start the work', tech_returned: 'rework (returned)', tech_finish: 'finish and submit the report',
+      tech_parts: 'spare parts', staff_signoff: 'sign off the work', staff_reschedule: 'reschedule',
+    },
+    waitingFilter: 'Waiting on: all', technician: 'Technician: all', onlyEscalated: 'Escalated only',
+    searchPh: 'Ref, customer, phone, unit, technician or description',
+    similarTitle: 'Similar requests on this unit', similarOwner: 'You already have a request of this type on this unit this week — you can follow it instead of opening a new one:',
+    similarStaff: 'Requests of the same type on this unit (last 7 days or open):', continueAnyway: 'Continue with a new request',
+    warrantyTech: 'Warranty', warrantySuggest: 'This request is under the warranty of {party} — their technicians are suggested first',
   },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',

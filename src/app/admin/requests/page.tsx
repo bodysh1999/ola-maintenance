@@ -8,7 +8,7 @@ import { Card, Input, PageHeader, Select, buttonClass } from '@/components/ui';
 import { RequestsTable, requestsToSheet } from '@/components/requests-table';
 import { ExportExcelButton } from '@/components/export-button';
 
-type SP = { q?: string; status?: string; category?: string; priority?: string; project?: string; overdue?: string; from?: string; to?: string; page?: string };
+type SP = { q?: string; status?: string; category?: string; priority?: string; project?: string; overdue?: string; tech?: string; waiting?: string; esc?: string; from?: string; to?: string; page?: string };
 const PAGE = 50;
 
 export default async function RequestsPage({ searchParams }: { searchParams: Promise<SP> }) {
@@ -18,19 +18,23 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
   let query = supabase.from('request_overview').select('*', { count: 'exact' });
   if (sp.q) {
     const term = sp.q.replace(/[%,()*]/g, ' ').trim();
-    if (term) query = query.or(`ref_no.ilike.%${term}%,owner_name.ilike.%${term}%,description.ilike.%${term}%,unit_number.ilike.%${term}%`);
+    if (term) query = query.or(`ref_no.ilike.%${term}%,owner_name.ilike.%${term}%,owner_phone.ilike.%${term}%,technician_name.ilike.%${term}%,description.ilike.%${term}%,unit_number.ilike.%${term}%`);
   }
   if (sp.status && (ALL_STATUSES as string[]).includes(sp.status)) query = query.eq('status', sp.status);
   if (sp.category && (CATEGORIES as string[]).includes(sp.category)) query = query.eq('category', sp.category);
   if (sp.priority && (PRIORITIES as string[]).includes(sp.priority)) query = query.eq('priority', sp.priority);
   if (sp.project) query = query.eq('project_id', sp.project);
   if (sp.overdue === '1') query = query.eq('is_overdue', true);
+  if (sp.tech) query = query.eq('technician_id', sp.tech);
+  if (sp.waiting && ['owner', 'staff', 'tech'].includes(sp.waiting)) query = query.like('waiting_on', `${sp.waiting}%`);
+  if (sp.esc === '1') query = query.gt('escalation_level', 0);
   if (sp.from) query = query.gte('created_at', `${sp.from}T00:00:00+03:00`);
   if (sp.to) query = query.lte('created_at', `${sp.to}T23:59:59+03:00`);
 
-  const [{ data, count }, { data: projects }] = await Promise.all([
+  const [{ data, count }, { data: projects }, { data: techs }] = await Promise.all([
     query.order('created_at', { ascending: false }).range((page - 1) * PAGE, page * PAGE - 1),
     supabase.from('projects').select('id, name_ar, name_en').order('name_ar'),
+    supabase.from('technicians').select('id, full_name').eq('is_active', true).order('full_name'),
   ]);
   const rows = (data ?? []) as RequestOverview[];
   const total = count ?? 0;
@@ -53,7 +57,7 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
         <form className="grid gap-3 md:grid-cols-4 xl:grid-cols-8">
           <div className="relative md:col-span-2 xl:col-span-2">
             <Search className="pointer-events-none absolute start-3 top-1/2 h-4 w-4 -translate-y-1/2 text-stone-400" />
-            <Input name="q" defaultValue={sp.q} placeholder={d.admin.filters.search} className="ps-9" />
+            <Input name="q" defaultValue={sp.q} placeholder={d.ops.searchPh} className="ps-9" />
           </div>
           <Select name="status" defaultValue={sp.status ?? ''}>
             <option value="">{d.common.status}: {d.common.all}</option>
@@ -71,13 +75,25 @@ export default async function RequestsPage({ searchParams }: { searchParams: Pro
             <option value="">{d.admin.table.project}: {d.common.all}</option>
             {(projects ?? []).map((p) => <option key={p.id} value={p.id}>{locale === 'en' && p.name_en ? p.name_en : p.name_ar}</option>)}
           </Select>
+          <Select name="tech" defaultValue={sp.tech ?? ''}>
+            <option value="">{d.ops.technician}</option>
+            {(techs ?? []).map((t) => <option key={t.id} value={t.id}>{t.full_name}</option>)}
+          </Select>
+          <Select name="waiting" defaultValue={sp.waiting ?? ''}>
+            <option value="">{d.ops.waitingFilter}</option>
+            {(['staff', 'tech', 'owner'] as const).map((w) => <option key={w} value={w}>{d.ops.who[w]}</option>)}
+          </Select>
           <Input type="date" name="from" defaultValue={sp.from} aria-label={d.common.from} />
           <Input type="date" name="to" defaultValue={sp.to} aria-label={d.common.to} />
           <label className="flex items-center gap-2 text-sm md:col-span-2 xl:col-span-2">
             <input type="checkbox" name="overdue" value="1" defaultChecked={sp.overdue === '1'} className="h-4 w-4 rounded border-sand-300 text-brand focus:ring-brand" />
             {d.admin.filters.onlyOverdue}
           </label>
-          <div className="flex gap-2 md:col-span-2 xl:col-span-6 xl:justify-end">
+          <label className="flex items-center gap-2 text-sm md:col-span-2 xl:col-span-2">
+            <input type="checkbox" name="esc" value="1" defaultChecked={sp.esc === '1'} className="h-4 w-4 rounded border-sand-300 text-brand focus:ring-brand" />
+            {d.ops.onlyEscalated}
+          </label>
+          <div className="flex gap-2 md:col-span-4 xl:col-span-6 xl:justify-end">
             <Link href="/admin/requests" className={buttonClass('ghost')}>{d.common.reset}</Link>
             <button className={buttonClass('primary')}>{d.common.apply}</button>
           </div>

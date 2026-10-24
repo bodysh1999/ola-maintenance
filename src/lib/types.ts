@@ -117,7 +117,14 @@ export interface RequestOverview extends RequestRow {
   owner_confirmed_at?: string | null;
   owner_reschedule_note?: string | null;
   owner_reschedule_at?: string | null;
+  waiting_on?: WaitingOn | null;
+  waiting_since?: string | null;
+  pending_quote_amount?: number | null;
+  escalation_level?: number;
 }
+
+export type WaitingOn = 'owner_quote' | 'staff_review' | 'staff_approve' | 'staff_assign' | 'tech_start' | 'tech_returned'
+  | 'tech_finish' | 'tech_parts' | 'staff_signoff' | 'staff_reschedule';
 
 export interface ActivityLog {
   id: string;

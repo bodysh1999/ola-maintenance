@@ -4,6 +4,7 @@ import { fmtDate, fmtVisit } from '@/lib/format';
 import type { Locale, RequestOverview } from '@/lib/types';
 import { OverdueBadge, PriorityBadge, StatusBadge } from './badges';
 import { CategoryIcon } from './category-icon';
+import { WaitingOnText, whoOf, ageLabel } from './waiting';
 
 export function RequestsTable({ rows, d, locale, compact }: { rows: RequestOverview[]; d: Dict; locale: Locale; compact?: boolean }) {
   const t = d.admin.table;
@@ -21,6 +22,7 @@ export function RequestsTable({ rows, d, locale, compact }: { rows: RequestOverv
             <th className="px-4 py-3 text-start font-medium">{t.date}</th>
             <th className="px-4 py-3 text-start font-medium">{t.priority}</th>
             <th className="px-4 py-3 text-start font-medium">{t.status}</th>
+            <th className="px-4 py-3 text-start font-medium">{d.ops.waitingCol}</th>
             <th className="px-4 py-3 text-start font-medium">{t.technician}</th>
             {!compact && <th className="px-4 py-3 text-start font-medium">{t.visit}</th>}
           </tr>
@@ -51,6 +53,7 @@ export function RequestsTable({ rows, d, locale, compact }: { rows: RequestOverv
                   {r.is_overdue && <OverdueBadge d={d} />}
                 </div>
               </td>
+              <td className="min-w-[150px] px-4 py-3"><WaitingOnText r={r} d={d} /></td>
               <td className="px-4 py-3 text-xs">{r.technician_name ?? <span className="text-stone-400">{d.common.unassigned}</span>}</td>
               {!compact && <td className="whitespace-nowrap px-4 py-3 text-xs">{r.visit_at ? fmtVisit(r.visit_at, locale) : '—'}</td>}
             </tr>
@@ -76,6 +79,7 @@ export function requestsToSheet(rows: RequestOverview[], d: Dict, locale: Locale
     [t.date]: r.created_at.slice(0, 16).replace('T', ' '),
     [t.priority]: d.priority[r.priority],
     [t.status]: d.status[r.status],
+    [d.ops.waitingCol]: r.waiting_on ? `${d.ops.who[whoOf(r.waiting_on)]} — ${d.ops.waiting[r.waiting_on]} (${ageLabel(r.waiting_since, d)})` : '',
     [d.owner.warrantyStatus]: d.warranty[r.warranty_state],
     [t.technician]: r.technician_name,
     [t.visit]: r.visit_at ? r.visit_at.slice(0, 16).replace('T', ' ') : null,
