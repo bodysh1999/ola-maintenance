@@ -6,6 +6,7 @@ import { fmtDate } from '@/lib/format';
 import { DOC_KINDS, warrantyState, type UnitDoc, type WarrantyRow } from '@/lib/portal';
 import { cx } from './ui';
 import { DeleteDocButton } from './portal-client';
+import { DocPreview } from './live';
 
 const KIND_ICON = {
   sale_contract: FileSignature, title_deed: Landmark, handover_report: FileText, drawings: Ruler,
@@ -40,6 +41,7 @@ export function UnitDocsList({ docs, d, locale, canDelete = false }: { docs: Uni
                     <div className="truncate text-sm font-medium">{x.title}</div>
                     <div className="text-xs text-stone-450">{fmtDate(x.created_at, locale)}{x.size_bytes ? ` · ${size(x.size_bytes)}` : ''}</div>
                   </div>
+                  {x.url && <DocPreview url={x.url} title={x.title} mime={x.mime_type} />}
                   {x.url && (
                     <a href={x.url} target="_blank" rel="noreferrer" className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-sand-200 px-3 text-xs font-medium text-ink/80 hover:border-brand/40 hover:text-brand">
                       <Download className="h-3.5 w-3.5" />{d.portal.download}

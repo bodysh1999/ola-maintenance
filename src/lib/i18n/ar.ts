@@ -336,6 +336,11 @@ export const ar = {
     similarStaff: 'بلاغات من نفس النوع على هذه الوحدة (آخر 7 أيام أو مفتوحة):', continueAnyway: 'متابعة برفع بلاغ جديد',
     warrantyTech: 'ضمان', warrantySuggest: 'البلاغ داخل ضمان {party} — الفنيون التابعون له مقترحون أولًا',
   },
+  live: {
+    view: 'عرض', techLocation: 'موقع الفني', justNow: 'الآن', minsAgo: 'قبل {n} د',
+    sharing: 'موقعك يظهر للعميل حتى تبدأ العمل', starting: 'جاري تحديد موقعك…', denied: 'اسمح بالوصول للموقع لمشاركته مع العميل',
+    sharingOff: 'مشاركة الموقع موقفة', stop: 'إيقاف', start: 'تشغيل',
+  },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',
     technician_assigned: 'تعيين الفني', visit_scheduled: 'جدولة الزيارة', visit_rescheduled: 'تغيير موعد الزيارة',

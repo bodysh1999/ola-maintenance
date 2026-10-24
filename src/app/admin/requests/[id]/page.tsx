@@ -14,7 +14,7 @@ import { AttachmentGrid, NotesList, RequestProgress, Timeline } from '@/componen
 import { NoteForm } from '@/components/note-form';
 import { Uploader } from '@/components/uploader';
 import { PartsTable } from '@/components/parts';
-import { AutoRefresh } from '@/components/portal-client';
+import { LiveRefresh } from '@/components/live';
 import { WaitingOnText } from '@/components/waiting';
 import { AssignForm, QuoteForm, ReviewForm, ScheduleForm, TransitionPanel, TriageForm, type TechOption } from './staff-forms';
 
@@ -184,7 +184,7 @@ export default async function StaffRequestPage({ params }: { params: Promise<{ i
           <Card>
             <CardHeader title={d.portal.chatTitle} />
             <div className="p-5">
-              {!['completed', 'rejected'].includes(r.status) && <AutoRefresh seconds={30} />}
+              {!['completed', 'rejected'].includes(r.status) && <LiveRefresh requestId={r.id} />}
               <NotesList notes={notes} d={d} locale={locale} meId={profile.id} />
               <NoteForm requestId={r.id} allowInternal />
             </div>

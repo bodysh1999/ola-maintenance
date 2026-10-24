@@ -14,6 +14,7 @@ import { NoteForm } from '@/components/note-form';
 import { AddPartForm, PartsTable } from '@/components/parts';
 import { AwaitingPartsForm, StartButton, SubmitReport } from './tech-actions';
 import { OnTheWayForm } from '@/components/portal-client';
+import { ShareLocation } from '@/components/live';
 
 export default async function TechTaskPage({ params }: { params: Promise<{ id: string }> }) {
   const profile = await requireRole(['technician']);
@@ -77,6 +78,7 @@ export default async function TechTaskPage({ params }: { params: Promise<{ id: s
       {['assigned', 'returned', 'awaiting_parts'].includes(status) && (
         <div className="space-y-3">
           <OnTheWayForm workOrderId={id} sentAt={r.on_the_way_at ?? null} />
+          {r.on_the_way_at && <ShareLocation workOrderId={id} />}
           <StartButton workOrderId={id} />
         </div>
       )}

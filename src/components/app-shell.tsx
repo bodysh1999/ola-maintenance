@@ -5,6 +5,7 @@ import { createClient } from '@/lib/supabase/server';
 import { getI18n, getSettings } from '@/lib/session';
 import type { Profile } from '@/lib/types';
 import { BrandMark } from './brand';
+import { LiveRefresh } from './live';
 import { BottomNav, Sidebar, type NavItem } from './shell-nav';
 
 export async function AppShell({ profile, children, gates = true }: { profile: Profile; children: React.ReactNode; gates?: boolean }) {
@@ -96,6 +97,7 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
 
   return (
     <div className="flex min-h-screen flex-col lg:flex-row">
+      <LiveRefresh userId={profile.id} fallbackSeconds={300} />
       <Sidebar items={items} brand={<BrandMark s={s} locale={locale} light />} user={{ name: profile.full_name || profile.email || '', role: d.roles[profile.role] }} />
       <main className={`min-w-0 flex-1 px-4 py-6 sm:px-6 lg:px-10 lg:py-9 ${bottom ? 'pb-28 lg:pb-9' : ''}`}>
         <div className="no-print mb-2 hidden justify-end lg:flex">

@@ -2,7 +2,9 @@ import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { CalendarClock, CheckCircle2, ChevronRight, Navigation, Phone, Receipt, Star, UserRound } from 'lucide-react';
 import { fmt } from '@/lib/i18n';
-import { AutoRefresh, VisitActions } from '@/components/portal-client';
+import { VisitActions } from '@/components/portal-client';
+import { LiveRefresh, LiveTechMap } from '@/components/live';
+import { createClient } from '@/lib/supabase/server';
 import { getI18n, requireRole } from '@/lib/session';
 import { loadRequest } from '@/lib/queries';
 import { fmtDate, fmtDateTime, fmtMoney, fmtRelative as fmtRelativeShort, fmtVisit } from '@/lib/format';
@@ -23,10 +25,13 @@ export default async function OwnerRequestPage({ params, searchParams }: { param
   const open = !['completed', 'rejected'].includes(r.status);
   const pendingQuote = quotes.find((q) => q.status === 'pending');
   const latestQuote = quotes[0];
+  const { data: loc } = open && r.on_the_way_at
+    ? await (await createClient()).from('tech_locations').select('lat, lng, updated_at').eq('request_id', r.id).maybeSingle()
+    : { data: null };
 
   return (
     <div className="space-y-6">
-      {open && <AutoRefresh seconds={20} />}
+      {open && <LiveRefresh requestId={r.id} />}
       <Link href="/owner" className="inline-flex items-center gap-1 text-sm text-stone-450 hover:text-ink">
         <ChevronRight className="h-4 w-4 ltr:rotate-180" /> {d.nav.home}
       </Link>
@@ -164,6 +169,7 @@ export default async function OwnerRequestPage({ params, searchParams }: { param
                 </div>
               </div>
             )}
+            {open && r.on_the_way_at && <LiveTechMap requestId={r.id} initial={loc ?? null} />}
             <div className="bg-brand/[.05] p-5">
               <div className="flex items-center gap-2 text-xs font-medium text-brand"><CalendarClock className="h-4 w-4" />{d.req.visit}</div>
               <div className="mt-1.5 text-lg font-semibold">{r.visit_at ? fmtVisit(r.visit_at, locale) : <span className="text-base font-normal text-stone-450">{d.req.noVisit}</span>}</div>

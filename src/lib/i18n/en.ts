@@ -338,6 +338,11 @@ export const en: Dict = {
     similarStaff: 'Requests of the same type on this unit (last 7 days or open):', continueAnyway: 'Continue with a new request',
     warrantyTech: 'Warranty', warrantySuggest: 'This request is under the warranty of {party} — their technicians are suggested first',
   },
+  live: {
+    view: 'View', techLocation: 'Technician location', justNow: 'just now', minsAgo: '{n} min ago',
+    sharing: 'Your location is visible to the customer until you start work', starting: 'Getting your location…', denied: 'Allow location access to share it with the customer',
+    sharingOff: 'Location sharing is off', stop: 'Stop', start: 'Turn on',
+  },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',
     technician_assigned: 'Technician assigned', visit_scheduled: 'Visit scheduled', visit_rescheduled: 'Visit rescheduled',
