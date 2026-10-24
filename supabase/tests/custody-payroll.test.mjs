@@ -84,17 +84,17 @@ await db.exec(`update custodies set status='active' where id='${cust.id}'`);
 
 // ================================================================ custody: expenses + balance
 const P = (n) => `${E.emp}/0b6c6f9e-5d2c-4c1a-9b3a-2a1d1e0f9c1${n}.pdf`;
-await fails('invoice needs a file', as(U.emp, `select public.add_custody_expense($1,'invoice','materials',2000,current_date)`, [cust.id]), 'ATTACHMENT_REQUIRED');
-await fails('wages without invoice need a description', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',300,current_date)`, [cust.id]), 'NOTE_REQUIRED');
-await fails('file in another employee folder', as(U.emp, `select public.add_custody_expense($1,'invoice','materials',100,current_date,null,null,null,$2)`, [cust.id, `${E.peer}/0b6c6f9e-5d2c-4c1a-9b3a-2a1d1e0f9c11.pdf`]), 'INVALID_FILE');
-await fails('another employee adds to my custody', as(U.peer, `select public.add_custody_expense($1,'no_invoice','labor',300,current_date,'x')`, [cust.id]), 'FORBIDDEN');
-await fails('future date', as(U.emp, `select public.add_custody_expense($1,'no_invoice','cleaning',300,current_date+1,'تنظيف')`, [cust.id]), 'INVALID_DATE');
-await as(U.emp, `select public.add_custody_expense($1,'invoice','materials',2000,current_date,'بلاط وسيراميك','مؤسسة البناء','INV-1',$2)`, [cust.id, P(1)]);
-const x2 = (await one(U.emp, `select public.add_custody_expense($1,'invoice','materials',1000,current_date,'دهانات','محل الدهان','INV-2',$2) id`, [cust.id, P(2)])).id;
-await as(U.emp, `select public.add_custody_expense($1,'no_invoice','cleaning',400,current_date,'تنظيف شقة بعد التشطيب')`, [cust.id]);
+await fails('invoice needs a file', as(U.emp, `select public.add_custody_expense($1,'invoice','materials',2000,public.today_riyadh())`, [cust.id]), 'ATTACHMENT_REQUIRED');
+await fails('wages without invoice need a description', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',300,public.today_riyadh())`, [cust.id]), 'NOTE_REQUIRED');
+await fails('file in another employee folder', as(U.emp, `select public.add_custody_expense($1,'invoice','materials',100,public.today_riyadh(),null,null,null,$2)`, [cust.id, `${E.peer}/0b6c6f9e-5d2c-4c1a-9b3a-2a1d1e0f9c11.pdf`]), 'INVALID_FILE');
+await fails('another employee adds to my custody', as(U.peer, `select public.add_custody_expense($1,'no_invoice','labor',300,public.today_riyadh(),'x')`, [cust.id]), 'FORBIDDEN');
+await fails('future date', as(U.emp, `select public.add_custody_expense($1,'no_invoice','cleaning',300,public.today_riyadh()+1,'تنظيف')`, [cust.id]), 'INVALID_DATE');
+await as(U.emp, `select public.add_custody_expense($1,'invoice','materials',2000,public.today_riyadh(),'بلاط وسيراميك','مؤسسة البناء','INV-1',$2)`, [cust.id, P(1)]);
+const x2 = (await one(U.emp, `select public.add_custody_expense($1,'invoice','materials',1000,public.today_riyadh(),'دهانات','محل الدهان','INV-2',$2) id`, [cust.id, P(2)])).id;
+await as(U.emp, `select public.add_custody_expense($1,'no_invoice','cleaning',400,public.today_riyadh(),'تنظيف شقة بعد التشطيب')`, [cust.id]);
 let sum = await one(U.emp, `select remaining, spent_pending, pending_count from custody_summary where id=$1`, [cust.id]);
 ok('remaining = 5000 − 3400 = 1600', Number(sum.remaining) === 1600 && Number(sum.pending_count) === 3);
-await fails('expense over the remaining balance', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',2000,current_date,'أجور')`, [cust.id]), 'EXCEEDS_CUSTODY');
+await fails('expense over the remaining balance', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',2000,public.today_riyadh(),'أجور')`, [cust.id]), 'EXCEEDS_CUSTODY');
 ok('manager sees the custody', (await one(U.mgr, `select count(*)::int c from custody_summary`)).c >= 1);
 ok('peer cannot see it', (await one(U.peer, `select count(*)::int c from custody_summary where id=$1`, [cust.id])).c === 0);
 ok('manager can read the invoice file', (await db.exec(`insert into storage.objects (bucket_id,name) values ('hr-docs','${P(1)}')`), (await one(U.mgr, `select count(*)::int c from storage.objects where name=$1`, [P(1)])).c === 1));
@@ -109,7 +109,7 @@ await fails('close with pending expenses', as(U.hr, `select public.close_custody
 for (const r of (await db.query(`select id from custody_expenses where custody_id=$1 and status='pending'`, [cust.id])).rows) await as(U.hr, `select public.review_custody_expense($1,true)`, [r.id]);
 await as(U.emp, `select public.request_custody_settlement($1)`, [cust.id]);
 ok('HR notified to settle', (await one(U.hr, `select count(*)::int c from notifications where type='custody_settlement'`)).c === 1);
-await fails('no new expenses after settlement request', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',10,current_date,'x')`, [cust.id]), 'CUSTODY_NOT_ACTIVE');
+await fails('no new expenses after settlement request', as(U.emp, `select public.add_custody_expense($1,'no_invoice','labor',10,public.today_riyadh(),'x')`, [cust.id]), 'CUSTODY_NOT_ACTIVE');
 await as(U.hr, `select public.close_custody($1, null, 'استلام المتبقي نقدًا')`, [cust.id]);
 const closed = (await db.query(`select status, returned_amount from custodies where id=$1`, [cust.id])).rows[0];
 ok('closed with remaining 2600 returned', closed.status === 'closed' && Number(closed.returned_amount) === 2600);
