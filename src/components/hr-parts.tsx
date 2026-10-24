@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Briefcase, CalendarDays, CalendarClock, Clock3, FileBadge, Fingerprint, HandCoins, MapPinned, Plane, ScrollText } from 'lucide-react';
+import { Wallet, Briefcase, CalendarDays, CalendarClock, Clock3, FileBadge, Fingerprint, HandCoins, MapPinned, Plane, ScrollText } from 'lucide-react';
 import type { Dict } from '@/lib/i18n';
 import type { Locale } from '@/lib/types';
 import { fmtDate, fmtRelative } from '@/lib/format';
@@ -8,7 +8,7 @@ import { Badge } from './ui';
 
 export const TYPE_ICONS: Record<HrRequestType, typeof CalendarDays> = {
   leave: CalendarDays, attendance_correction: Fingerprint, presence: MapPinned, overtime: Clock3, business_trip: Plane,
-  salary_certificate: FileBadge, salary_advance: HandCoins, exit_reentry: Briefcase, experience_letter: ScrollText,
+  salary_certificate: FileBadge, salary_advance: HandCoins, exit_reentry: Briefcase, experience_letter: ScrollText, custody: Wallet,
 };
 
 export type HrRequestRow = {
@@ -24,7 +24,7 @@ export function requestSummary(r: HrRequestRow, d: Dict, locale: Locale, leaveNa
     case 'business_trip': case 'exit_reentry': return [range, r.days ? `${r.days} ${d.me.balance.days}` : null].filter(Boolean).join(' · ');
     case 'overtime': return `${fmtDate(r.work_date, locale)} · ${r.hours} ${d.common.hours}`;
     case 'attendance_correction': case 'presence': return fmtDate(r.work_date, locale);
-    case 'salary_advance': return `${sar(r.amount)} ${d.common.sar}`;
+    case 'salary_advance': case 'custody': return `${sar(r.amount)} ${d.common.sar}`;
     default: return '';
   }
 }

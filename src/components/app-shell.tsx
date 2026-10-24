@@ -40,6 +40,8 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
       { href: '/hr/employees', label: d.hrm.employees, icon: 'employees' },
       { href: '/hr/requests', label: d.hrm.requests, icon: 'requests' },
       { href: '/hr/attendance', label: d.hrm.attendance, icon: 'attendance' },
+      { href: '/hr/payroll', label: d.payroll.title, icon: 'payroll' },
+      { href: '/hr/custody', label: d.custody.hrTitle, icon: 'custody' },
       { href: '/hr/structure', label: d.hrm.structure, icon: 'structure' },
       { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0 },
       { href: '/hr/openings', label: n.openings, icon: 'openings' },
@@ -55,6 +57,8 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
     { href: '/me', label: n.myServices, icon: 'me', exact: true },
     { href: '/me/approvals', label: n.approvals, icon: 'approvals', badge: Number(approvals ?? 0) },
     { href: '/me/calendar', label: d.hrops.calendar, icon: 'calendar' },
+    { href: '/me/custody', label: d.custody.title, icon: 'custody' },
+    { href: '/me/payslips', label: d.payroll.payslips, icon: 'payslip' },
   ];
   const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
   const site: NavItem = { href: '/', label: n.website, icon: 'website', exact: true };

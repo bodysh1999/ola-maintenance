@@ -4,7 +4,8 @@ export const HR_REQUEST_TYPES = [
   'leave', 'attendance_correction', 'presence', 'overtime', 'business_trip',
   'salary_certificate', 'salary_advance', 'exit_reentry', 'experience_letter',
 ] as const;
-export type HrRequestType = (typeof HR_REQUEST_TYPES)[number];
+/** custody has its own pages (/me/custody) but flows through the same approvals inbox */
+export type HrRequestType = (typeof HR_REQUEST_TYPES)[number] | 'custody';
 export const HR_STATUS_TONE: Record<string, string> = {
   pending: 'bg-amber-50 text-amber-800 ring-amber-200', approved: 'bg-emerald-50 text-emerald-800 ring-emerald-200',
   rejected: 'bg-rose-50 text-rose-800 ring-rose-200', cancelled: 'bg-stone-100 text-stone-600 ring-stone-200',
@@ -38,3 +39,5 @@ export function hoursBetween(a: string | null, b: string | null) {
 }
 export const timeRiyadh = (iso: string | null) =>
   iso ? new Date(iso).toLocaleTimeString('en-GB', { timeZone: 'Asia/Riyadh', hour: '2-digit', minute: '2-digit' }) : '—';
+
+export const PAY_TONE = { draft: 'bg-amber-50 text-amber-800 ring-amber-200', approved: 'bg-sky-50 text-sky-800 ring-sky-200', paid: 'bg-emerald-50 text-emerald-800 ring-emerald-200' } as const;

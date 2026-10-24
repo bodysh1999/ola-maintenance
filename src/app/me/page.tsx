@@ -67,6 +67,8 @@ export default async function MeHome() {
           <div className="grid grid-cols-2 gap-4">
             <Link href="/me/attendance" className="rounded-2xl border border-sand-200 bg-white p-5 text-sm font-medium shadow-card transition hover:border-brand/30">{m.attendance}</Link>
             <Link href="/me/profile" className="rounded-2xl border border-sand-200 bg-white p-5 text-sm font-medium shadow-card transition hover:border-brand/30">{m.profile}</Link>
+            <Link href="/me/custody" className="rounded-2xl border border-sand-200 bg-white p-5 text-sm font-medium shadow-card transition hover:border-brand/30">{d.custody.title}</Link>
+            <Link href="/me/payslips" className="rounded-2xl border border-sand-200 bg-white p-5 text-sm font-medium shadow-card transition hover:border-brand/30">{d.payroll.payslips}</Link>
           </div>
         </div>
       </div>
