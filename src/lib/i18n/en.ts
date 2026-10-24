@@ -308,6 +308,7 @@ export const en: Dict = {
     submitted: 'Report sent — awaiting sign-off', approved: 'Work approved',
   },
   notif: {
+    system_error: 'New system error: {title}',
     lead_assigned: 'Lead {name} was assigned to you ({ref})', lead_follow_up: 'Follow up with {name} ({ref}) today',
     delegation_received: '{name} delegated their team approvals to you from {from} to {to}', hr_approval_escalated: 'Request {ref} has been waiting at HR for over 2 days',
     attendance_absent: '{name} has not checked in today and has no leave request', attendance_late: '{name} was late {count} times in the last 30 days',
@@ -361,6 +362,20 @@ export const en: Dict = {
     thisMonth: 'This month', lastMonth: 'Last month', last90: 'Last 90 days', thisYear: 'This year',
     compare: 'Compared with the previous period', vs: 'vs', current: 'Current', previous: 'Previous', change: 'Change',
     prevDone: 'Done (previous)', projectCosts: 'Maintenance cost per project', totalCost: 'Total cost',
+  },
+  system: {
+    title: 'System health', checked: 'Checked', errors24: 'Errors (24h)', outboxPending: 'Messages queued', outboxFailed: 'Messages failed (24h)', dbSize: 'Database size',
+    scheduled: 'Scheduled jobs', scheduledSub: 'Run automatically inside the database', job: 'Job', schedule: 'Schedule', lastRun: 'Last run',
+    ok: 'Succeeded', waiting: 'Not run yet', notYet: '—', noCron: 'Scheduled jobs are not enabled',
+    jobs: { 'request-escalation': 'Escalate overdue requests (hourly)', 'hr-approval-escalation': 'Escalate pending HR approvals (every 2h)', 'attendance-alerts': 'Attendance alerts (workdays 10:30)', 'lead-followups': 'Lead follow-up reminders (daily 8:00)', 'warranty-alerts': 'Warranty expiry alerts', 'privacy-retention': 'Delete expired data' },
+    errorsTitle: 'Recorded errors', errorsSub: 'Any page error for any user is logged here and admins are alerted (at most once an hour)', noErrors: 'No open errors',
+    server: 'Server', browser: 'Browser', resolve: 'Resolved', resolvedCount: 'Resolved errors',
+    backupTitle: 'Backups',
+    backupBody: [
+      'A daily encrypted database dump is stored in GitHub (Actions → Daily database backup) for 30 days, once two repository secrets are added: SUPABASE_DB_URL and BACKUP_PASSPHRASE.',
+      'The paid Supabase plan (Pro) adds automatic daily backups with restore from the Supabase dashboard.',
+      'Uploaded files (photos, documents) live in Supabase Storage — copy them from the Supabase dashboard when needed.',
+    ],
   },
   log: {
     created: 'Request created', status_changed: 'Status changed', priority_changed: 'Priority changed', warranty_changed: 'Warranty updated',

@@ -1,0 +1,35 @@
+name: CI
+
+# Runs on every push / pull request: type check, database tests (PGlite), production build.
+# A red ✗ on the commit means something is broken — Vercel also refuses to deploy a failing build.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Type check
+        run: npm run typecheck
+      - name: Database tests (all migrations + RLS + workflows)
+        run: npm run test:db
+      - name: Production build
+        run: npm run build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: https://example.supabase.co
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ci-build-placeholder
+          NEXT_TELEMETRY_DISABLED: 1

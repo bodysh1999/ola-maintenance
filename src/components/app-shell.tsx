@@ -76,7 +76,7 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
       { href: '/admin/owners', label: n.owners, icon: 'owners' },
       { href: '/admin/team', label: n.team, icon: 'team' },
       { href: '/admin/reports', label: n.reports, icon: 'reports' },
-      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
+      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/system', label: d.system.title, icon: 'analytics' as const }, { href: '/admin/settings', label: n.settings, icon: 'settings' as const }] : []),
       ...meItems,
       bell,
     ];

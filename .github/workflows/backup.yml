@@ -1,0 +1,54 @@
+name: Daily database backup
+
+# Encrypted daily dump of the Supabase database, kept 30 days as a workflow artifact.
+# Setup (once): GitHub repo → Settings → Secrets and variables → Actions → New repository secret
+#   SUPABASE_DB_URL     Supabase → Connect → "Session pooler" connection string (postgresql://postgres.xxx:PASSWORD@aws-0-...pooler.supabase.com:5432/postgres)
+#   BACKUP_PASSPHRASE   a long random passphrase — keep it somewhere safe; it is needed to restore
+# Restore: gpg -d db-YYYY-MM-DD.dump.gpg > db.dump && pg_restore --no-owner -d "$TARGET_DB_URL" db.dump
+on:
+  schedule:
+    - cron: '30 0 * * *'   # 03:30 Riyadh
+  workflow_dispatch:
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Check secrets
+        id: cfg
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          if [ -z "$DB" ] || [ -z "$PASS" ]; then
+            echo "::warning::Backup skipped — add SUPABASE_DB_URL and BACKUP_PASSPHRASE in the repository secrets"
+            echo "skip=true" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Install PostgreSQL 17 client
+        if: steps.cfg.outputs.skip != 'true'
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y
+          sudo apt-get install -y -qq postgresql-client-17
+      - name: Dump and encrypt
+        if: steps.cfg.outputs.skip != 'true'
+        env:
+          DB: ${{ secrets.SUPABASE_DB_URL }}
+          PASS: ${{ secrets.BACKUP_PASSPHRASE }}
+        run: |
+          set -euo pipefail
+          day=$(date -u +%F)
+          /usr/lib/postgresql/17/bin/pg_dump "$DB" --format=custom --no-owner --no-privileges \
+            --schema=public --schema=auth --schema=storage -f db.dump
+          gpg --batch --yes --pinentry-mode loopback --symmetric --cipher-algo AES256 --passphrase "$PASS" -o "db-$day.dump.gpg" db.dump
+          rm -f db.dump
+          ls -lh "db-$day.dump.gpg"
+          echo "DAY=$day" >> "$GITHUB_ENV"
+      - uses: actions/upload-artifact@v4
+        if: steps.cfg.outputs.skip != 'true'
+        with:
+          name: db-backup-${{ env.DAY }}
+          path: db-*.dump.gpg
+          retention-days: 30

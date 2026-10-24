@@ -306,6 +306,7 @@ export const ar = {
     submitted: 'تم إرسال التقرير — بانتظار اعتماد موظف الصيانة', approved: 'تم اعتماد الإنجاز',
   },
   notif: {
+    system_error: 'خطأ جديد في النظام: {title}',
     lead_assigned: 'تم تعيين العميل {name} لك ({ref})', lead_follow_up: 'موعد متابعة العميل {name} ({ref}) اليوم',
     delegation_received: 'فوّضك {name} باعتماد طلبات فريقه من {from} إلى {to}', hr_approval_escalated: 'طلب {ref} معلّق أكثر من يومين عند الموارد البشرية',
     attendance_absent: '{name} لم يسجّل حضوره اليوم ولا يوجد طلب إجازة', attendance_late: '{name} تأخر {count} مرات خلال آخر 30 يومًا',
@@ -359,6 +360,20 @@ export const ar = {
     thisMonth: 'هذا الشهر', lastMonth: 'الشهر الماضي', last90: 'آخر 90 يومًا', thisYear: 'هذه السنة',
     compare: 'مقارنة بالفترة السابقة', vs: 'مقابل', current: 'الفترة الحالية', previous: 'الفترة السابقة', change: 'التغيّر',
     prevDone: 'المنجز سابقًا', projectCosts: 'تكلفة الصيانة لكل مشروع', totalCost: 'إجمالي التكلفة',
+  },
+  system: {
+    title: 'صحة النظام', checked: 'آخر فحص', errors24: 'أخطاء آخر 24 ساعة', outboxPending: 'رسائل بانتظار الإرسال', outboxFailed: 'رسائل فشلت (24 ساعة)', dbSize: 'حجم قاعدة البيانات',
+    scheduled: 'المهام المجدولة', scheduledSub: 'تعمل تلقائيًا داخل قاعدة البيانات', job: 'المهمة', schedule: 'التوقيت', lastRun: 'آخر تشغيل',
+    ok: 'نجحت', waiting: 'لم تعمل بعد', notYet: '—', noCron: 'المهام المجدولة غير مفعّلة',
+    jobs: { 'request-escalation': 'تصعيد البلاغات المتأخرة (كل ساعة)', 'hr-approval-escalation': 'تصعيد طلبات الموظفين المعلّقة (كل ساعتين)', 'attendance-alerts': 'تنبيهات الحضور (أيام العمل 10:30)', 'lead-followups': 'تذكير متابعة العملاء (يوميًا 8:00)', 'warranty-alerts': 'تنبيهات انتهاء الضمان', 'privacy-retention': 'حذف البيانات المنتهية' },
+    errorsTitle: 'الأخطاء المسجّلة', errorsSub: 'أي صفحة تطلع خطأ عند أي مستخدم تُسجَّل هنا ويوصلك تنبيه (مرة بالساعة كحد أقصى)', noErrors: 'لا توجد أخطاء مفتوحة',
+    server: 'الخادم', browser: 'المتصفح', resolve: 'تم الحل', resolvedCount: 'أخطاء محلولة',
+    backupTitle: 'النسخ الاحتياطي',
+    backupBody: [
+      'نسخة يومية مشفّرة من قاعدة البيانات تُحفظ في GitHub (Actions → Daily database backup) لمدة 30 يومًا، بعد إضافة سرّين في إعدادات الريبو: SUPABASE_DB_URL و BACKUP_PASSPHRASE.',
+      'خطة Supabase المدفوعة (Pro) تضيف نسخًا يومية تلقائية مع إمكانية الاسترجاع من لوحة Supabase.',
+      'الملفات المرفوعة (الصور والمستندات) محفوظة في Supabase Storage — تُنسخ من لوحة Supabase عند الحاجة.',
+    ],
   },
   log: {
     created: 'تم إنشاء الطلب', status_changed: 'تغيرت الحالة', priority_changed: 'تغيّرت الأولوية', warranty_changed: 'تعديل حالة الضمان',
