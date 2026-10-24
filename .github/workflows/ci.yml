@@ -26,7 +26,12 @@ jobs:
       - name: Type check
         run: npm run typecheck
       - name: Database tests (all migrations + RLS + workflows)
-        run: npm run test:db
+        run: |
+          set -o pipefail
+          npm run test:db 2>&1 | tee test-db.log || {
+            grep -E '!!|Error|FAILED' test-db.log | head -30 | sed 's/^/::error title=DB test::/'
+            exit 1
+          }
       - name: Production build
         run: npm run build
         env:
