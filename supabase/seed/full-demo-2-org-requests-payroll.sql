@@ -372,7 +372,7 @@ select (select count(*) from public.hr_requests r join public.employees e on e.i
   (select string_agg(period||':'||status||':'||(select count(*) from public.payroll_lines l where l.run_id=r.id), ', ') from public.payroll_runs r) payroll,
   (select count(*) from public.leads) leads,
   (select count(*) from public.units where owner_id is not null) owned_units,
-  (select count(*) from public.custodies) custodies
+  (select count(*) from public.custodies) custodies;
 
 -- (4b) حضور الإدارة العليا وإعادة حساب مسير الشهر
 create or replace function pg_temp.act(p_email text) returns uuid language plpgsql as $f$
@@ -403,4 +403,4 @@ begin
   perform pg_temp.act(null);
 end $$;
 select sum(l.absence_days) abs_days, string_agg(case when l.absence_days > 0 then l.full_name||'('||l.absence_days||')' end, ', ') absentees, sum(net) net
-from public.payroll_lines l join public.payroll_runs r on r.id = l.run_id where r.period = to_char(public.today_riyadh(), 'YYYY-MM')
+from public.payroll_lines l join public.payroll_runs r on r.id = l.run_id where r.period = to_char(public.today_riyadh(), 'YYYY-MM');
