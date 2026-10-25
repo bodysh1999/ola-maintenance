@@ -43,7 +43,7 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
-      <div className="grid grid-cols-2 gap-3 md:grid-cols-3 xl:grid-cols-5">
+      <div className="grid grid-cols-2 gap-3 md:grid-cols-5">
         <StatCard tone="brand" label={d.admin.kpi.total} value={fmtNum(k?.total)} icon={<ClipboardList className="h-4 w-4" />} />
         <StatCard label={d.admin.kpi.new} value={fmtNum(k?.new)} icon={<Inbox className="h-4 w-4" />} />
         <StatCard label={d.admin.kpi.inProgress} value={fmtNum(k?.in_progress)} icon={<Wrench className="h-4 w-4" />} />

@@ -36,6 +36,8 @@ export const ar = {
     home: 'الرئيسية', newRequest: 'طلب صيانة', myTasks: 'مهامي', notifications: 'الإشعارات',
     myServices: 'خدماتي', approvals: 'الموافقات',
     leads: 'طلبات العملاء', salesUnits: 'الوحدات والأسعار', applications: 'طلبات التوظيف', openings: 'الوظائف المتاحة', website: 'موقع الشركة',
+    gAfterSales: 'ما بعد البيع', gSales: 'المبيعات', gHr: 'الموارد البشرية', gAdmin: 'إدارة النظام', gMe: 'خدماتي',
+    more: 'المزيد', search: 'ابحث برقم البلاغ أو اسم العميل أو الجوال…', toggleGroup: 'إظهار أو إخفاء القسم',
   },
   auth: {
     notConfirmed: 'البريد الإلكتروني غير مؤكد — تواصل مع إدارة الشركة لتفعيله', rateLimited: 'محاولات كثيرة — انتظر دقيقة ثم حاول مرة أخرى', serverError: 'تعذّر تسجيل الدخول بسبب خطأ في خادم الحسابات',
@@ -269,7 +271,7 @@ export const ar = {
       leaveType: 'نوع الإجازة', from: 'من تاريخ', to: 'إلى تاريخ', days: 'عدد الأيام', reason: 'السبب / الملاحظات', attachment: 'مرفق (تقرير طبي، عقد زواج…)',
       attachmentHint: 'PDF أو صورة حتى 10MB', workDate: 'التاريخ', timeIn: 'وقت الحضور', timeOut: 'وقت الانصراف', hours: 'عدد الساعات', destination: 'جهة الانتداب (المدينة)',
       amount: 'المبلغ (ر.س)', addressedTo: 'الجهة الموجّه إليها الخطاب', submit: 'إرسال الطلب', chain: 'مسار الاعتماد', estimate: 'تقديري',
-      perDiem: 'بدل الانتداب', overtimePay: 'أجر الإضافي التقديري', balanceAfter: 'الرصيد بعد الطلب', capture: 'تحديد موقعي الآن', captured: 'تم تحديد الموقع',
+      perDiem: 'بدل الانتداب', overtimePay: 'أجر الإضافي التقديري', balanceAfter: 'الرصيد بعد الطلب', balanceNow: 'رصيدك الحالي', dayUnit: 'يوم', capture: 'تحديد موقعي الآن', captured: 'تم تحديد الموقع',
       overtimeRule: 'يُحسب أجر الساعة الإضافية = أجر الساعة + 50% من الأجر الأساسي للساعة (المادة 107)', uploading: 'جارٍ رفع المرفق…',
     },
     detail: { timeline: 'مسار الاعتماد', approve: 'اعتماد', reject: 'رفض', comment: 'ملاحظة (مطلوبة عند الرفض)', cancel: 'إلغاء الطلب', letter: 'عرض الخطاب وطباعته', employee: 'الموظف', attachment: 'المرفق' },
@@ -327,6 +329,9 @@ export const ar = {
     reschedule_requested: 'العميل يطلب تغيير موعد الزيارة للطلب {ref}', warranty_expiring: 'ضمان «{title}» للوحدة {unit} ينتهي بتاريخ {date}', empty: 'لا توجد إشعارات',
   },
   ops: {
+    views: { all: 'الكل', open: 'المفتوحة', new: 'الجديدة', overdue: 'المتأخرة', escalated: 'المصعّدة', completed: 'المكتملة' },
+    emptyTitle: 'لا توجد بلاغات هنا', emptyHint: 'جرّب تبويبًا آخر أو امسح الفلاتر.',
+    advanced: 'فلاتر متقدمة', activeFilters: 'مفعّلة', dateFrom: 'تاريخ البلاغ من', dateTo: 'تاريخ البلاغ إلى', visitShort: 'الزيارة',
     waitingCol: 'عند مين', waitingFor: 'بانتظار', since: 'منذ', hours: '{n} ساعة', days: '{n} يوم', escalated: 'مصعّد',
     escLevel: { 1: 'مصعّد للمشرف', 2: 'مصعّد للإدارة' },
     who: { owner: 'العميل', staff: 'الإدارة / المشرف', tech: 'الفني' },

@@ -1,4 +1,6 @@
 import Link from 'next/link';
+import { ClipboardList } from 'lucide-react';
+import { EmptyState } from './ui';
 import type { Dict } from '@/lib/i18n';
 import { fmtDate, fmtVisit } from '@/lib/format';
 import type { Locale, RequestOverview } from '@/lib/types';
@@ -8,54 +10,54 @@ import { WaitingOnText, whoOf, ageLabel } from './waiting';
 
 export function RequestsTable({ rows, d, locale, compact }: { rows: RequestOverview[]; d: Dict; locale: Locale; compact?: boolean }) {
   const t = d.admin.table;
-  if (!rows.length) return <p className="px-5 py-10 text-center text-sm text-stone-450">{d.common.noData}</p>;
+  if (!rows.length) return <EmptyState icon={<ClipboardList className="h-6 w-6" />} title={d.ops.emptyTitle}>{!compact && d.ops.emptyHint}</EmptyState>;
   return (
     <div className="overflow-x-auto">
-      <table className="w-full min-w-[960px] text-sm">
+      <table className="w-full min-w-[900px] text-sm">
         <thead>
           <tr className="border-b border-sand-200 bg-sand-50/70 text-start text-xs text-stone-450">
             <th className="px-4 py-3 text-start font-medium">{t.ref}</th>
             <th className="px-4 py-3 text-start font-medium">{t.owner}</th>
             <th className="px-4 py-3 text-start font-medium">{t.project} / {t.unit}</th>
-            <th className="px-4 py-3 text-start font-medium">{t.type}</th>
-            {!compact && <th className="px-4 py-3 text-start font-medium">{t.description}</th>}
+            <th className="px-4 py-3 text-start font-medium">{compact ? t.type : `${t.type} / ${t.description}`}</th>
             <th className="px-4 py-3 text-start font-medium">{t.date}</th>
             <th className="px-4 py-3 text-start font-medium">{t.priority}</th>
             <th className="px-4 py-3 text-start font-medium">{t.status}</th>
             <th className="px-4 py-3 text-start font-medium">{d.ops.waitingCol}</th>
-            <th className="px-4 py-3 text-start font-medium">{t.technician}</th>
-            {!compact && <th className="px-4 py-3 text-start font-medium">{t.visit}</th>}
+            <th className="px-4 py-3 text-start font-medium">{compact ? t.technician : `${t.technician} / ${t.visit}`}</th>
           </tr>
         </thead>
         <tbody className="divide-y divide-sand-100">
           {rows.map((r) => (
             <tr key={r.id} className="group transition hover:bg-sand-50">
               <td className="px-4 py-3">
-                <Link href={`/admin/requests/${r.id}`} className="font-mono text-[13px] font-medium text-brand group-hover:underline" dir="ltr">{r.ref_no}</Link>
+                <Link href={`/admin/requests/${r.id}`} className="whitespace-nowrap font-mono text-[13px] font-medium text-brand group-hover:underline" dir="ltr">{r.ref_no}</Link>
               </td>
-              <td className="px-4 py-3">
+              <td className="min-w-[140px] px-4 py-3">
                 <div className="font-medium">{r.owner_name}</div>
                 <div className="text-xs text-stone-450" dir="ltr">{r.owner_phone}</div>
               </td>
-              <td className="px-4 py-3">
-                <div>{locale === 'en' && r.project_name_en ? r.project_name_en : r.project_name_ar}</div>
+              <td className="min-w-[140px] px-4 py-3">
+                <div className="whitespace-nowrap">{locale === 'en' && r.project_name_en ? r.project_name_en : r.project_name_ar}</div>
                 <div className="text-xs text-stone-450">{r.building_name} · {r.unit_number}</div>
               </td>
-              <td className="px-4 py-3">
-                <span className="inline-flex items-center gap-1.5"><CategoryIcon category={r.category} className="h-3.5 w-3.5 text-brand" />{d.category[r.category]}</span>
+              <td className="min-w-[160px] max-w-[240px] px-4 py-3">
+                <span className="inline-flex items-center gap-1.5 whitespace-nowrap"><CategoryIcon category={r.category} className="h-3.5 w-3.5 text-brand" />{d.category[r.category]}</span>
+                {!compact && r.description && <p className="mt-0.5 line-clamp-1 text-xs text-ink/60" title={r.description}>{r.description}</p>}
               </td>
-              {!compact && <td className="max-w-[220px] px-4 py-3"><p className="line-clamp-2 text-xs text-ink/70">{r.description}</p></td>}
               <td className="whitespace-nowrap px-4 py-3 text-xs">{fmtDate(r.created_at, locale)}</td>
-              <td className="px-4 py-3"><PriorityBadge priority={r.priority} d={d} /></td>
+              <td className="whitespace-nowrap px-4 py-3"><PriorityBadge priority={r.priority} d={d} /></td>
               <td className="px-4 py-3">
-                <div className="flex flex-col items-start gap-1">
+                <div className="flex flex-col items-start gap-1 whitespace-nowrap">
                   <StatusBadge status={r.status} d={d} />
                   {r.is_overdue && <OverdueBadge d={d} />}
                 </div>
               </td>
               <td className="min-w-[150px] px-4 py-3"><WaitingOnText r={r} d={d} /></td>
-              <td className="px-4 py-3 text-xs">{r.technician_name ?? <span className="text-stone-400">{d.common.unassigned}</span>}</td>
-              {!compact && <td className="whitespace-nowrap px-4 py-3 text-xs">{r.visit_at ? fmtVisit(r.visit_at, locale) : '—'}</td>}
+              <td className="min-w-[130px] px-4 py-3 text-xs">
+                <div>{r.technician_name ?? <span className="text-stone-400">{d.common.unassigned}</span>}</div>
+                {!compact && r.visit_at && <div className="mt-0.5 whitespace-nowrap text-stone-450">{d.ops.visitShort}: {fmtVisit(r.visit_at, locale)}</div>}
+              </td>
             </tr>
           ))}
         </tbody>

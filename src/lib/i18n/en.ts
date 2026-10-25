@@ -38,6 +38,8 @@ export const en: Dict = {
     home: 'Home', newRequest: 'New request', myTasks: 'My tasks', notifications: 'Notifications',
     myServices: 'My services', approvals: 'Approvals',
     leads: 'Customer leads', salesUnits: 'Units & prices', applications: 'Applications', openings: 'Job openings', website: 'Company website',
+    gAfterSales: 'After-sales', gSales: 'Sales', gHr: 'Human resources', gAdmin: 'System admin', gMe: 'My services',
+    more: 'More', search: 'Search by request no., customer or phone…', toggleGroup: 'Show or hide section',
   },
   auth: {
     notConfirmed: 'Email not confirmed — contact the company to activate it', rateLimited: 'Too many attempts — wait a minute and try again', serverError: 'Sign-in failed because of an auth server error',
@@ -271,7 +273,7 @@ export const en: Dict = {
       leaveType: 'Leave type', from: 'From', to: 'To', days: 'Days', reason: 'Reason / notes', attachment: 'Attachment (medical report, certificate…)',
       attachmentHint: 'PDF or image up to 10MB', workDate: 'Date', timeIn: 'Time in', timeOut: 'Time out', hours: 'Hours', destination: 'Destination (city)',
       amount: 'Amount (SAR)', addressedTo: 'Addressed to', submit: 'Submit request', chain: 'Approval path', estimate: 'estimate',
-      perDiem: 'Per-diem', overtimePay: 'Estimated overtime pay', balanceAfter: 'Balance after request', capture: 'Use my current location', captured: 'Location captured',
+      perDiem: 'Per-diem', overtimePay: 'Estimated overtime pay', balanceAfter: 'Balance after request', balanceNow: 'Your current balance', dayUnit: 'days', capture: 'Use my current location', captured: 'Location captured',
       overtimeRule: 'Overtime hour = hourly wage + 50% of basic hourly wage (Art. 107)', uploading: 'Uploading…',
     },
     detail: { timeline: 'Approval path', approve: 'Approve', reject: 'Reject', comment: 'Comment (required to reject)', cancel: 'Cancel request', letter: 'View & print letter', employee: 'Employee', attachment: 'Attachment' },
@@ -329,6 +331,9 @@ export const en: Dict = {
     reschedule_requested: 'Customer asks to change the visit time for {ref}', warranty_expiring: 'Warranty “{title}” for unit {unit} ends on {date}', empty: 'No notifications',
   },
   ops: {
+    views: { all: 'All', open: 'Open', new: 'New', overdue: 'Overdue', escalated: 'Escalated', completed: 'Completed' },
+    emptyTitle: 'No requests here', emptyHint: 'Try another tab or clear the filters.',
+    advanced: 'Advanced filters', activeFilters: 'active', dateFrom: 'Reported from', dateTo: 'Reported to', visitShort: 'Visit',
     waitingCol: 'Waiting on', waitingFor: 'Waiting for', since: 'for', hours: '{n}h', days: '{n}d', escalated: 'Escalated',
     escLevel: { 1: 'Escalated to supervisor', 2: 'Escalated to management' },
     who: { owner: 'Customer', staff: 'Management / supervisor', tech: 'Technician' },

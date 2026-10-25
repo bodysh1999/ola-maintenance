@@ -116,6 +116,7 @@ export function ActionForm({
 }) {
   const [state, formAction] = useActionState(action, undefined);
   const { ref, onSubmitCapture } = useKeepOnError(state);
+  const { d } = useI18n();
   const [showOk, setShowOk] = useState(false);
 
   useEffect(() => {
@@ -136,10 +137,18 @@ export function ActionForm({
           <AlertCircle className="mt-0.5 h-4 w-4 shrink-0" /> {state.error}
         </p>
       )}
-      {showOk && (state?.message || successText) && (
-        <p role="status" className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
-          <CheckCircle2 className="h-4 w-4" /> {state?.message || successText}
-        </p>
+      {showOk && (
+        <>
+          <p role="status" className="mt-3 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-800">
+            <CheckCircle2 className="h-4 w-4" /> {state?.message || successText || d.common.saved}
+          </p>
+          {/* the same confirmation, pinned on screen so it is seen even when the form is long */}
+          <div aria-hidden="true" className="no-print pointer-events-none fixed inset-x-0 bottom-[calc(84px+env(safe-area-inset-bottom))] z-50 flex justify-center px-4 lg:bottom-8">
+            <div className="flex items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm text-white shadow-lift">
+              <CheckCircle2 className="h-4 w-4 text-emerald-300" /> {state?.message || successText || d.common.saved}
+            </div>
+          </div>
+        </>
       )}
     </form>
   );

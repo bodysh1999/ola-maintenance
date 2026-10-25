@@ -178,6 +178,11 @@ export function HrRequestForm({ type, employeeId, leaveTypes, available, salary,
             {leaveTypes.filter((x) => !x.gender || x.gender === gender).map((x) => <option key={x.code} value={x.code}>{locale === 'en' ? x.name_en : x.name_ar}</option>)}
           </Select>
           {leave?.note_ar && locale === 'ar' && <p className="mt-1.5 text-xs text-stone-450">{leave.note_ar}</p>}
+          {leave?.uses_balance && available != null && (
+            <p className="mt-2 inline-flex items-center gap-1.5 rounded-full bg-brand/[.06] px-3 py-1 text-xs text-brand">
+              {f.balanceNow}: <b className="tabular-nums">{available.toFixed(1)}</b> {f.dayUnit}
+            </p>
+          )}
         </Field>
       )}
 
