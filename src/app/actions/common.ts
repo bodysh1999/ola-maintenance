@@ -1,9 +1,10 @@
 'use server';
 
-import { cookies, headers } from 'next/headers';
+import { cookies } from 'next/headers';
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAdminClient } from '@/lib/supabase/server';
+import { siteOrigin } from '@/lib/origin';
 import { act, must, str, UserError } from '@/lib/actions';
 import { getI18n, homeFor } from '@/lib/session';
 import type { ActionResult, Role } from '@/lib/types';
@@ -27,7 +28,7 @@ export async function signIn(_: ActionResult, fd: FormData): Promise<ActionResul
     console.error('[signIn]', code, error?.status, msg);
     if (code === 'email_not_confirmed' || /not confirmed/i.test(msg)) return { error: d.auth.notConfirmed };
     if (code.includes('rate_limit') || error?.status === 429) return { error: d.auth.rateLimited };
-    if ((error?.status ?? 0) >= 500 || /database error/i.test(msg)) return { error: `${d.auth.serverError} (${msg})` };
+    if ((error?.status ?? 0) >= 500 || /database error/i.test(msg)) return { error: d.auth.serverError };
     return { error: d.auth.invalid };
   }
 
@@ -49,7 +50,7 @@ export async function signOut() {
 export async function requestPasswordReset(_: ActionResult, fd: FormData): Promise<ActionResult> {
   const { d } = await getI18n();
   const supabase = await createClient();
-  const origin = process.env.NEXT_PUBLIC_SITE_URL ?? (await headers()).get('origin') ?? '';
+  const origin = await siteOrigin();
   await supabase.auth.resetPasswordForEmail(str(fd, 'email'), { redirectTo: `${origin}/auth/callback?next=/account/password` });
   return { ok: true, message: d.auth.resetSent }; // same answer whether or not the email exists
 }
@@ -63,6 +64,10 @@ export async function updatePassword(_: ActionResult, fd: FormData): Promise<Act
     const { error } = await supabase.auth.updateUser({ password: p1, data: { must_change_password: false } });
     if (error) throw new UserError(error.message);
     const { data: { user } } = await supabase.auth.getUser();
+    // the flag lives in app_metadata (users cannot edit it); only the server clears it after a real change
+    if (user?.app_metadata?.must_change_password && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      await createAdminClient().auth.admin.updateUserById(user.id, { app_metadata: { must_change_password: false } });
+    }
     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user!.id).single();
     redirect(homeFor(profile!.role as Role));
   });

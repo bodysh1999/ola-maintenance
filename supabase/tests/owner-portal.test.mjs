@@ -15,7 +15,7 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 grant usage on schema auth to anon, authenticated, service_role; grant execute on function auth.uid() to anon, authenticated, service_role;
 create schema storage;
 create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
-create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text);
+create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text, created_at timestamptz default now());
 alter table storage.objects enable row level security;
 grant usage on schema storage to anon, authenticated; grant all on storage.objects to anon, authenticated;
 `);
@@ -88,9 +88,10 @@ ok('wrong code → nothing', (await as(null, `select public.verify_warranty('000
 ok('upper-case code accepted', (await as(null, `select public.verify_warranty($1) v`, [code.toUpperCase()])).rows[0].v?.title === 'ضمان السباكة');
 await fails('anon reads warranties table', as(null, `select * from warranties`));
 
-const n1 = (await as(U.own1, `select public.queue_warranty_alerts() n`)).rows[0].n;
+await fails('owners cannot run the alert queue', as(U.own1, `select public.queue_warranty_alerts()`), 'permission denied');
+const n1 = (await db.query(`select public.queue_warranty_alerts() n`)).rows[0].n;
 ok('alerts queued for the 2 warranties ending ≤30 days', n1 === 2);
-ok('second run adds nothing', (await as(U.own1, `select public.queue_warranty_alerts() n`)).rows[0].n === 0);
+ok('second run adds nothing', (await db.query(`select public.queue_warranty_alerts() n`)).rows[0].n === 0);
 const al = (await as(U.own1, `select payload from notifications where type='warranty_expiring'`)).rows;
 ok('owner1 got 1 alert (hvac in 10 days)', al.length === 1 && al[0].payload.days === 10 && al[0].payload.title === 'ضمان التكييف');
 ok('expired warranty not alerted', !(await db.query(`select 1 from notifications where type='warranty_expiring' and payload->>'title'='ضمان الدهانات'`)).rows.length);

@@ -23,7 +23,7 @@ export function SettingsForm({ s, providers }: { s: CompanySettings; providers: 
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src={s.logo_url || DEFAULT_LOGO} alt="" className="h-full w-full object-contain p-2.5" />
           </div>
-          <input type="file" name="logo" accept="image/png,image/jpeg,image/svg+xml,image/webp" required className="text-sm file:me-3 file:rounded-lg file:border-0 file:bg-sand-100 file:px-3 file:py-2 file:text-sm" />
+          <input type="file" name="logo" accept="image/png,image/jpeg,image/webp" required className="text-sm file:me-3 file:rounded-lg file:border-0 file:bg-sand-100 file:px-3 file:py-2 file:text-sm" />
           <SubmitButton variant="outline" size="sm">{t.uploadLogo}</SubmitButton>
         </ActionForm>
       </Card>

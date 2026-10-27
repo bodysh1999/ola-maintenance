@@ -38,7 +38,7 @@ export default async function ApplicationPage({ params }: { params: Promise<{ id
               {a.kind === 'job'
                 ? <KeyValue label={h.experience}>{a.experience_years ?? '—'}</KeyValue>
                 : <KeyValue label={h.trainingPeriod}>{a.training_from ? `${fmtDate(a.training_from, locale)} → ${fmtDate(a.training_to, locale)}` : '—'}</KeyValue>}
-              <KeyValue label={h.linkedin}>{a.linkedin_url ? <a href={a.linkedin_url} target="_blank" rel="noreferrer" className="text-brand hover:underline" dir="ltr">LinkedIn</a> : '—'}</KeyValue>
+              <KeyValue label={h.linkedin}>{a.linkedin_url && /^https:\/\//i.test(a.linkedin_url) ? <a href={a.linkedin_url} target="_blank" rel="noopener noreferrer" className="text-brand hover:underline" dir="ltr">LinkedIn</a> : '—'}</KeyValue>
             </div>
             <div className="flex flex-wrap gap-2 border-t border-sand-100 p-5">
               {cvUrl ? (

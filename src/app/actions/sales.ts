@@ -12,8 +12,10 @@ async function requireSales() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('FORBIDDEN');
-  const { data } = await supabase.from('profiles').select('role,is_active').eq('id', user.id).single();
-  if (!data?.is_active || !['admin', 'sales'].includes(data.role)) throw new Error('FORBIDDEN');
+  // the database decides the effective role: inactive accounts and password-only sessions that
+  // still owe their second factor (MFA) get none — so service-role work below is never reached
+  const { data: role } = await supabase.rpc('auth_role');
+  if (!['admin', 'sales'].includes(String(role))) throw new Error('FORBIDDEN');
   return supabase;
 }
 

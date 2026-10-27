@@ -16,8 +16,8 @@ export async function createLoginAccount(email: string, full_name: string, phone
   const password = tempPassword();
   const { data, error } = await admin.auth.admin.createUser({
     email, password, email_confirm: true,
-    app_metadata: { role },
-    user_metadata: { full_name, phone, must_change_password: true },
+    app_metadata: { role, must_change_password: true },
+    user_metadata: { full_name, phone },
   });
   if (error) throw new Error(/already|registered|exists/i.test(error.message) ? 'EMAIL_EXISTS' : error.message);
   return { userId: data.user.id, password };

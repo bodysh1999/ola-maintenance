@@ -6,7 +6,12 @@ export async function GET(request: NextRequest) {
   const url = new URL(request.url);
   const code = url.searchParams.get('code');
   const next = url.searchParams.get('next') ?? '/';
-  const safeNext = next.startsWith('/') && !next.startsWith('//') ? next : '/';
+  // only paths on this site: rejects //evil.com, /\\evil.com and encoded tricks that resolve to another origin
+  let safeNext = '/';
+  if (next.startsWith('/') && !next.startsWith('//') && !next.includes('\\')) {
+    const target = new URL(next, url.origin);
+    if (target.origin === url.origin) safeNext = target.pathname + target.search;
+  }
   if (code) {
     const supabase = await createClient();
     await supabase.auth.exchangeCodeForSession(code);

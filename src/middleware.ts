@@ -34,7 +34,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // accounts created by the company start with a temporary password
-  if (user && user.user_metadata?.must_change_password && !path.startsWith('/account/password') && !path.startsWith('/auth')) {
+  if (user && user.app_metadata?.must_change_password && !path.startsWith('/account/password') && !path.startsWith('/auth')) {
     const url = request.nextUrl.clone();
     url.pathname = '/account/password';
     url.search = '';

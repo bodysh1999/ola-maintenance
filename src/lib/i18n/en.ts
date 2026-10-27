@@ -467,7 +467,7 @@ export const en: Dict = {
     ITEMS_REQUIRED: 'Add at least one item', INVALID_REP: 'The selected buyer is not on the procurement team', NO_REP: 'No buyer set up — add one in procurement settings',
     SUPPLIER_EXISTS: 'This supplier already exists — pick it from the list', DUPLICATE_SUPPLIER: 'This supplier already has a quote on this request', TOO_MANY_QUOTES: 'At most 6 quotations per request',
     QUOTES_REQUIRED: 'Add the required number of quotations or give a reason', ABOVE_THRESHOLD: 'This amount is above your approval limit — the owner approves it',
-    INVALID_PURPOSE: 'Invalid purpose', RATE_LIMITED: 'Too many requests — try later',
+    INVALID_PURPOSE: 'Invalid purpose', RATE_LIMITED: 'Too many requests — try later', INVALID_URL: 'The link must start with https://', FILE_TYPE: 'Unsupported file type — PNG, JPG or WEBP',
     NO_VISIT: 'No visit is scheduled for this request', INVALID_ETA: 'Invalid arrival time',
     NO_EMPLOYEE_FILE: 'No employee file linked to your account', LEAVE_TYPE_REQUIRED: 'Choose a leave type', DATE_TOO_OLD: 'Date is too old',
     LEAVE_MAX_EXCEEDED: 'Longer than allowed for this type', LEAVE_NOT_ELIGIBLE: 'This leave type does not apply to you', LEAVE_SERVICE_REQUIRED: 'Required service period not completed',

@@ -465,7 +465,7 @@ export const ar = {
     ITEMS_REQUIRED: 'أضف صنفًا واحدًا على الأقل', INVALID_REP: 'المندوب المختار ليس ضمن فريق المشتريات', NO_REP: 'لا يوجد مندوب مشتريات — أضفه من إعدادات المشتريات',
     SUPPLIER_EXISTS: 'المورد مسجّل مسبقًا — اختره من القائمة', DUPLICATE_SUPPLIER: 'يوجد عرض من هذا المورد في الطلب نفسه', TOO_MANY_QUOTES: 'الحد الأقصى 6 عروض للطلب',
     QUOTES_REQUIRED: 'أضف العدد المطلوب من العروض أو اكتب سبب الاكتفاء', ABOVE_THRESHOLD: 'قيمة العرض تتجاوز حد اعتمادك — يعتمده المالك',
-    INVALID_PURPOSE: 'غرض غير صحيح', RATE_LIMITED: 'طلبات كثيرة — حاول لاحقًا',
+    INVALID_PURPOSE: 'غرض غير صحيح', RATE_LIMITED: 'طلبات كثيرة — حاول لاحقًا', INVALID_URL: 'الرابط يجب أن يبدأ بـ https://', FILE_TYPE: 'نوع الملف غير مدعوم — PNG أو JPG أو WEBP',
     NO_VISIT: 'لا يوجد موعد زيارة مجدول لهذا الطلب', INVALID_ETA: 'وقت الوصول غير صحيح',
     NO_EMPLOYEE_FILE: 'لا يوجد ملف موظف مرتبط بحسابك', LEAVE_TYPE_REQUIRED: 'اختر نوع الإجازة', DATE_TOO_OLD: 'التاريخ قديم جدًا',
     LEAVE_MAX_EXCEEDED: 'المدة أطول من المسموح لهذا النوع', LEAVE_NOT_ELIGIBLE: 'هذا النوع من الإجازات لا ينطبق عليك', LEAVE_SERVICE_REQUIRED: 'لم تكمل مدة الخدمة المطلوبة لهذه الإجازة',

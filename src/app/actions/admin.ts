@@ -12,8 +12,10 @@ async function requireAdmin() {
   const supabase = await createClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) throw new Error('FORBIDDEN');
-  const { data } = await supabase.from('profiles').select('role,is_active').eq('id', user.id).single();
-  if (data?.role !== 'admin' || !data.is_active) throw new Error('FORBIDDEN');
+  // the database decides the effective role: inactive accounts and password-only sessions that
+  // still owe their second factor (MFA) get none — so service-role work below is never reached
+  const { data: role } = await supabase.rpc('auth_role');
+  if (role !== 'admin') throw new Error('FORBIDDEN');
   return supabase;
 }
 
@@ -32,8 +34,8 @@ async function createAccount(email: string, full_name: string, phone: string | n
     email,
     password,
     email_confirm: true,
-    app_metadata: { role },
-    user_metadata: { full_name, phone, must_change_password: true },
+    app_metadata: { role, must_change_password: true },
+    user_metadata: { full_name, phone },
   });
   if (error) throw new Error(/already|registered|exists/i.test(error.message) ? 'EMAIL_EXISTS' : error.message);
   return { userId: data.user.id, password };
@@ -330,7 +332,10 @@ export async function uploadLogo(_: ActionResult, fd: FormData): Promise<ActionR
     const file = fd.get('logo');
     if (!(file instanceof File) || file.size === 0) throw new UserError(d.errors.REQUIRED);
     if (file.size > 1.8 * 1024 * 1024) throw new UserError(d.errors.FILE_TOO_LARGE);
-    const ext = (file.name.split('.').pop() || 'png').toLowerCase().replace(/[^a-z]/g, '');
+    // raster images only (an SVG can carry script); the extension follows the checked type, not the file name
+    const EXT: Record<string, string> = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp' };
+    const ext = EXT[file.type];
+    if (!ext) throw new UserError(d.errors.FILE_TYPE);
     const path = `logo-${Date.now()}.${ext}`;
     must(await supabase.storage.from('branding').upload(path, file, { contentType: file.type, upsert: true }));
     const { data } = supabase.storage.from('branding').getPublicUrl(path);

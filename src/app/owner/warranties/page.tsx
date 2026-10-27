@@ -14,7 +14,6 @@ type Unit = { id: string; unit_number: string; buildings: { name: string; projec
 export default async function WarrantyCenter() {
   await requireRole(['owner']);
   const [{ d, locale }, supabase] = await Promise.all([getI18n(), createClient()]);
-  await supabase.rpc('queue_warranty_alerts'); // reminders even without a scheduler
   const { data: units } = await supabase.from('units').select('id, unit_number, buildings(name, projects(name_ar, name_en))').order('created_at');
   const list = (units ?? []) as unknown as Unit[];
   const { data: ws } = list.length

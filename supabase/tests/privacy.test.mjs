@@ -15,7 +15,7 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 grant usage on schema auth to anon, authenticated, service_role; grant execute on function auth.uid() to anon, authenticated, service_role;
 create schema storage;
 create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
-create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text);
+create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text, created_at timestamptz default now());
 alter table storage.objects enable row level security;
 grant usage on schema storage to anon, authenticated; grant all on storage.objects to anon, authenticated;
 `);
@@ -129,6 +129,18 @@ const st = await one(`select privacy_version, dpo_email, retention_cv_months, re
 ok('settings saved + version bumped to 2.0', st.privacy_version === '2.0' && st.dpo_email === 'dpo@ola.sa' && st.retention_cv_months === 12 && st.require_staff_mfa === true);
 ok('owner must accept again', (await one(`select privacy_accepted_version v from profiles where id=$1`, [U.own])).v !== st.privacy_version);
 ok('settings change audited', (await one(`select count(*)::int c from audit_log where table_name='company_settings'`)).c >= 1);
+
+// ---------------------------------------------------------------- MFA enforced on the data (policy now requires it for admin/HR)
+const asAal = async (uid, aal, sql) => {
+  await db.exec(`select set_config('request.jwt.claims', '{"aal":"${aal}"}', false)`);
+  try { return await as(uid, sql); } finally { await db.exec(`select set_config('request.jwt.claims', '', false)`); }
+};
+ok('admin with password only → no admin rights', (await asAal(U.admin, 'aal1', `select public.is_admin() a`)).rows[0].a === false);
+ok('admin password only cannot read consents', (await asAal(U.admin, 'aal1', `select count(*)::int c from consents`)).rows[0].c === 0);
+ok('admin after second factor → admin', (await asAal(U.admin, 'aal2', `select public.is_admin() a`)).rows[0].a === true);
+ok('hr password only → not hr', (await asAal(U.hr, 'aal1', `select public.is_hr() h`)).rows[0].h === false);
+ok('employee unaffected by the staff policy', (await asAal(U.emp, 'aal1', `select public.auth_role()::text r`)).rows[0].r === 'employee');
+await fails('anon cannot call has_verified_mfa', as(null, `select public.has_verified_mfa('${U.admin}')`));
 
 console.log(failed ? `\n${failed} FAILED` : '\nALL PASSED');
 process.exit(failed ? 1 : 0);

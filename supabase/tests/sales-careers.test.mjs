@@ -15,7 +15,7 @@ create function auth.uid() returns uuid language sql stable as $$ select nullif(
 grant usage on schema auth to anon, authenticated; grant execute on function auth.uid() to anon, authenticated;
 create schema storage;
 create table storage.buckets (id text primary key, name text, public boolean, file_size_limit bigint, allowed_mime_types text[]);
-create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text);
+create table storage.objects (id uuid primary key default gen_random_uuid(), bucket_id text, name text, owner_id text, created_at timestamptz default now());
 alter table storage.objects enable row level security;
 grant usage on schema storage to anon, authenticated; grant all on storage.objects to anon, authenticated;
 `);
@@ -77,7 +77,10 @@ ok('sales cannot read cvs', (await as(U.sales, `select count(*) c from storage.o
 const app = await as(null, `select public.submit_application('job','نورة','0551112223','n@x.com',$1,'جدة','بكالوريوس','هندسة مدنية','جامعة الملك عبدالعزيز',4,null,$2,null) r`, [op[0].id, cv]);
 ok('application ref ' + app.rows[0].r, /^HR-\d\d-\d{5}$/.test(app.rows[0].r));
 ok('training application', !!(await as(null, `select public.submit_application('training','ريم','0551112224','r@x.com',null,null,null,null,null,null,null,null,null,current_date+30,current_date+90) r`)).rows[0].r);
-await fails('bad cv path', as(null, `select public.submit_application('job','x y','0551112225','x@x.com',null,null,null,null,null,null,null,'../../etc/passwd')`));
+await fails('javascript: linkedin link', as(null, `select public.submit_application('job','x y','0551112226','js@x.com',null,null,null,null,null,null,'javascript:alert(1)',null,null)`), 'INVALID_URL');
+ok('https linkedin accepted', !!(await as(null, `select public.submit_application('training','سارة','0551112227','s@x.com',null,null,null,null,null,null,'https://www.linkedin.com/in/sara',null,null,current_date+30,current_date+90) r`)).rows[0].r);
+await db.exec(`delete from notifications where type='application_new' and created_at = (select max(created_at) from notifications where type='application_new'); delete from job_applications where email='s@x.com'`);
+await fails('bad cv path',as(null, `select public.submit_application('job','x y','0551112225','x@x.com',null,null,null,null,null,null,null,'../../etc/passwd')`));
 await fails('anon reads applications', as(null, `select * from job_applications`));
 ok('sales sees no applications', (await as(U.sales, `select count(*) c from job_applications`)).rows[0].c === 0);
 ok('hr sees applications', (await as(U.hr, `select count(*) c from job_applications`)).rows[0].c === 2);

@@ -15,7 +15,7 @@ export default async function PasswordPage() {
       <div className="w-full max-w-sm">
         <div className="mb-5 grid h-12 w-12 place-items-center rounded-xl bg-brand text-accent"><KeyRound className="h-6 w-6" /></div>
         <h1 className="text-2xl font-semibold">{d.common.changePassword}</h1>
-        {user.user_metadata?.must_change_password && <Alert tone="info" className="mt-4">{d.auth.mustChange}</Alert>}
+        {user.app_metadata?.must_change_password && <Alert tone="info" className="mt-4">{d.auth.mustChange}</Alert>}
         <PasswordForm />
       </div>
     </div>

@@ -1,3 +1,4 @@
+import { timingSafeEqual } from 'crypto';
 import { NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import { drainOutbox } from '@/lib/notify/dispatch';
@@ -10,7 +11,9 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(req: Request) {
   const secret = process.env.CRON_SECRET;
-  if (!secret || req.headers.get('authorization') !== `Bearer ${secret}`) {
+  const got = Buffer.from(req.headers.get('authorization') ?? '');
+  const want = Buffer.from(`Bearer ${secret ?? ''}`);
+  if (!secret || got.length !== want.length || !timingSafeEqual(got, want)) {
     return NextResponse.json({ error: 'unauthorized' }, { status: 401 });
   }
   const admin = createAdminClient();
@@ -23,5 +26,7 @@ export async function GET(req: Request) {
   const { data: purged, error: pErr } = await admin.rpc('purge_expired_data');
   const cvs = (purged as { cv_paths?: string[] } | null)?.cv_paths ?? [];
   if (cvs.length) await admin.storage.from('cvs').remove(cvs);
-  return NextResponse.json({ warranty_alerts: alerts ?? 0, error: error?.message ?? pErr?.message ?? null, ...out, purged, escalation, hrEscalation, leadReminders });
+  const failed = error ?? pErr;
+  if (failed) console.error('[cron/daily]', failed.message); // details stay in the server log
+  return NextResponse.json({ warranty_alerts: alerts ?? 0, error: failed ? 'job_failed' : null, ...out, purged, escalation, hrEscalation, leadReminders });
 }

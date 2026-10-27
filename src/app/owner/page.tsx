@@ -20,7 +20,6 @@ export default async function OwnerHome() {
   const profile = await requireRole(['owner']);
   const [{ d, locale }, s, supabase] = await Promise.all([getI18n(), getSettings(), createClient()]);
 
-  await supabase.rpc('queue_warranty_alerts'); // warranty reminders even without a scheduler
   const [{ data: units }, { data: requests }, { data: me }] = await Promise.all([
     supabase.from('units')
       .select('id, unit_number, floor, unit_type, image_url, handover_date, buildings(name, projects(name_ar, name_en, image_url, city, district)), warranties(id, title, start_date, end_date)')
