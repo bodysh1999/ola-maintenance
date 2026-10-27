@@ -49,6 +49,14 @@ begin
     execute $q$update public.approval_chains set steps = '[{"kind":"manager"},{"kind":"hr"}]'::jsonb, max_amount = 50000$q$;
   end if;
 
+  -- demo procurement: requests raised by / assigned to demo accounts (items + quotes cascade), demo suppliers, settings
+  if to_regclass('public.purchase_requests') is not null then
+    execute $q$delete from public.purchase_requests where requested_by = any($1) or rep_id = any($1) or title like '%(تجريبي)%'$q$ using demo_profiles;
+    execute $q$delete from public.suppliers s where (s.name like '%(تجريبي)%' or s.created_by = any($1))
+               and not exists (select 1 from public.purchase_quotes q where q.supplier_id = s.id)$q$ using demo_profiles;
+    execute $q$update public.procurement_settings set quotes_required = 3, admin_threshold = null where id = 1$q$;
+  end if;
+
   -- demo leads / job applications
   if to_regclass('public.leads') is not null then
     execute $q$delete from public.leads where email like '%@demo.example.com' or email like '%@example.com'

@@ -173,6 +173,7 @@ export function notifText(d: Dict, type: string, payload: Record<string, unknown
   return fmt(tpl, {
     ref: payload.ref_no ?? payload.ref, score: payload.score, tech: payload.tech, title: payload.title, unit: payload.unit, days: payload.days,
     date: payload.end_date ?? payload.date, level: payload.level, name: payload.name, count: payload.count, from: payload.from, to: payload.to,
+    no: payload.no, supplier: payload.supplier, amount: typeof payload.amount === 'number' ? payload.amount.toLocaleString('en-US') : payload.amount,
   });
 }
 

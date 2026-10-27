@@ -180,7 +180,9 @@ const a1 = (await asService(`select public.attendance_alerts_run() r`)).rows[0].
 const a2 = (await asService(`select public.attendance_alerts_run() r`)).rows[0].r;
 ok('attendance alerts run + idempotent', a1 && (a1.skipped || (a2.absent === 0 && a2.late === 0)));
 await fails('authenticated cannot run attendance alerts', as(U.hr, `select public.attendance_alerts_run()`));
-ok('employee cannot see own alerts', (await as(U.emp, `select count(*)::int c from attendance_alerts`)).rows[0].c === 0);
+ok('employee sees no alerts (own or about their manager)', (await as(U.emp, `select count(*)::int c from attendance_alerts`)).rows[0].c === 0);
+ok('employee cannot see the manager\'s attendance', (await as(U.emp, `select count(*)::int c from attendance where employee_id=$1`, [E.mgr])).rows[0].c === 0);
+ok('manager still sees the employee\'s alerts scope', (await as(U.mgr, `select public.can_supervise_employee($1) v`, [E.emp])).rows[0].v === true);
 
 // ================================================================ 19) sales
 const lead = (await as(null, `select public.submit_lead('visit','محمد','0551234567','10000000-0000-0000-0000-000000000001',null,null,null,null,current_date+1,'مساءً','') r`)).rows[0].r;

@@ -61,16 +61,25 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
     { href: '/me/payslips', label: d.payroll.payslips, icon: 'payslip', group: n.gMe, groupIcon: 'me' },
   ];
   const meItems: NavItem[] = [me, approvalsItem, ...meRest];
+  // procurement: the team (buyers, approvers, admins) get a section; everyone else can raise and follow their own purchase requests
+  const [{ data: procRole }, { data: procTodo }] = await Promise.all([supabase.rpc('proc_role'), supabase.rpc('my_procurement_todo')]);
+  const procItems: NavItem[] = procRole
+    ? [
+        { href: '/procurement', label: n.purchases, icon: 'procurement', badge: Number(procTodo ?? 0), group: n.gProc, groupIcon: 'procurement' },
+        { href: '/procurement/suppliers', label: n.suppliersNav, icon: 'suppliers', group: n.gProc, groupIcon: 'procurement' },
+        ...(procRole === 'admin' ? [{ href: '/procurement/settings', label: n.procSettings, icon: 'procSettings' as const, group: n.gProc, groupIcon: 'procurement' as const }] : []),
+      ]
+    : [{ href: '/procurement', label: n.purchases, icon: 'procurement', group: n.gMe, groupIcon: 'me' }];
   const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
   const site: NavItem = { href: '/', label: n.website, icon: 'website', exact: true };
 
   if (profile.role === 'sales') {
-    items = [...(await salesItems()), ...meItems, bell, site];
+    items = [...(await salesItems()), ...procItems.filter((x) => x.group !== n.gMe), ...meItems, ...procItems.filter((x) => x.group === n.gMe), bell, site];
   } else if (profile.role === 'hr') {
-    items = [...(await hrItems()), ...meItems, bell, site];
+    items = [...(await hrItems()), ...procItems.filter((x) => x.group !== n.gMe), ...meItems, ...procItems.filter((x) => x.group === n.gMe), bell, site];
   } else if (profile.role === 'employee') {
     // phone order: the four most used first, the rest under "More"
-    items = [me, { href: '/me/attendance', label: d.me.attendance, icon: 'attendance', group: n.gMe, groupIcon: 'me' }, approvalsItem, { ...bell, group: n.gMe, groupIcon: 'me' }, ...meRest];
+    items = [me, { href: '/me/attendance', label: d.me.attendance, icon: 'attendance', group: n.gMe, groupIcon: 'me' }, approvalsItem, { ...bell, group: n.gMe, groupIcon: 'me' }, ...meRest, ...procItems];
     bottom = items;
   } else if (profile.role === 'admin' || profile.role === 'supervisor') {
     const { count: fresh } = await supabase.from('maintenance_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'pending_approval', 'reopened']);
@@ -82,8 +91,10 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
       { href: '/admin/owners', label: n.owners, icon: 'owners', group: n.gAfterSales, groupIcon: 'tasks' },
       { href: '/admin/team', label: n.team, icon: 'team', group: n.gAfterSales, groupIcon: 'tasks' },
       { href: '/admin/reports', label: n.reports, icon: 'reports', group: n.gAfterSales, groupIcon: 'tasks' },
+      ...procItems.filter((x) => x.group !== n.gMe),
       ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/system', label: d.system.title, icon: 'analytics' as const, group: n.gAdmin, groupIcon: 'settings' as const }, { href: '/admin/settings', label: n.settings, icon: 'settings' as const, group: n.gAdmin, groupIcon: 'settings' as const }] : []),
       ...meItems,
+      ...procItems.filter((x) => x.group === n.gMe),
       bell,
     ];
   } else if (profile.role === 'technician') {
@@ -93,6 +104,7 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
       bell,
       approvalsItem,
       ...meRest,
+      ...procItems,
     ];
     bottom = items;
   } else {

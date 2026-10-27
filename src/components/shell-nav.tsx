@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useMemo, useState, type ReactNode } from 'react';
 import {
   Bell, Building2, ClipboardList, Home, Inbox, LayoutDashboard, LogOut, Menu, PlusCircle,
-  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck, UserCog, LockKeyhole, CalendarDays, KanbanSquare, FileBarChart, Wallet, Banknote, ReceiptText, ChevronDown, MoreHorizontal,
+  Settings, Users, Wrench, X, BarChart3, HardHat, Megaphone, Tags, Briefcase, GraduationCap, Globe, UserRound, CheckSquare, Fingerprint, Network, IdCard, ShieldCheck, UserCog, LockKeyhole, CalendarDays, KanbanSquare, FileBarChart, Wallet, Banknote, ReceiptText, ChevronDown, MoreHorizontal, ShoppingCart, Store, SlidersHorizontal,
 } from 'lucide-react';
 import { cx } from './ui';
 import { signOut } from '@/app/actions/common';
@@ -16,7 +16,7 @@ export const NAV_ICONS = {
   dashboard: LayoutDashboard, inbox: Inbox, requests: ClipboardList, projects: Building2, owners: Users,
   team: HardHat, reports: BarChart3, settings: Settings, home: Home, newRequest: PlusCircle, tasks: Wrench, bell: Bell,
   leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
-  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole, calendar: CalendarDays, kanban: KanbanSquare, analytics: FileBarChart, custody: Wallet, payroll: Banknote, payslip: ReceiptText,
+  me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole, calendar: CalendarDays, kanban: KanbanSquare, analytics: FileBarChart, custody: Wallet, payroll: Banknote, payslip: ReceiptText, procurement: ShoppingCart, suppliers: Store, procSettings: SlidersHorizontal,
 };
 export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number; group?: string; groupIcon?: keyof typeof NAV_ICONS };
 
@@ -28,7 +28,7 @@ function isActive(path: string, item: NavItem) {
 
 export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: ReactNode; user: { name: string; role: string } }) {
   const path = usePathname();
-  const { d } = useI18n();
+  const { d, locale } = useI18n();
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
 
@@ -101,7 +101,7 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
               <Icon className={cx('h-[18px] w-[18px] shrink-0', hasActive ? 'text-accent' : 'text-white/45 group-hover:text-white/80')} />
               <span className="min-w-0 flex-1 truncate text-start font-medium">{g}</span>
               {!open && !!badge && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white">{badge}</span>}
-              <ChevronDown className={cx('h-4 w-4 shrink-0 text-white/40 transition-transform', !open && 'ltr:-rotate-90 rtl:rotate-90')} />
+              <ChevronDown className={cx('h-4 w-4 shrink-0 text-white/40 transition-transform', !open && (locale === 'ar' ? 'rotate-90' : '-rotate-90'))} />
             </button>
             {open && (
               <div id={id} className="mb-1 ms-[21px] flex flex-col gap-0.5 border-s border-white/10 ps-2">
