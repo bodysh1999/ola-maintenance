@@ -18,9 +18,9 @@ export const NAV_ICONS = {
   leads: Megaphone, units: Tags, applications: Briefcase, openings: GraduationCap, website: Globe,
   me: UserRound, approvals: CheckSquare, attendance: Fingerprint, structure: Network, employees: IdCard, warranty: ShieldCheck, privacy: LockKeyhole, calendar: CalendarDays, kanban: KanbanSquare, analytics: FileBarChart, custody: Wallet, payroll: Banknote, payslip: ReceiptText,
 };
-export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number; group?: string };
+export type NavItem = { href: string; label: string; icon: keyof typeof NAV_ICONS; exact?: boolean; badge?: number; group?: string; groupIcon?: keyof typeof NAV_ICONS };
 
-const COLLAPSE_KEY = 'ola.nav.collapsed';
+const OPEN_KEY = 'ola.nav.open';
 
 function isActive(path: string, item: NavItem) {
   return item.exact ? path === item.href : path === item.href || path.startsWith(item.href + '/');
@@ -32,27 +32,32 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
   const [open, setOpen] = useState(false);
   useEffect(() => setOpen(false), [path]);
 
-  // consecutive items with the same `group` form one collapsible section; ungrouped items stay flat
+  // consecutive items with the same `group` form one expandable parent item; ungrouped items stay flat.
+  // Roles with a single group (employee, technician) get a flat list — one folder would only add a click.
   const sections = useMemo(() => {
-    const out: { group?: string; items: NavItem[] }[] = [];
+    const out: { group?: string; icon?: keyof typeof NAV_ICONS; items: NavItem[] }[] = [];
     for (const it of items) {
       const last = out[out.length - 1];
       if (last && last.group === it.group) last.items.push(it);
-      else out.push({ group: it.group, items: [it] });
+      else out.push({ group: it.group, icon: it.groupIcon, items: [it] });
     }
-    return out;
+    const groups = new Set(out.filter((x) => x.group).map((x) => x.group));
+    return groups.size > 1 ? out : [{ items }];
   }, [items]);
-  const [collapsed, setCollapsed] = useState<string[]>([]);
+  const [opened, setOpened] = useState<string[]>([]);
   useEffect(() => {
-    try { setCollapsed(JSON.parse(localStorage.getItem(COLLAPSE_KEY) || '[]')); } catch { /* storage unavailable */ }
+    try { setOpened(JSON.parse(localStorage.getItem(OPEN_KEY) || '[]')); } catch { /* storage unavailable */ }
   }, []);
-  const toggle = (g: string) => setCollapsed((prev) => {
-    const next = prev.includes(g) ? prev.filter((x) => x !== g) : [...prev, g];
-    try { localStorage.setItem(COLLAPSE_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
+  const toggle = (g: string, isOpen: boolean) => setOpened((prev) => {
+    const next = isOpen ? prev.filter((x) => x !== g) : [...prev.filter((x) => x !== g), g];
+    try { localStorage.setItem(OPEN_KEY, JSON.stringify(next)); } catch { /* storage unavailable */ }
     return next;
   });
+  // the section holding the current page opens by itself; the user can still fold it
+  const [folded, setFolded] = useState<string[]>([]);
+  useEffect(() => setFolded([]), [path]);
 
-  const link = (it: NavItem) => {
+  const link = (it: NavItem, child = false) => {
     const Icon = NAV_ICONS[it.icon];
     const active = isActive(path, it);
     return (
@@ -61,11 +66,12 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
         href={it.href}
         aria-current={active ? 'page' : undefined}
         className={cx(
-          'group flex items-center gap-3 rounded-xl px-3 py-2 text-[14px] transition',
+          'group flex items-center gap-3 rounded-xl text-[14px] transition',
+          child ? 'py-2 pe-3 ps-3' : 'px-3 py-2.5',
           active ? 'relative bg-white/[.10] text-white before:absolute before:inset-y-2 before:start-0 before:w-[3px] before:rounded-full before:bg-accent' : 'text-white/70 hover:bg-white/[.06] hover:text-white',
         )}
       >
-        <Icon className={cx('h-[18px] w-[18px] shrink-0', active ? 'text-accent' : 'text-white/50 group-hover:text-white/80')} />
+        <Icon className={cx('shrink-0', child ? 'h-4 w-4' : 'h-[18px] w-[18px]', active ? 'text-accent' : 'text-white/45 group-hover:text-white/80')} />
         <span className="min-w-0 flex-1 truncate">{it.label}</span>
         {!!it.badge && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white">{it.badge}</span>}
       </Link>
@@ -75,26 +81,33 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
   const nav = (
     <nav className="flex min-h-0 flex-1 flex-col gap-0.5 overflow-y-auto px-3 pb-2 [scrollbar-width:thin]">
       {sections.map((sec, i) => {
-        if (!sec.group) return <div key={i} className="flex flex-col gap-0.5">{sec.items.map(link)}</div>;
+        if (!sec.group) return <div key={i} className="flex flex-col gap-0.5">{sec.items.map((it) => link(it))}</div>;
+        const g = sec.group;
         const hasActive = sec.items.some((it) => isActive(path, it));
-        const open = hasActive || !collapsed.includes(sec.group);
+        const open = hasActive ? !folded.includes(g) : opened.includes(g);
         const badge = sec.items.reduce((n, it) => n + (it.badge ?? 0), 0);
+        const Icon = NAV_ICONS[sec.icon ?? sec.items[0].icon];
         const id = `nav-sec-${i}`;
         return (
-          <div key={i} className="mt-3 flex flex-col gap-0.5 first:mt-0">
+          <div key={i} className="flex flex-col">
             <button
               type="button"
-              onClick={() => toggle(sec.group!)}
+              onClick={() => (hasActive ? setFolded((f) => (open ? [...f, g] : f.filter((x) => x !== g))) : toggle(g, open))}
               aria-expanded={open}
               aria-controls={id}
-              title={d.nav.toggleGroup}
-              className="flex items-center gap-2 rounded-lg px-3 py-1.5 text-[11.5px] font-semibold tracking-wide text-white/45 transition hover:text-white/80"
+              className={cx('group flex items-center gap-3 rounded-xl px-3 py-2.5 text-[14px] transition',
+                hasActive ? 'text-white' : 'text-white/70 hover:bg-white/[.06] hover:text-white')}
             >
-              <span className="flex-1 text-start">{sec.group}</span>
-              {!open && !!badge && <span className="rounded-full bg-accent/90 px-1.5 text-[10px] font-semibold text-white">{badge}</span>}
-              <ChevronDown className={cx('h-3.5 w-3.5 transition-transform', !open && 'rotate-90 rtl:-rotate-90')} />
+              <Icon className={cx('h-[18px] w-[18px] shrink-0', hasActive ? 'text-accent' : 'text-white/45 group-hover:text-white/80')} />
+              <span className="min-w-0 flex-1 truncate text-start font-medium">{g}</span>
+              {!open && !!badge && <span className="rounded-full bg-accent px-2 py-0.5 text-[11px] font-semibold text-white">{badge}</span>}
+              <ChevronDown className={cx('h-4 w-4 shrink-0 text-white/40 transition-transform', !open && 'ltr:-rotate-90 rtl:rotate-90')} />
             </button>
-            {open && <div id={id} className="flex flex-col gap-0.5">{sec.items.map(link)}</div>}
+            {open && (
+              <div id={id} className="mb-1 ms-[21px] flex flex-col gap-0.5 border-s border-white/10 ps-2">
+                {sec.items.map((it) => link(it, true))}
+              </div>
+            )}
           </div>
         );
       })}

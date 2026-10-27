@@ -29,36 +29,36 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
   const salesItems = async (): Promise<NavItem[]> => {
     const { count } = await supabase.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new');
     return [
-      { href: '/sales', label: n.leads, icon: 'leads', exact: true, badge: count ?? 0, group: n.gSales },
-      { href: '/sales/board', label: d.salesops.board, icon: 'kanban', group: n.gSales },
-      { href: '/sales/units', label: n.salesUnits, icon: 'units', group: n.gSales },
+      { href: '/sales', label: n.leads, icon: 'leads', exact: true, badge: count ?? 0, group: n.gSales, groupIcon: 'leads' },
+      { href: '/sales/board', label: d.salesops.board, icon: 'kanban', group: n.gSales, groupIcon: 'leads' },
+      { href: '/sales/units', label: n.salesUnits, icon: 'units', group: n.gSales, groupIcon: 'leads' },
     ];
   };
   const hrItems = async (): Promise<NavItem[]> => {
     const { count } = await supabase.from('job_applications').select('id', { count: 'exact', head: true }).eq('status', 'new');
     return [
-      { href: '/hr/employees', label: d.hrm.employees, icon: 'employees', group: n.gHr },
-      { href: '/hr/requests', label: d.hrm.requests, icon: 'requests', group: n.gHr },
-      { href: '/hr/attendance', label: d.hrm.attendance, icon: 'attendance', group: n.gHr },
-      { href: '/hr/payroll', label: d.payroll.title, icon: 'payroll', group: n.gHr },
-      { href: '/hr/custody', label: d.custody.hrTitle, icon: 'custody', group: n.gHr },
-      { href: '/hr/structure', label: d.hrm.structure, icon: 'structure', group: n.gHr },
-      { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0, group: n.gHr },
-      { href: '/hr/openings', label: n.openings, icon: 'openings', group: n.gHr },
+      { href: '/hr/employees', label: d.hrm.employees, icon: 'employees', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/structure', label: d.hrm.structure, icon: 'structure', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/requests', label: d.hrm.requests, icon: 'requests', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/attendance', label: d.hrm.attendance, icon: 'attendance', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/payroll', label: d.payroll.title, icon: 'payroll', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/custody', label: d.custody.hrTitle, icon: 'custody', group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr', label: n.applications, icon: 'applications', exact: true, badge: count ?? 0, group: n.gHr, groupIcon: 'employees' },
+      { href: '/hr/openings', label: n.openings, icon: 'openings', group: n.gHr, groupIcon: 'employees' },
     ];
   };
   const privacyItem = async (): Promise<NavItem> => {
     const { count } = await supabase.from('data_requests').select('id', { count: 'exact', head: true }).in('status', ['open', 'in_progress']);
-    return { href: '/admin/privacy', label: d.privacy.console, icon: 'privacy', badge: count ?? 0, group: n.gAdmin };
+    return { href: '/admin/privacy', label: d.privacy.console, icon: 'privacy', badge: count ?? 0, group: n.gAdmin, groupIcon: 'settings' };
   };
   // employee self-service — every staff role
   const { data: approvals } = await supabase.rpc('my_pending_approvals_count');
-  const me = { href: '/me', label: n.myServices, icon: 'me', exact: true, group: n.gMe } as const;
-  const approvalsItem: NavItem = { href: '/me/approvals', label: n.approvals, icon: 'approvals', badge: Number(approvals ?? 0), group: n.gMe };
+  const me = { href: '/me', label: n.myServices, icon: 'me', exact: true, group: n.gMe, groupIcon: 'me' } as const;
+  const approvalsItem: NavItem = { href: '/me/approvals', label: n.approvals, icon: 'approvals', badge: Number(approvals ?? 0), group: n.gMe, groupIcon: 'me' };
   const meRest: NavItem[] = [
-    { href: '/me/calendar', label: d.hrops.calendar, icon: 'calendar', group: n.gMe },
-    { href: '/me/custody', label: d.custody.title, icon: 'custody', group: n.gMe },
-    { href: '/me/payslips', label: d.payroll.payslips, icon: 'payslip', group: n.gMe },
+    { href: '/me/calendar', label: d.hrops.calendar, icon: 'calendar', group: n.gMe, groupIcon: 'me' },
+    { href: '/me/custody', label: d.custody.title, icon: 'custody', group: n.gMe, groupIcon: 'me' },
+    { href: '/me/payslips', label: d.payroll.payslips, icon: 'payslip', group: n.gMe, groupIcon: 'me' },
   ];
   const meItems: NavItem[] = [me, approvalsItem, ...meRest];
   const bell: NavItem = { href: '/notifications', label: n.notifications, icon: 'bell', badge: unread ?? 0 };
@@ -70,19 +70,19 @@ export async function AppShell({ profile, children, gates = true }: { profile: P
     items = [...(await hrItems()), ...meItems, bell, site];
   } else if (profile.role === 'employee') {
     // phone order: the four most used first, the rest under "More"
-    items = [me, { href: '/me/attendance', label: d.me.attendance, icon: 'attendance', group: n.gMe }, approvalsItem, { ...bell, group: n.gMe }, ...meRest];
+    items = [me, { href: '/me/attendance', label: d.me.attendance, icon: 'attendance', group: n.gMe, groupIcon: 'me' }, approvalsItem, { ...bell, group: n.gMe, groupIcon: 'me' }, ...meRest];
     bottom = items;
   } else if (profile.role === 'admin' || profile.role === 'supervisor') {
     const { count: fresh } = await supabase.from('maintenance_requests').select('id', { count: 'exact', head: true }).in('status', ['new', 'pending_approval', 'reopened']);
     items = [
       { href: '/admin', label: n.dashboard, icon: 'dashboard', exact: true },
-      { href: '/admin/inbox', label: n.inbox, icon: 'inbox', badge: fresh ?? 0, group: n.gAfterSales },
-      { href: '/admin/requests', label: n.requests, icon: 'requests', group: n.gAfterSales },
-      { href: '/admin/projects', label: n.projects, icon: 'projects', group: n.gAfterSales },
-      { href: '/admin/owners', label: n.owners, icon: 'owners', group: n.gAfterSales },
-      { href: '/admin/team', label: n.team, icon: 'team', group: n.gAfterSales },
-      { href: '/admin/reports', label: n.reports, icon: 'reports', group: n.gAfterSales },
-      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/system', label: d.system.title, icon: 'analytics' as const, group: n.gAdmin }, { href: '/admin/settings', label: n.settings, icon: 'settings' as const, group: n.gAdmin }] : []),
+      { href: '/admin/inbox', label: n.inbox, icon: 'inbox', badge: fresh ?? 0, group: n.gAfterSales, groupIcon: 'tasks' },
+      { href: '/admin/requests', label: n.requests, icon: 'requests', group: n.gAfterSales, groupIcon: 'tasks' },
+      { href: '/admin/projects', label: n.projects, icon: 'projects', group: n.gAfterSales, groupIcon: 'tasks' },
+      { href: '/admin/owners', label: n.owners, icon: 'owners', group: n.gAfterSales, groupIcon: 'tasks' },
+      { href: '/admin/team', label: n.team, icon: 'team', group: n.gAfterSales, groupIcon: 'tasks' },
+      { href: '/admin/reports', label: n.reports, icon: 'reports', group: n.gAfterSales, groupIcon: 'tasks' },
+      ...(profile.role === 'admin' ? [...(await salesItems()), ...(await hrItems()), await privacyItem(), { href: '/admin/system', label: d.system.title, icon: 'analytics' as const, group: n.gAdmin, groupIcon: 'settings' as const }, { href: '/admin/settings', label: n.settings, icon: 'settings' as const, group: n.gAdmin, groupIcon: 'settings' as const }] : []),
       ...meItems,
       bell,
     ];
