@@ -145,7 +145,7 @@ export function Sidebar({ items, brand, user }: { items: NavItem[]; brand: React
       </aside>
 
       {/* mobile top bar */}
-      <div className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/10 bg-brand px-4 lg:hidden">
+      <div className="no-print sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/10 bg-brand px-4 lg:hidden">
         <div className="min-w-0 flex-1">{brand}</div>
         <button aria-label="menu" onClick={() => setOpen(true)} className="grid h-10 w-10 place-items-center rounded-lg text-white hover:bg-white/10">
           <Menu className="h-5 w-5" />

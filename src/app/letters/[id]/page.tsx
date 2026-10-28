@@ -17,7 +17,7 @@ export default async function Letter({ params }: { params: Promise<{ id: string 
   if (!data) notFound();
 
   return (
-    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-stone-100 px-4 py-8 print:bg-white print:p-0">
+    <div dir="rtl" className="a4-print-root min-h-screen overflow-x-hidden bg-stone-100 px-4 py-8 print:bg-white print:p-0">
       <div className="mx-auto mb-4 flex max-w-[210mm] justify-end px-4 print:hidden"><PrintButton /></div>
       <LetterScale>
         <HrLetter type={r.type} refNo={r.ref_no} issuedAt={r.decided_at ?? r.created_at} addressedTo={r.addressed_to}

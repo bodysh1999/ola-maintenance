@@ -27,7 +27,9 @@ export async function WarrantyCertificate({ w, company: c, code, verifyUrl, toda
   );
 
   return (
-    <article className="relative mx-auto flex min-h-[297mm] w-[210mm] flex-col overflow-hidden bg-white px-[16mm] py-[14mm] text-[14.5px] leading-[2] text-ink shadow-lift print:shadow-none">
+    <article className="a4-doc relative mx-auto flex min-h-[297mm] w-[210mm] flex-col overflow-hidden bg-white px-[16mm] py-[11mm] text-[14px] leading-[1.85] text-ink shadow-lift print:shadow-none">
+      {/* exact A4 sheet with no browser margins (only on pages that show a document) */}
+      <style>{'@page{size:A4 portrait;margin:0}'}</style>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img src={c.logo_url || DEFAULT_LOGO} alt="" aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 w-[110mm] -translate-x-1/2 -translate-y-1/2 opacity-[0.035] [filter:brightness(0)]" />
       <div className="pointer-events-none absolute inset-[7mm] rounded-[6mm] border-2 border-[#B08D57]/40" />
@@ -42,19 +44,19 @@ export async function WarrantyCertificate({ w, company: c, code, verifyUrl, toda
         <img src={c.logo_url || DEFAULT_LOGO} alt="" className="h-16 w-auto rounded-xl bg-[#3C2E52] p-2.5" />
       </header>
 
-      <div className="relative mt-5 grid grid-cols-2 gap-1 text-[12.5px] text-stone-600">
+      <div className="relative mt-4 grid grid-cols-2 gap-1 text-[12.5px] text-stone-600">
         <span>رقم الشهادة: <b className="font-semibold text-ink" dir="ltr">{certNo}</b></span>
         <span className="text-left">تاريخ الإصدار: <b className="font-semibold text-ink">{date(today)}</b></span>
         <span />
         <span className="text-left">الموافق: {hijri(today)}</span>
       </div>
 
-      <h1 className="relative mt-8 text-center font-display text-[26px] font-bold text-[#3C2E52]">
+      <h1 className="relative mt-6 text-center font-display text-[26px] font-bold text-[#3C2E52]">
         شهادة ضمان
         <span className="mx-auto mt-2 block h-[3px] w-14 rounded-full bg-[#B08D57]" />
       </h1>
 
-      <div className="relative mt-6">
+      <div className="relative mt-4">
         <p className="text-justify">
           تشهد <b>{c.name_ar}</b> بأن الوحدة رقم <b>{w.unit_number}</b>
           {w.building ? <> في <b>{w.building}</b></> : null}
@@ -82,9 +84,9 @@ export async function WarrantyCertificate({ w, company: c, code, verifyUrl, toda
         </p>
       </div>
 
-      <div className="relative mt-auto grid grid-cols-[1.25fr_1fr] items-end gap-8 pt-10">
+      <div className="relative mt-auto grid grid-cols-[1.25fr_1fr] items-end gap-8 pt-6">
         <div className="flex items-center gap-4 rounded-2xl border border-[#E4DFEA] bg-[#F7F5F9] p-4">
-          <div className="h-[30mm] w-[30mm] shrink-0 rounded-lg bg-white p-1.5 ring-1 ring-[#E4DFEA] [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
+          <div className="h-[26mm] w-[26mm] shrink-0 rounded-lg bg-white p-1.5 ring-1 ring-[#E4DFEA] [&>svg]:h-full [&>svg]:w-full" dangerouslySetInnerHTML={{ __html: qr }} />
           <div className="min-w-0 text-[11.5px] leading-[1.8] text-stone-600">
             <div className="flex items-center gap-1.5 text-[13px] font-bold text-[#3C2E52]"><ShieldCheck className="h-4 w-4 text-[#B08D57]" />هذه وثيقة إلكترونية</div>
             <p>صادرة من نظام {c.name_ar} ولا تحتاج إلى ختم.</p>
@@ -104,7 +106,7 @@ export async function WarrantyCertificate({ w, company: c, code, verifyUrl, toda
         </div>
       </div>
 
-      <footer className="relative mt-6 border-t border-stone-200 pt-3 text-center text-[10.5px] text-stone-500" dir="ltr">
+      <footer className="relative mt-4 border-t border-stone-200 pt-3 text-center text-[10.5px] text-stone-500" dir="ltr">
         {[c.phone, c.email, c.website?.replace(/^https?:\/\//, '')].filter(Boolean).join('   ·   ')}
       </footer>
     </article>

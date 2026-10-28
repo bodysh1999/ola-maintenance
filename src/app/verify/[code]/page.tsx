@@ -36,7 +36,7 @@ export default async function VerifyDocument({ params }: { params: Promise<{ cod
   const issued = doc ? new Date(doc.issued_at).toLocaleDateString('ar-SA-u-nu-latn-ca-gregory', { day: 'numeric', month: 'long', year: 'numeric' }) : '';
 
   return (
-    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#F7F5F9] pb-12 print:bg-white print:pb-0">
+    <div dir="rtl" className="a4-print-root min-h-screen overflow-x-hidden bg-[#F7F5F9] pb-12 print:bg-white print:pb-0">
       <header className="bg-[#2A1F3A] text-white print:hidden">
         <div className="mx-auto flex max-w-[210mm] items-center justify-between gap-4 px-5 py-4">
           <Link href="/" className="flex items-center gap-3">
@@ -89,7 +89,7 @@ type Settings = Awaited<ReturnType<typeof getSettings>>;
 
 function VerifyShell({ s, children }: { s: Settings; children: React.ReactNode }) {
   return (
-    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-[#F7F5F9] pb-12 print:bg-white print:pb-0">
+    <div dir="rtl" className="a4-print-root min-h-screen overflow-x-hidden bg-[#F7F5F9] pb-12 print:bg-white print:pb-0">
       <header className="bg-[#2A1F3A] text-white print:hidden">
         <div className="mx-auto flex max-w-[210mm] items-center justify-between gap-4 px-5 py-4">
           <Link href="/" className="flex items-center gap-3">

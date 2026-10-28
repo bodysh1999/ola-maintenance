@@ -20,7 +20,7 @@ export default async function WarrantyCertificatePage({ params }: { params: Prom
   const back = profile?.role === 'owner' ? '/owner/warranties' : `/admin/units/${u.id}`;
 
   return (
-    <div dir="rtl" className="min-h-screen overflow-x-hidden bg-stone-100 px-4 py-8 print:bg-white print:p-0">
+    <div dir="rtl" className="a4-print-root min-h-screen overflow-x-hidden bg-stone-100 px-4 py-8 print:bg-white print:p-0">
       <div className="mx-auto mb-4 flex max-w-[210mm] items-center justify-between px-4 print:hidden">
         <Link href={back} className="inline-flex items-center gap-1 text-sm text-stone-500 hover:text-ink"><ChevronRight className="h-4 w-4" />{d.portal.warrantyCenter}</Link>
         <PrintButton />

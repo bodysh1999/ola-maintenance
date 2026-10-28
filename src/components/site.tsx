@@ -42,7 +42,7 @@ export function SiteHeader({ t, logo, name, portalHref, loggedIn, contact, solid
   const solid = solidAlways || scrolled || open;
 
   return (
-    <header className={cx('fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300',
+    <header className={cx('no-print fixed inset-x-0 top-0 z-50 transition-[background-color,box-shadow] duration-300',
       solid ? 'bg-[#2A1F3A]/[.97] shadow-[0_8px_30px_-12px_rgba(0,0,0,.45)] backdrop-blur-md' : 'bg-gradient-to-b from-[#1E1628]/70 to-transparent')}>
       {/* contact bar — folds away once the page scrolls */}
       <div className={cx('hidden overflow-hidden border-b border-white/10 text-[13px] text-white/65 transition-[max-height,opacity] duration-300 md:block',

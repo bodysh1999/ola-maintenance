@@ -27,10 +27,25 @@ html[dir='rtl'] input[type='date'], html[dir='rtl'] input[type='datetime-local']
 }
 
 @media print {
-  .no-print, aside, header { display: none !important; }
+  .no-print, aside { display: none !important; }
   body { background: white; }
   main { padding: 0 !important; }
   .print-break { break-inside: avoid; }
+}
+
+/* ---------- A4 documents (salary certificate, experience letter, warranty certificate) ---------- */
+@page a4doc { size: A4 portrait; margin: 0; }
+.a4-doc { page: a4doc; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+@media print {
+  html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; }
+  .a4-doc {
+    width: 210mm !important; height: 296.8mm !important; min-height: 0 !important;
+    margin: 0 !important; box-shadow: none !important; border-radius: 0 !important;
+    break-inside: avoid; break-after: avoid; page-break-after: avoid;
+  }
+  .a4-doc table { break-inside: avoid; }
+  .a4-doc td, .a4-doc th { border-color: #c9c3bb !important; }
+  .a4-print-root { padding: 0 !important; margin: 0 !important; background: #fff !important; min-height: 0 !important; }
 }
 
 /* grid children may shrink below their content (long text, wide tables scroll inside their card) */
